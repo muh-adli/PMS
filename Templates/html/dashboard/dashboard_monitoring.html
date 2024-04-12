@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+{% comment %} Leaflet CDN {% endcomment %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+<style>
+    #map {
+        height: 65vh;
+    }
+    .card-header{
+        background-color: #C1F2B0;
+    }
+    .card-body {
+        background-color: #FFFAFA;
+    }
+    .h5{
+        font-size: 36px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-8">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            Map
+                        </h5>
+                    </div>
+                    <div class="card-body align-items-center text-center">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 my-2">
+                <div class="card" >
+                    <div class="card-header">
+                        <h5>
+                            New and Good Bridge Precentage
+                        </h5>
+                    </div>
+                    <div class="card-body align-items-center text-center">
+                        <h1>{{ JembatanPerc|floatformat:2 }} %</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 my-2">
+                <div class="card" >
+                    <div class="card-header">
+                        <h5>
+                            Patok Data Percentage
+                        </h5>
+                    </div>
+                    <div class="card-body align-items-center text-center">
+                        <h1>{{ PatokPrec|floatformat:2 }} Ha</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" style="height: 90vh;">
+            <div class="card-header align-items-center text-center">
+                <h5>
+                    Recent Update
+                </h5>
+            </div>
+            <div class="card-body align-items-center text-center" >
+                {% if TableData %}
+                <div class="table-responsive-sm">
+                    <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th class="table-success">Afdeling</th>
+                                <th class="table-success">Block</th>
+                                <th class="table-success">Dumps</th>
+                                <th class="table-success">Aplikasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in TableData %}
+                            <tr class="text-center">
+                                <td>{{ row.afd_name }}</td>
+                                <td>{{ row.block_name }}</td>
+                                <td>{{ row.dumps|date:"j F Y" }}</td>
+                                <td>{{ row.aplikasi|date:"j F Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div>
+                        <a href="{% url 'JangkosTable' %}" type="button" class="btn btn-sm btn-outline-success">
+                            View Data
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                    <p>No data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        {% if plot_fig %}
+            {{ plot_fig | safe }}
+        {% else %}
+            ga masuk cok
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% comment %} <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> {% endcomment %}
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script>
+    // Ajax request for Afdeling
+    $.ajax({
+        url: "/map/api/v1/afdeling/",
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+            // Assuming the response contains GeoJSON data for Afdeling polygons
+            L.geoJSON(response, {
+                style: function(feature) {
+                    return {color: 'blue'}; // Customize the polygon style here
+                }
+            }).addTo(map);
+        },
+        error: function(response) {
+            console.error("Error fetching Afdeling data");
+        }
+    });
+    // Ajax request for HGU
+        $.ajax({
+            url: "/map/api/v1/hgu/",
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                // Assuming the response contains GeoJSON data for HGU polygons
+                L.geoJSON(response, {
+                    style: function(feature) {
+                        return {color: 'red'}; // Customize the polygon style here
+                    }
+                }).addTo(map);
+            },
+            error: function(response) {
+                console.error("Error fetching HGU data");
+            }
+        });
+    jQuery(document).ready(function($) {
+        var map = L.map('map', {
+            center : [1.2098191417100188, 117.90810018140084],
+            zoom : 11,
+        });
+        var OSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.linkedin.com/in/muh-adli/">Contributor</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+        OSM.addTo(map);
+    });
+</script>
+{% endblock %}

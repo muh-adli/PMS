@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+{% comment %} Leaflet CDN {% endcomment %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+<style>
+    #map {
+        height: 60vh;
+    }
+    .card-header{
+        background-color: #C1F2B0;
+    }
+    .card-body {
+        background-color: #FFFAFA;
+    }
+    .h5{
+        font-size: 36px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="row m-0 p-0">
+    <div class="col-8 d-flex flex-column align-items-stretch">
+        <div class="row m-0">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            Jangkos Distibution
+                        </h5>
+                    </div>
+                    <div class="card-body align-items-center text-center">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mx-0 mt-3">
+            <div class="col-6">
+                <div class="card" >
+                    <div class="card-header">
+                        <h5>
+                            Progress
+                        </h5>
+                    </div>
+                    <div class="card-body align-items-center text-center">
+                        <h1>{{ progress|floatformat:2 }} %</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card" >
+                    <div class="card-header">
+                        <h5>
+                            Total
+                        </h5>
+                    </div>
+                    <div class="card-body align-items-center text-center">
+                        <h1>{{ ha|floatformat:2 }} Ha</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 m-0 p-0 d-flex align-items-stretch">
+        <div class="card">
+            <div class="card-header align-items-center text-center">
+                <h5>
+                    Recent Update
+                </h5>
+            </div>
+            <div class="card-body align-items-center   text-center" >
+                {% if TableData %}
+                <div class="table-responsive-sm">
+                    <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th class="table-success">Afdeling</th>
+                                <th class="table-success">Block</th>
+                                <th class="table-success">Dumps</th>
+                                <th class="table-success">Aplikasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in TableData %}
+                            <tr class="text-center">
+                                <td>{{ row.afd_name }}</td>
+                                <td>{{ row.block_name }}</td>
+                                <td>{{ row.dumps|date:"j F Y" }}</td>
+                                <td>{{ row.aplikasi|date:"j F Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div>
+                        <a href="{% url 'JangkosTable' %}" type="button" class="btn btn-sm btn-outline-success">
+                            View Data
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                    <p>No data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        var map = L.map('map', {
+            center : [1.2098191417100188, 117.90810018140084],
+            zoom : 11,
+        });
+        var OSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy <a href="https://www.linkedin.com/in/muh-adli/">Contributor</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        var overlayMaps = {};
+
+        async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('There was a problem fetching the data:', error);
+            return null;
+        }
+        }
+
+        const HGUData = '/map/api/v1/hgu/';
+        const AfdelingData = '/map/api/v1/afdeling/';
+
+        fetchData(HGUData)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();})
+        .then(data => {
+            HGUData = L.geoJSON(data, {
+                style: function(feature) {
+                    return {
+                        color: '#800808',
+                        fillRule: 'evenodd',
+                        weight: 3,
+                        fillOpacity: 0,
+                        interactive: false
+                    };
+                }
+            });
+            overlayMaps["HGU"] = HGUData;})
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+        fetchData(AfdelingData)
+        .then(
+            response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();})
+        .then(data => {
+            AfdelingData = L.geoJSON(data, {
+                style: function(feature) {
+                    return {
+                        color: '#800808', // outline color
+                        weight: 0.2,
+                        opacity: 1,
+                        fillColor: '#00FF00',
+                        fillOpacity: 1
+                    };
+                },
+                onEachFeature: function (feature, layer) {
+                    // Add popup to each feature
+                    layer.bindPopup('Afdeling ' + feature.properties.afd_name);
+                }
+            });
+            // Add AfdelingData to overlayMaps
+            overlayMaps["Afdeling"] = AfdelingData;
+            // Add layer control with baseMaps and overlayMaps
+            L.control.layers({},overlayMaps).addTo(map);})
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    $( window ).on( "load", function() {
+        console.log( "window loaded" );
+    });
+    map.on("overlayadd", function (event) {
+        HGUData.bringToFront();
+    });
+</script>
+{% endblock %}

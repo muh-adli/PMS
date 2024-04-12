@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% comment %} Leaflet CDN {% endcomment %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<style>
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+    .body{
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content m-0 p-0">
+    <div id="map"></div>
+</div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <script>
+        var map = L.map('map', {
+            center : [0.7497,116.56],
+            zoom : 13
+        });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        var geoJsonLayerGroup = L.layerGroup();
+    </script>
+
+    {% comment %} JQuery APIs - required for JQuery processing{% endcomment %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    {% comment %} Collecting API GeoJSON data {% endcomment %}
+    <script>
+        // Replace 'your_api_endpoint' with the actual URL of the API
+        const apiUrl = '/map/api/v1/blok/';
+
+        // Using the fetch function to make a GET request
+        fetch(apiUrl)
+        .then(response => {
+            // Check if the request was successful (status code in the range 200-299)
+            if (!response.ok) {
+            throw new Error('Network response was not ok');
+            }
+            // Parse the JSON in the response
+            return response.json();
+        })
+        .then(data => {
+            // Process the data
+            BlokData = L.geoJSON(data, {
+                onEachFeature: function (feature, layer) {
+                    var popupContent = "<p>Block: " + feature.properties.status + "</p>";
+                    layer.bindPopup(popupContent);
+                },
+                style: function(feature) {
+                    // Use a conditional statement to assign colors based on the 'komplek' property
+                    var status = feature.properties.status;
+                    var fillColor;
+
+                    if (status === 'No Data') {
+                        fillColor = '#b33dc6';
+                    } else if (status === 'Butuh Penanganan') {
+                        fillColor = '#edbf33';
+                    } else if (status === 'Mulai penyakit tumbuhan') {
+                        fillColor = '#87bc45';
+                    } else if (status === 'Baru dumping') {
+                        fillColor = '#ede15b';
+                    } else if (status === 'Selesai') {
+                        fillColor = '#27aeef';
+                    } return {
+                        fillColor: fillColor,
+                        color: 'white',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    };
+                }
+            });
+            geoJsonLayerGroup.addLayer(BlokData);
+            geoJsonLayerGroup.addTo(map);
+        })
+        .catch(error => {
+            // Handle errors
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    </script>
+    {% comment %} <script>
+        var json = $.ajax({
+            url: "/map/api/v1/blok/",
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                // alert("Berhasil");
+            },
+            error: function(response) {
+                alert("Data Error");
+            }
+        });
+
+        var geoJsonLayerGroup = L.layerGroup();
+        var BlokData;
+
+        $.when(json).done(function() {
+            KomplekData = json.responseJSON;
+            BlokData = L.geoJSON(KomplekData, {
+                onEachFeature: function (feature, layer) {
+                    var popupContent = "<p>Block: " + feature.properties.block_name + "</p>";
+                    layer.bindPopup(popupContent);
+                },
+                style: function(feature) {
+                    // Use a conditional statement to assign colors based on the 'komplek' property
+                    var status = feature.properties.status;
+                    var fillColor;
+
+                    if (status === 'No Data') {
+                        fillColor = '#b33dc6';
+                    } else if (status === 'Butuh Penanganan') {
+                        fillColor = '#edbf33';
+                    } else if (status === 'Mulai penyakit tumbuhan') {
+                        fillColor = '#87bc45';
+                    } else if (status === 'Baru dumping') {
+                        fillColor = '#ede15b';
+                    } else if (status === 'Selesai') {
+                        fillColor = '#27aeef';
+                    } else {
+                        fillColor = 'black';
+                    }
+
+                    return {
+                        fillColor: fillColor,
+                        color: 'white',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    };
+                }
+            });
+            geoJsonLayerGroup.addLayer(BlokData);
+            geoJsonLayerGroup.addTo(map);
+            // alert("masok");
+        });
+    </script> {% endcomment %}
+
+    {% comment %} Popup and OnClick Leaflet feature {% endcomment %}
+
+{% endblock %}

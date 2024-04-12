@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+<style>
+html{
+    background-image: url("{% static 'img/background.jpg' %}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #cccccc;
+}
+body{
+    height: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+.media{
+    background-color: rgba(255, 255, 255, 0.6);
+}
+p{
+    font-size: 14px;
+}
+mark{
+    background-color: #AEDEFC;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="jumbotron align-self-center px-2 py-1">
+    <h1 class="display-2" style="color: white;">Hello, WebGIS!</h1>
+    <p class="lead" style="color: white;">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+    <hr class="my-4" style="border-color: white;">
+    <p style="color: white;">It uses utility classes for typography and spacing to space content out within the larger container.</p>
+</div>
+
+<div class="row align-items-center fixed-bottom mb-5">
+    <div class="media col-3 p-4 mx-auto">
+        <img class="align-self-start mr-2" src="{% static 'logo/scalability.png' %}" width="64" height="64"  alt="Generic placeholder image">
+        <div class="media-body">
+            <h5 class="mt-0">Versatile!</h5>
+            <p>
+                While Python comes with a lot of libraries, it also has a <mark>rich ecosystem of third-party packages and extensions that can be easily integrated</mark> into Django projects.</p>
+        </div>
+    </div>
+    <div class="media col-3 p-4 mx-auto">
+        <img class="align-self-start mr-2" src="{% static 'logo/features.png' %}" width="64" height="64" alt="Compability" >
+        <div class="media-body">
+            <h5 class="mt-1">Analytics and Monitoring</h5>
+            <p>
+                Web-app can incorporate analytics tools to track user behavior, monitor performance, and gather insights.
+                And can be <mark>valuable for decision making, performance evaluation, and identifying</mark> areas for improvement.
+            </p>
+        </div>
+    </div>
+    <div class="media col-3 p-4 mx-auto">
+        <img class="align-self-start mr-2" src="{% static 'logo/compability.png' %}" width="64" height="64"  alt="Generic placeholder image">
+        <div class="media-body">
+            <h5 class="mt-1">Anywhere, Anytime!</h5>
+            <p>Web applications can be accessed from any device with a web browser, making them platform-independent.
+                Users <mark>can interact with the application on various devices</mark>, such as desktops, laptops, tablets, and smartphones.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

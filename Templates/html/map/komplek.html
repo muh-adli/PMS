@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% comment %} Leaflet CDN {% endcomment %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<style>
+    #map {
+        width: 100%;
+        height: 80vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="map"></div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <script>
+        var map = L.map('map', {
+            center : [-6.25149,106.914],
+            zoom : 16
+        });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+    </script>
+
+    {% comment %} JQuery APIs - required for JQuery processing{% endcomment %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    {% comment %} Collecting API GeoJSON data {% endcomment %}
+    <script>
+        var json = $.ajax({
+            url: "/map/api/v1/komplek/",
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                // alert("Berhasil");
+            },
+            error: function(response) {
+                alert("Data Error");
+            }
+        });
+
+        var KomplekData;
+        var geoJsonLayerGroup = L.layerGroup();
+        var KomplekLayer;
+
+        $.when(json).done(function() {
+            KomplekData = json.responseJSON;
+            KomplekLayer = L.geoJSON(KomplekData, {
+                onEachFeature: function (feature, layer) {
+                    var popupContent = "<p>Komplek: " + feature.properties.komplek + "</p>";
+                    popupContent += "<p>Region: " + feature.properties.addr_city + "</p>";
+                    layer.bindPopup(popupContent);
+                },
+                style: function(feature) {
+                    // Use a conditional statement to assign colors based on the 'komplek' property
+                    var komplek = feature.properties.komplek;
+                    var fillColor;
+        
+                    if (komplek === 'KODAM') {
+                        fillColor = 'green';
+                    } else if (komplek === 'AURI') {
+                        fillColor = 'white';
+                    } else if (komplek === 'Curug Indah') {
+                        fillColor = 'blue';
+                    } else if (komplek === 'luar') {
+                        fillColor = 'yellow';
+                    }    else {
+                        fillColor = 'black';
+                    }
+        
+                    return {
+                        fillColor: fillColor,
+                        color: 'white',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    };
+                }
+            });
+            geoJsonLayerGroup.addLayer(KomplekLayer);
+            geoJsonLayerGroup.addTo(map);
+            // alert("masok");
+        });
+    </script>
+
+    {% comment %} Popup and OnClick Leaflet feature {% endcomment %}
+
+{% endblock %}

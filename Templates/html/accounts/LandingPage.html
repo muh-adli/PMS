@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        html, body{
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-image: url("{% static 'img/background.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: #cccccc;
+        }
+        .btn{
+        }
+        .header{
+            height: 20%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .content {
+            height: 80%;
+            background-color: rgba(0, 0, 0, 0.6);
+            flex: 1;
+        }
+        p {color: white;}
+        .bottom-left{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding-left:50px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header d-flex bd-highlight">
+        <div class="p-3 bd-highlight" >
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <!-- Logo -->
+                <a class="d-flex align-items-center mb-lg-0 link-body-emphasis text-decoration-none" href="">
+                    <img src="{% static 'logo/TAP-Logomini.png' %}" class="bi me-2 shadow-sm" width="26" height="35" alt="">
+                </a>
+                <div class="lead" style="color: white;">
+                    Palm Plantation Management System
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-center align-items-center align-self-center">
+                <div class="col-4 card">
+                    <form method="POST" action="{% url 'LoginUser' %}" name="login" >
+                    {% csrf_token %}
+                        <div class="card-header">
+                            Welcome
+                        </div>
+                        <div class="card-body">
+                                <div class="form-floating m-1">
+                                    <textarea class="form-control" placeholder="Username" name="Username" style="height: 10px;"></textarea>
+                                    <label>
+                                        Username
+                                    </label>
+                                </div>
+                                <div class="form-floating m-1">
+                                    <textarea class="form-control" placeholder="Password" name="Password" style="height: 10px"></textarea>
+                                    <label>
+                                        Password
+                                    </label>
+                                </div>
+                        </div>
+                        <div class="card-footer align-items-center">
+                            <div class="d-flex align-items-center justify-content-center align-items-center">
+                                <button type="submit" value="submit" class="btn btn-success mb-1 mx-1">Log In</button>
+                    </form>
+                                <button type="button" class="btn btn-outline-secondary mb-1 mx-1" data-toggle="modal" data-target="#RegisterModal">
+                                    Register
+                                </button>
+                            </div>
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert alert-danger text-center" role="alert">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                </div>
+            </div>
+            {% comment %} <div class="row bottom-left">
+                <figure>
+                    <blockquote class="blockquote">
+                        <p>فَاذْكُرُوْنِيْٓ اَذْكُرْكُمْ وَاشْكُرُوْا لِيْ وَلَا تَكْفُرُوْنِࣖ</p>
+                    </blockquote>
+                    <figcaption class="blockquote-footer">
+                        Al-baqarah:<cite title="Source Title">152</cite>
+                    </figcaption>
+                </figure>
+            </div> {% endcomment %}
+
+            <!-- Modal -->
+        </div>
+    </div>
+
+    {% comment %} Modal {% endcomment %}
+    <div class="modal fade" id="RegisterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                <form method="POST" action="{%url 'Register'%}" name="register">
+                {% csrf_token %}
+                    <div class="container-fluid">
+                        <div class="row my-1">
+                            <div class="col">
+                                <div class="form-floating m-1">
+                                    <textarea class="form-control" placeholder="Username" name="Username" style="height: 10px;"></textarea>
+                                    <label>
+                                        Username
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-floating mx-1">
+                                        <textarea class="form-control" placeholder="Password" name="Password" style="height: 10px;"></textarea>
+                                        <label>
+                                            Password
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-auto">
+                                    <div class="form-floating mx-1">
+                                        <textarea class="form-control" placeholder="Passwordagain" name="Passwordagain" style="height: 10px;"></textarea>
+                                        <label>
+                                            Password Again
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating m-1">
+                                    <textarea class="form-control" placeholder="email" name="email" style="height: 10px;"></textarea>
+                                    <label>
+                                        E-mail
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" value="register" class="btn btn-outline-success" name="register">Submit</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

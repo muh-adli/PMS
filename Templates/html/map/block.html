@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% comment %} Leaflet CDN {% endcomment %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<style>
+    #map {
+        height: 800px;
+    }
+    .body{
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="map"></div>
+{% endblock %}
+
+{% block script %}
+    {% comment %} Leaflet package {% endcomment %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    {% comment %} Leaflet Map {% endcomment %}
+    <script>
+        var map = L.map('map', {
+            center : [1.2098191417100188, 117.90810018140084],
+            zoom : 11,
+        });
+        var OSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy <a href="https://www.linkedin.com/in/muh-adli/">Contributor</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+        OSM.addTo(map);
+
+        var baseMaps = {
+            "OSM": OSM
+        };
+
+        var HGUData;
+        var AfdelingData;
+
+        var overlayMaps = {};
+
+        function addBlockData() {
+            fetch('/map/api/v1/block/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                BlockData = L.geoJSON(data, {
+                    style: function(feature) {
+                        return {
+                            color: '#ff4122',
+                            fillRule: 'evenodd',
+                            bubblingMouseEvents: false,
+                            weight: 3,
+                            fillOpacity: 0
+                        };
+                    }
+                });
+                // Add BlockData to overlayMaps
+                overlayMaps["Block"] = BlockData;
+                L.control.layers(baseMaps, overlayMaps).addTo(map);
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        };
+        addBlockData();
+        function addAfdelingData() {
+            fetch('/map/api/v1/afdeling/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                AfdelingData = L.geoJSON(data, {
+                    style: function(features) {
+                        return {
+                            color: '#ff4122', // outline color
+                            weight: 2,
+                            opacity: 1,
+                            fillColor: '#0096C7',
+                            fillOpacity: 0
+                        };
+                    }
+                });
+                // Add AfdelingData to overlayMaps
+                overlayMaps["Afdeling"] = AfdelingData;
+                // Add layer control with baseMaps and overlayMaps
+                L.control.layers(baseMaps, overlayMaps).addTo(map);
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        };
+        addAfdelingData();
+    </script>
+{% endblock %}

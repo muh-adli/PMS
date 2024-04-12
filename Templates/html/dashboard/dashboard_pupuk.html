@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+{% comment %} Leaflet CDN {% endcomment %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<style>
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+    .card-header{
+        background-color: #C1F2B0;
+    }
+    .card-body {
+        background-color: #FFFAFA;
+    }
+    .h5{
+        font-size: 20px;
+    }
+</style>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="col justify-content-center align-content-center" style="height: 100vh;">
+    <div class="row mt-0">
+        <div class="col-3">
+            <div class="card" style="height: 500px;">
+                <div class="card-header">
+                    <h5>
+                        Top status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-striped table-responsive-md table-responsive-lg table-responsive-sm align-middle">
+                        <thead>
+                          <tr class="text-center">
+                            {% for column in TopData.columns %}
+                            <td>
+                                <b>{{ column }}</b></td>
+                            {% endfor %}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in TopData.data %}
+                          <tr>
+                            {% if TopData.index %}
+                            {% for index in TopData.index %}
+                            {% if forloop.counter0 == forloop.parentloop.counter0 %}
+                            {% if index|length > 0 %}
+                            {% for i in index %}
+                            <td scope="row">{{i}}</td>
+                            {% endfor %}
+                            {% else %}
+                            {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                            {% for cell in row %}
+                            <td>{{ cell }}</td>
+                            {% endfor %}
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    <div class="d-flex justify-content-center align-items-center my-1">
+                        <a href="{%url 'JangkosTable'%}" >
+                            <button class="btn btn-outline-dark me-2 shadow-sm"> view all </button>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card" style="height: 500px;">
+                <div class="card-header">
+                    <h5>
+                        Jangkos Chart
+                    </h5>
+                </div>
+                <div class="card-body align-items-center justify-content-center">
+                    <canvas id="Piechart" style="width:100%;max-width:700px;display:block;margin:0 auto; height: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card" style="height: 500px;">
+                <div class="card-header">
+                    <h5>
+                        Map
+                    </h5>
+                </div>
+                <div class="card-body align-items-center justify-content-center">
+                    <div id="map">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3 border-black">
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        Hectare Total
+                    </h5>
+                </div>
+                <div class="card-body align-items-center text-center">
+                    <h1>{{ ha|floatformat:2 }} Ha</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        Block Total
+                    </h5>
+                </div>
+                <div class="card-body align-items-center text-center">
+                    <h1>{{ blok }} Blok</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        Jangkos Percentage
+                    </h5>
+                </div>
+                <div class="card-body align-items-center text-center">
+                    <h1> {{ perc|floatformat:2 }} % </h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        Data Extend
+                    </h5>
+                </div>
+                <div class="card-body align-items-center text-center">
+                    <h1>Data Extend</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+    {% comment %} CDN Chart.js {% endcomment %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    {% comment %} CDN Leaflet {% endcomment %}
+    {% comment %} <!-- Make sure you put this AFTER Leaflet's CSS --> {% endcomment %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <script>
+        var map = L.map('map', {
+            center : [0.7497,116.56],
+            zoom : 11
+        });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        var json = $.ajax({
+            url: "/map/api/v1/blok/",
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                // alert("Berhasil");
+            },
+            error: function(response) {
+                alert("Data Error");
+            }
+        });
+
+        var geoJsonLayerGroup = L.layerGroup();
+        var BlokData;
+
+        $.when(json).done(function() {
+            KomplekData = json.responseJSON;
+            BlokData = L.geoJSON(KomplekData, {
+                onEachFeature: function (feature, layer) {
+                    var popupContent = "<p>Block: " + feature.properties.block_name + "</p>";
+                    layer.bindPopup(popupContent);
+                },
+                style: function(feature) {
+                    // Use a conditional statement to assign colors based on the 'komplek' property
+                    var status = feature.properties.status;
+                    var fillColor;
+
+                    if (status === 'No Data') {
+                        fillColor = '#b33dc6';
+                    } else if (status === 'Butuh Penanganan') {
+                        fillColor = '#edbf33';
+                    } else if (status === 'Mulai penyakit tumbuhan') {
+                        fillColor = '#87bc45';
+                    } else if (status === 'Baru dumping') {
+                        fillColor = '#ede15b';
+                    } else if (status === 'Selesai') {
+                        fillColor = '#27aeef';
+                    } else {
+                        fillColor = 'black';
+                    }
+
+                    return {
+                        fillColor: fillColor,
+                        color: 'white',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    };
+                }
+            });
+            geoJsonLayerGroup.addLayer(BlokData);
+            geoJsonLayerGroup.addTo(map);
+            // alert("masok");
+        });
+    </script>
+
+    <script>
+    var xValues = {{ xdata|safe }};
+    var yValues = {{ ydata|safe }};
+    var barColors = {{ cdata|safe }};
+    new Chart("Piechart", {
+        type: "pie",
+        data: {
+            labels: xValues,
+            datasets: [{
+                backgroundColor: barColors,
+                data: yValues
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Status Graph"
+            }
+        }
+    });
+</script>
+{% endblock %}

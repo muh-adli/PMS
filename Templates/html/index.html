@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        html, body{
+            width: 100vw;
+            height: 100vh;
+            background-image: url("{% static 'img/background.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: #cccccc;
+        }
+        .btn{
+            background-color: #AEDEFC;
+        }
+        .header{
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .content{
+            background-color: rgba(0, 0, 0, 0.6);
+            height: 844px;
+        }
+        p {color: white;}
+        .bottom-left{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding-left:50px;
+            padding-bottom:20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header d-flex bd-highlight">
+        <div class="p-3 bd-highlight" >
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <!-- Logo -->
+                <a class="d-flex align-items-center mb-lg-0 link-body-emphasis text-decoration-none" href="{% url 'Index' %}">
+                    <img src="{% static 'logo/TAP-Logomini.png' %}" class="bi me-2 shadow-sm" width="26" height="35" alt="">
+                </a>
+                <div class="lead" style="color: white;">
+                    Palm Plantation Management System
+                </div>
+                <div class="d-flex justify-content-end align-items-end">
+                    <button href="{% url 'Index' %}" type="button" class="btn btn-outline-dark me-2 shadow-sm" >
+                        Log Out
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row bottom-left">
+                <figure>
+                    <blockquote class="blockquote">
+                        <p>فَاذْكُرُوْنِيْٓ اَذْكُرْكُمْ وَاشْكُرُوْا لِيْ وَلَا تَكْفُرُوْنِࣖ</p>
+                    </blockquote>
+                    <figcaption class="blockquote-footer">
+                        Al-baqarah:<cite title="Source Title">152</cite>
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+
+</body>
+</html>
