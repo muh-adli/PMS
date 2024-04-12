@@ -10,9 +10,9 @@ from .models import *
 from Map.models import *
 
 ## Library
-from plotly.subplots import make_subplots
-from plotly.offline import plot
-import plotly.graph_objects as go
+from plotly.subplots import make_subplots # didn't work
+from plotly.offline import plot # didn't work
+import plotly.graph_objects as go # didn't work
 
 # Create your views here.
 @login_required(login_url="/login")
