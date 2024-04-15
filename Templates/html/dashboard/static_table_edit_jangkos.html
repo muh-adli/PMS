@@ -116,11 +116,10 @@
                     <div class="card-body align-items-center" >
 
                         <form action="" method="POST">
-                            {% csrf_token %}
                             <div class="row m-0">
                                 <div class="col-sm-4 py-1">
-                                    <label for="firstName" class="form-label">Estate</label>
-                                    {{ form.est_name }}
+                                    <label for="firstName" class="form-label">Afdeling</label>
+                                    {{ form.afd_name }}
                                 </div>
                                 <div class="col-sm-4 py-1">
                                     <label for="lastName" class="form-label">Block</label>
@@ -132,6 +131,7 @@
                                 </div>
                             </div>
                             <div class="row m-0">
+                                {% csrf_token %}
                                 <div class="col-12 col-sm-6 py-1">
                                     <label for="address2" class="form-label">Dumps</label>
                                     {{ form.dumps }}

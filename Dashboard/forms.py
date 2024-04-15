@@ -6,14 +6,14 @@ class EditJangkosForm(forms.ModelForm):
         label="Afdeling",
         widget=forms.TextInput(
             attrs={'class': 'form-control',
-                   'readonly':'readonly'}
-        )
+                   'disabled': 'disabled'}
+        ),
     )
     block_name = forms.CharField(
         label="Block",
         widget=forms.TextInput(
             attrs={'class': 'form-control',
-                   'readonly':'readonly'}
+                   'disabled': 'disabled'}
         )
     )
     dumps = forms.DateField(
@@ -33,3 +33,4 @@ class EditJangkosForm(forms.ModelForm):
     class Meta:
         model = Jangkos
         fields = ('afd_name','block_name','dumps','aplikasi')
+
