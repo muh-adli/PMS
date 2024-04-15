@@ -49,8 +49,8 @@ def JangkosTable(request):
     TableData = Jangkos.objects.values(
         'afd_name','block_name','dumps','aplikasi','selisih','gid'
         )
-    print(type(TableData))
-    print(TableData)
+    # print(type(TableData))
+    # print(TableData)
 
     context = {
         'TableData' : TableData,
@@ -60,51 +60,42 @@ def JangkosTable(request):
 
 @login_required(login_url="/login")
 def JangkosEdit(request, gid):
+
+    # Title
     Title = 'Edit Jangkos'
-    # data = Blok.objects.get(gid=gid)
-    # Block_qs = get_object_or_404(Block, gid=gid)
-    # Jangkos_qs = get_object_or_404(Jangkos, id=gid)
-    Jangkos_qs = Jangkos.objects.values(
-        'afd_name','block_name','dumps','aplikasi','selisih','gid'
-        ).get(id=gid)
-    print(Jangkos_qs)
-    print(Jangkos_qs['afd_name'])
-    data = {'afd_name' : Jangkos_qs['afd_name'],
-            'block_name' : Jangkos_qs['block_name'],
-            'dumps' : Jangkos_qs['dumps'],
-            'aplikasi' : Jangkos_qs['aplikasi'],}
-    form = EditJangkosForm(initial=data)
-    # ori_shape_area = None  # Initialize ori_shape_area
-    # print(data.shape_area)
 
-    # if data.shape_area:
-    #     ori_shape_area = float(data.shape_area)
-    #     data.shape_area = round(data.shape_area / 10000, 2)
+    #  Query
+    Block_qs = Block.objects.values('afd_name','block_name','ha').get(gid=gid)
+    Jangkos_qs = get_object_or_404(Jangkos, id=gid)
 
-    # if request.method == 'POST' :
-    #     # request.POST = request.POST.copy()
-    #     # request.POST['est_name'] = data.est_name
-    #     # request.POST['block_name'] = data.block_name
-    #     # request.POST['shape_area'] = ori_shape_area
-    #     # print(type(request.POST['shape_area']))
-    #     print(request.POST)
-    #     form = EditJangkosForm(request.POST, instance=Jangkos_qs)
-    #     if form.is_valid():
-    #         form.save()
-    #         print("Blok updated successfully.")
-    #         messages.success(request, 'Blok updated successfully.')
-    #         return redirect('JangkosTable')
-    #     else:
-    #         print(form.errors)
-    #         print("Error saving data.")
-    #         messages.error(request, 'Error saving data.')
-    # elif request.method == 'GET':
-    #     form = EditJangkosForm(instance=data)
-    # else:
-    #     messages.error(request, 'Error loading data.')
+    # Wrangling and Cleaning
+    data = {
+        'afd_name' : Block_qs['afd_name'],
+        'block_name' : Block_qs['block_name'],
+        'area' : str(round(Block_qs['ha'], 2))
+    }
+    # print(data)
+    form = EditJangkosForm(instance=Jangkos_qs)
+    FormAdditional = EditJangkosFormAdd(initial=data)
+
+    # Editing data
+    if request.method == 'POST' :
+        # print(request.POST)
+        form = EditJangkosForm(request.POST, instance=Jangkos_qs)
+        if form.is_valid():
+            form.save()
+            print("Blok updated successfully.")
+            messages.success(request, 'Blok updated successfully.')
+            return redirect('JangkosTable')
+        else:
+            print(form.errors)
+            print("Error saving data.")
+            messages.error(request, 'Error saving data.')
+    else:
+        messages.error(request, 'Error loading data.')
 
     context={
-        # 'data':data,
+        'formadd':FormAdditional,
         'form':form,
         'Title':Title,
     }

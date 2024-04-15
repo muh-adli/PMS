@@ -1,7 +1,7 @@
 from django import forms
-from .models import *
+from .models import Block, Jangkos
 
-class EditJangkosForm(forms.ModelForm):
+class EditJangkosFormAdd(forms.ModelForm):
     afd_name = forms.CharField(
         label="Afdeling",
         widget=forms.TextInput(
@@ -16,6 +16,18 @@ class EditJangkosForm(forms.ModelForm):
                    'disabled': 'disabled'}
         )
     )
+    area = forms.DecimalField(
+        label="Area",
+        widget=forms.NumberInput(
+            attrs={'class': 'form-control',
+                   'disabled': 'disabled'}
+        )
+    )
+    class Meta:
+        model = Block
+        fields = ('afd_name','block_name','area')
+
+class EditJangkosForm(forms.ModelForm):
     dumps = forms.DateField(
         label="Dumps",
         widget=forms.DateInput(
@@ -32,5 +44,5 @@ class EditJangkosForm(forms.ModelForm):
     )
     class Meta:
         model = Jangkos
-        fields = ('afd_name','block_name','dumps','aplikasi')
+        fields = ('dumps','aplikasi')
 
