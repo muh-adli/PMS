@@ -19,7 +19,7 @@ import plotly.graph_objects as go # didn't work
 def HomePage(request):
     Title = 'HomePage'
     context = {'Title':Title}
-    return render(request, "home.html",context)
+    return render(request, "static_home.html",context)
 
 @login_required(login_url="/login")
 def jangkos(request):
