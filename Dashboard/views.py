@@ -10,9 +10,9 @@ from .models import *
 from Map.models import *
 
 ## Library
-from plotly.subplots import make_subplots # didn't work
-from plotly.offline import plot # didn't work
-import plotly.graph_objects as go # didn't work
+from plotly.subplots import make_subplots
+from plotly.offline import plot
+import plotly.graph_objects as go
 
 # Create your views here.
 @login_required(login_url="/login")
@@ -32,7 +32,7 @@ def jangkos(request):
     jangkos_qs = Jangkos.objects.values('afd_name','block_name','dumps','aplikasi')
 
     ## Table data
-    TableData = jangkos_qs.order_by('dumps','aplikasi')[:20]
+    TableData = jangkos_qs.order_by('dumps','aplikasi')[:10]
     print(TableData)
 
     ## Context
@@ -40,7 +40,7 @@ def jangkos(request):
         'TableData' : TableData,
         'Title':Title
     }
-    return render(request, "dashboard/dashboard_jangkos copy.html", context)
+    return render(request, "dashboard/static_dashboard_jangkos.html", context)
 
 @login_required(login_url="/login")
 def JangkosTable(request):
