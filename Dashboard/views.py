@@ -7,6 +7,7 @@ from django.contrib import messages
 
 # Models and forms
 from .models import *
+from .forms import *
 from Map.models import *
 
 ## Library
@@ -45,17 +46,9 @@ def jangkos(request):
 @login_required(login_url="/login")
 def JangkosTable(request):
     Title = 'Table - Jangkos'
-    print(Jangkos.objects.values(
-        'afd_name','block_name','dumps','aplikasi','selisih','gid'
-        ).annotate(
-        ha=F("block_name__block__ha")
-        ).explain())
     TableData = Jangkos.objects.values(
         'afd_name','block_name','dumps','aplikasi','selisih','gid'
-        ).extra(
-        tables=['Block'],
-        where=['"Jangkos"."gid" = "Block"."gid"']
-    )
+        )
     print(type(TableData))
     print(TableData)
 
@@ -63,18 +56,19 @@ def JangkosTable(request):
         'TableData' : TableData,
         'Title':Title
     }
-    return render(request, "dashboard/table_jangkos.html", context)
+    return render(request, "dashboard/static_table_jangkos.html", context)
 
 @login_required(login_url="/login")
 def JangkosEdit(request, gid):
+    Title = 'Edit Jangkos'
     # data = Blok.objects.get(gid=gid)
-    data = get_object_or_404(Jangkos, gid=gid)
-    ori_shape_area = None  # Initialize ori_shape_area
-    print(data.shape_area)
+    data = get_object_or_404(Jangkos, id=gid)
+    # ori_shape_area = None  # Initialize ori_shape_area
+    # print(data.shape_area)
 
-    if data.shape_area:
-        ori_shape_area = float(data.shape_area)
-        data.shape_area = round(data.shape_area / 10000, 2)
+    # if data.shape_area:
+    #     ori_shape_area = float(data.shape_area)
+    #     data.shape_area = round(data.shape_area / 10000, 2)
 
     if request.method == 'POST' :
         # request.POST = request.POST.copy()
@@ -84,24 +78,27 @@ def JangkosEdit(request, gid):
         # print(type(request.POST['shape_area']))
         print(request.POST)
         form = EditJangkosForm(request.POST, instance=data)
-        if form.is_valid():
-            form.save()
-            print("Blok updated successfully.")
-            messages.success(request, 'Blok updated successfully.')
-            return redirect('JangkosTable')
-        else:
-            print(form.errors)
-            print("Error saving data.")
-            messages.error(request, 'Error saving data.')
+    #     if form.is_valid():
+    #         form.save()
+    #         print("Blok updated successfully.")
+    #         messages.success(request, 'Blok updated successfully.')
+    #         return redirect('JangkosTable')
+    #     else:
+    #         print(form.errors)
+    #         print("Error saving data.")
+    #         messages.error(request, 'Error saving data.')
+    # elif request.method == 'GET':
+    #     form = EditJangkosForm(instance=data)
+    # else:
+    #     messages.error(request, 'Error loading data.')
     elif request.method == 'GET':
-        form = EditJangkosForm(instance=data)
-    else:
-        messages.error(request, 'Error loading data.')
+        form = EditJangkosForm(request.POST, instance=data)
     context={
         'data':data,
-        'form':form
+        'form':form,
+        'Title':Title,
     }
-    return render(request,'dashboard/edit.html', context )
+    return render(request,'dashboard/static_table_edit_jangkos.html', context )
 
 @login_required(login_url="/login")
 def pupuk(request):
