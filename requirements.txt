@@ -45,7 +45,7 @@ pywin32==306
 pyzmq==25.1.2
 shapely==2.0.2
 six==1.16.0
-sqlparse==0.4.4
+sqlparse==0.5.0
 stack-data==0.6.3
 tenacity==8.2.3
 tornado==6.4
