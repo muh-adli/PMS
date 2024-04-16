@@ -34,7 +34,7 @@ def jangkos(request):
 
     ## Table data
     TableData = jangkos_qs.order_by('dumps','aplikasi')[:10]
-    print(TableData)
+    # print(TableData)
 
     ## Context
     context = {
