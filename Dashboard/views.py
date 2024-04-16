@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F, Count
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib import messages
+from django.core.serializers import serialize
+import json
+from django.http import JsonResponse
 
 # Models and forms
 from .models import *
@@ -63,10 +66,18 @@ def JangkosEdit(request, gid):
 
     # Title
     Title = 'Edit Jangkos'
+    geomid = gid
 
     #  Query
-    Block_qs = Block.objects.values('afd_name','block_name','ha').get(gid=gid)
+    Block_qs = Block.objects.values(
+            'afd_name','block_name','ha'
+            ).annotate(
+                geometry=Transform('geom', 4326)
+            ).get(gid=gid)
+    print(Block_qs)
+
     Jangkos_qs = get_object_or_404(Jangkos, id=gid)
+    # print(Jangkos_qs)
 
     # Wrangling and Cleaning
     data = {
@@ -98,6 +109,7 @@ def JangkosEdit(request, gid):
         'formadd':FormAdditional,
         'form':form,
         'Title':Title,
+        'geomid':geomid,
     }
     return render(request,'dashboard/static_table_edit_jangkos.html', context )
 

@@ -78,7 +78,7 @@ def PatokData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Patokhgu.objects.annotate(
+    qs = MonitoringPatokhgu.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
