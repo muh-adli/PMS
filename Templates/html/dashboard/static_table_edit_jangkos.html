@@ -199,7 +199,7 @@
             var dataBlock = await responseBlock.json();
             console.log("Data from Block endpoint:", dataBlock);
         
-            L.geoJSON(dataBlock, {
+            var blok = L.geoJSON(dataBlock, {
                 style: {
                     color: '#DC6B19', // outline color
                     weight: 1,
@@ -209,7 +209,7 @@
                 },
                 filter: dataFilter
             }).addTo(map);
-            L.geoJSON(dataHGU, {
+            var hgu = L.geoJSON(dataHGU, {
                 style: {
                     color: '#ff4122',
                     fillRule: 'evenodd',
@@ -218,24 +218,27 @@
                     fillOpacity: 0
                 }
             }).addTo(map);
-            map.fitBounds(dataBlock.getBounds());
+
+            // Fit map bounds after adding layers
+            map.fitBounds(blok.getBounds(), { padding: [50, 50], maxZoom: 15 });
+
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
-    // Call the function to fetch data
-    fetchData();
 
-    var map = L.map('map').setView(
-        [1.2098191417100188, 117.90810018140084],
-        12);
+    var map = L.map('map', {
+            center: [1.2098191417100188, 117.90810018140084],
+            zoom: 12,
+            scrollWheelZoom: false
+        })
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    console.log('{{geomid}}');
-    map.fitBounds(dataBlock.getBounds());
+    // Call the function to fetch data
+    fetchData();
 
 </script>
 
