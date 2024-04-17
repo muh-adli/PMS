@@ -15,8 +15,10 @@ urlpatterns = [
     path('api/v1/hgu/', HGUBoundary, name='HGUBoundary'),
     path('api/v1/afdeling/', AfdelingBoundary, name='AfdelingBoundary'),
     path('api/v1/block/', BlockBoundary, name='BlockBoundary'),
+    path('api/v1/jangkos/', JangkosData, name='JangkosData'),
 
     ## Point
     path('api/v1/jembatan/', JembatanData, name='JembatanData'),
     path('api/v1/patok/', PatokData, name='PatokData'),
+
 ]

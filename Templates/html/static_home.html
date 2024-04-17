@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{Title}}</title>
+    {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% comment %} <!-- Plotly.js CDN --> {% endcomment %}
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+    {% comment %} <!-- Leaflet CDN --> {% endcomment %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .bckgrnd{
+            background-image: url("{% static 'img/background.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: #cccccc;
+        }
+        .shdw {
+            background-color: rgba(0, 0, 0, 0.5);
+            height: calc(100vh - 60px);
+        }
+        .header {
+            background-color: #FEFAF6;
+        }
+        body{
+            height: 100%;
+        }
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #333333;
+            transition: opacity 0.75s, visibility 0.75s;
+        }
+
+        .loader--hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader::after {
+            content: "";
+            width: 75px;
+            height: 75px;
+            border: 15px solid #dddddd;
+            border-top-color: #009578;
+            border-radius: 50%;
+            animation: loading 0.75s ease infinite;
+        }
+
+        @keyframes loading {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid min-vh-100 bckgrnd">
+
+        <!-- Header -->
+    <div class="row header p-2 border-bottom">
+
+        <!-- Header bar -->
+        <div class="d-flex flex-wrap align-content-center justify-content-center justify-content-lg-start">
+
+            <!-- Logo -->
+            <a class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none" href="{% url 'HomePage' %}">
+                <img src="{% static '/logo/TAP-Logomini.png' %}" class="bi me-2 shadow-sm" width="26" height="35" alt="">
+            </a>
+
+            <!-- List Menu -->
+            <ul class="nav col-11 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                        Dashboard
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Dashboard Center</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'jangkos' %}">Jangkos</a>
+                        <a class="dropdown-item" href="{% url 'pupuk' %}">Pupuk</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'Monitoring' %}">Monitoring</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                        Maps
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'MapHectare' %}">Hectare Statement</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Afdeling</a>
+                        <a class="dropdown-item" href="{% url 'Mapblock' %}">Block</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link px-2 disabled">
+                        Coming Soon...
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link px-2 disabled">
+                        Coming Soon...
+                    </a>
+                </li>
+            </ul>
+
+            <!-- User -->
+            <div class="d-flex justify-content-end align-items-end">
+                <div class="mt-auto mx-3">
+                    <h5>Hello, {{ request.user }}</h5>
+                </div>
+                <a href="{% url 'LogoutUser' %}">
+                    <button  type="button" class="btn btn-outline-dark me-2 shadow-sm" >
+                        Log Out
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Content -->
+    <div class="row d-flex align-items-center justify-content-center shdw">
+        {% comment %} <div class="row"> {% endcomment %}
+            <div class="jumbotron align-self-center px-5 py-1">
+                <h1 class="display-2" style="color: white;">Welcome to PMS!</h1>
+                <p class="lead" style="color: white;">Web-app based to manage you plam plantation.</p>
+                <hr class="my-4" style="border-color: white;">
+                <p style="color: white;">Uses Django framework on Python programming language for versatile in analytics and monitoring.</p>
+            </div>
+{% comment %}
+            <div class="row align-items-center fixed-bottom mb-5">
+                <div class="media col-3 p-4 mx-auto">
+                    <img class="align-self-start mr-2" src="{% static 'logo/scalability.png' %}" width="64" height="64"  alt="Generic placeholder image">
+                    <div class="media-body">
+                        <h5 class="mt-0">Versatile!</h5>
+                        <p>
+                            While Python comes with a lot of libraries, it also has a <mark>rich ecosystem of third-party packages and extensions that can be easily integrated</mark> into Django projects.</p>
+                    </div>
+                </div>
+                <div class="media col-3 p-4 mx-auto">
+                    <img class="align-self-start mr-2" src="{% static 'logo/features.png' %}" width="64" height="64" alt="Compability" >
+                    <div class="media-body">
+                        <h5 class="mt-1">Analytics and Monitoring</h5>
+                        <p>
+                            Web-app can incorporate analytics tools to track user behavior, monitor performance, and gather insights.
+                            And can be <mark>valuable for decision making, performance evaluation, and identifying</mark> areas for improvement.
+                        </p>
+                    </div>
+                </div>
+                <div class="media col-3 p-4 mx-auto">
+                    <img class="align-self-start mr-2" src="{% static 'logo/compability.png' %}" width="64" height="64"  alt="Generic placeholder image">
+                    <div class="media-body">
+                        <h5 class="mt-1">Anywhere, Anytime!</h5>
+                        <p>Web applications can be accessed from any device with a web browser, making them platform-independent.
+                            Users <mark>can interact with the application on various devices</mark>, such as desktops, laptops, tablets, and smartphones.</p>
+                    </div>
+                </div>
+            </div> {% endcomment %}
+        {% comment %} </div> {% endcomment %}
+    </div>
+</div>
+
+<div class="loader"></div>
+{% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+<script>
+    window.addEventListener("load", () => {
+        const loader = document.querySelector(".loader");
+        loader.classList.add("loader--hidden");
+        loader.addEventListener("transitionend", () => {
+            document.body.removeChild(loader);
+        });
+    });
+</script>
+</body>
+
+</html>

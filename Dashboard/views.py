@@ -4,9 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F, Count
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib import messages
+from django.core.serializers import serialize
+import json
+from django.http import JsonResponse
 
 # Models and forms
 from .models import *
+from .forms import *
 from Map.models import *
 
 ## Library
@@ -19,7 +23,7 @@ import plotly.graph_objects as go
 def HomePage(request):
     Title = 'HomePage'
     context = {'Title':Title}
-    return render(request, "home.html",context)
+    return render(request, "static_home.html",context)
 
 @login_required(login_url="/login")
 def jangkos(request):
@@ -32,58 +36,63 @@ def jangkos(request):
     jangkos_qs = Jangkos.objects.values('afd_name','block_name','dumps','aplikasi')
 
     ## Table data
-    TableData = jangkos_qs.order_by('dumps','aplikasi')[:20]
-    print(TableData)
+    TableData = jangkos_qs.order_by('dumps','aplikasi')[:10]
+    # print(TableData)
 
     ## Context
     context = {
         'TableData' : TableData,
         'Title':Title
     }
-    return render(request, "dashboard/dashboard_jangkos copy.html", context)
+    return render(request, "dashboard/static_dashboard_jangkos.html", context)
 
 @login_required(login_url="/login")
 def JangkosTable(request):
     Title = 'Table - Jangkos'
-    print(Jangkos.objects.values(
-        'afd_name','block_name','dumps','aplikasi','selisih','gid'
-        ).annotate(
-        ha=F("block_name__block__ha")
-        ).explain())
     TableData = Jangkos.objects.values(
         'afd_name','block_name','dumps','aplikasi','selisih','gid'
-        ).extra(
-        tables=['Block'],
-        where=['"Jangkos"."gid" = "Block"."gid"']
-    )
-    print(type(TableData))
-    print(TableData)
+        )
+    # print(type(TableData))
+    # print(TableData)
 
     context = {
         'TableData' : TableData,
         'Title':Title
     }
-    return render(request, "dashboard/table_jangkos.html", context)
+    return render(request, "dashboard/static_table_jangkos.html", context)
 
 @login_required(login_url="/login")
 def JangkosEdit(request, gid):
-    # data = Blok.objects.get(gid=gid)
-    data = get_object_or_404(Jangkos, gid=gid)
-    ori_shape_area = None  # Initialize ori_shape_area
-    print(data.shape_area)
 
-    if data.shape_area:
-        ori_shape_area = float(data.shape_area)
-        data.shape_area = round(data.shape_area / 10000, 2)
+    # Title
+    Title = 'Edit Jangkos'
+    geomid = gid
 
+    #  Query
+    Block_qs = Block.objects.values(
+            'afd_name','block_name','ha'
+            ).annotate(
+                geometry=Transform('geom', 4326)
+            ).get(gid=gid)
+    print(Block_qs)
+
+    Jangkos_qs = get_object_or_404(Jangkos, id=gid)
+    # print(Jangkos_qs)
+
+    # Wrangling and Cleaning
+    data = {
+        'afd_name' : Block_qs['afd_name'],
+        'block_name' : Block_qs['block_name'],
+        'area' : str(round(Block_qs['ha'], 2)) + ' Ha'
+    }
+    # print(data)
+    form = EditJangkosForm(instance=Jangkos_qs)
+    FormAdditional = EditJangkosFormAdd(initial=data)
+
+    # Editing data
     if request.method == 'POST' :
-        # request.POST = request.POST.copy()
-        # request.POST['est_name'] = data.est_name
-        # request.POST['block_name'] = data.block_name
-        # request.POST['shape_area'] = ori_shape_area
-        # print(type(request.POST['shape_area']))
-        print(request.POST)
-        form = EditJangkosForm(request.POST, instance=data)
+        # print(request.POST)
+        form = EditJangkosForm(request.POST, instance=Jangkos_qs)
         if form.is_valid():
             form.save()
             print("Blok updated successfully.")
@@ -93,15 +102,16 @@ def JangkosEdit(request, gid):
             print(form.errors)
             print("Error saving data.")
             messages.error(request, 'Error saving data.')
-    elif request.method == 'GET':
-        form = EditJangkosForm(instance=data)
     else:
         messages.error(request, 'Error loading data.')
+
     context={
-        'data':data,
-        'form':form
+        'formadd':FormAdditional,
+        'form':form,
+        'Title':Title,
+        'geomid':geomid,
     }
-    return render(request,'dashboard/edit.html', context )
+    return render(request,'dashboard/static_table_edit_jangkos.html', context )
 
 @login_required(login_url="/login")
 def pupuk(request):
