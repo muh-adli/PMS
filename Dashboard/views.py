@@ -83,7 +83,7 @@ def JangkosEdit(request, gid):
     data = {
         'afd_name' : Block_qs['afd_name'],
         'block_name' : Block_qs['block_name'],
-        'area' : str(round(Block_qs['ha'], 2))
+        'area' : str(round(Block_qs['ha'], 2)) + ' Ha'
     }
     # print(data)
     form = EditJangkosForm(instance=Jangkos_qs)

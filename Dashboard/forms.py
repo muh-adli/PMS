@@ -16,9 +16,9 @@ class EditJangkosFormAdd(forms.ModelForm):
                    'disabled': 'disabled'}
         )
     )
-    area = forms.DecimalField(
+    area = forms.CharField(
         label="Area",
-        widget=forms.NumberInput(
+        widget=forms.TextInput(
             attrs={'class': 'form-control',
                    'disabled': 'disabled'}
         )
