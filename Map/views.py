@@ -4,6 +4,7 @@ from django.core.serializers import serialize
 from django.http import HttpResponse
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib.auth.decorators import login_required
+from django.db.models import F, Case, When, Value, CharField
 
 
 ## Models and Serializers Import
@@ -77,7 +78,7 @@ def PatokData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Patokhgu.objects.annotate(
+    qs = MonitoringPatokhgu.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -105,3 +106,15 @@ def BlockBoundary(request):
     print("BlockBoundary qs: ", round(delta.total_seconds(), 3),'S')
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Block_qs, content_type='json')
+
+def JangkosData(request):
+    qs = Block.objects.annotate(
+            jangkos = Case(
+                        When(gid__jangkos_gid__isnull=False, then=Value('Data Available')),
+                        default=Value('No Data Available'),
+                        output_field=CharField()
+                        )
+        ).order_by('jangkos')
+    for block in qs:
+        print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
+    return HttpResponse(qs, content_type='json')
