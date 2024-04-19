@@ -8,11 +8,13 @@ from .views import *
 urlpatterns = [
     path('HomePage/', HomePage, name='HomePage'),
     ## Dashboard Jangkos
-    path('jangkos/', jangkos, name='jangkos'),
-    path('jangkos/table', JangkosTable, name='JangkosTable'),
-    path('jangkos/table/edit/<int:gid>/', JangkosEdit, name='JangkosEdit'),
+    path('dasboard/center', jangkos, name='center'),
+    ## Dashboard Jangkos
+    path('dasboard/jangkos/', jangkos, name='jangkos'),
+    path('dasboard/jangkos/table', JangkosTable, name='JangkosTable'),
+    path('dasboard/jangkos/table/edit/<int:gid>/', JangkosEdit, name='JangkosEdit'),
     ## Dashboard Pupuk
-    path('pupuk/', pupuk, name='pupuk'),
+    path('dasboard/pupuk/', pupuk, name='pupuk'),
     ## Dashboard Monitoring
-    path('monitoring/', Monitoring, name='Monitoring'),
+    path('dasboard/monitoring/', Monitoring, name='Monitoring'),
 ]

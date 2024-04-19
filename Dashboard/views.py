@@ -153,3 +153,12 @@ def Monitoring(request):
 
     }
     return render(request, "dashboard/static_dashboard_monitoring.html", context)
+
+@login_required(login_url="/login")
+def center(request):
+    Title = 'Dashboard - Center'
+
+    context = {
+        'Title': Title,
+    }
+    return render(request, "dashboard/static_dashboard_center.html", context)
