@@ -130,44 +130,14 @@ def pupuk(request):
 def Monitoring(request):
     Title = 'Dashboard - Monitoring'
     ## Data collecting and cleansing from database
-    JembatanCount_qs = Jembatan.objects.count()
-    # print(JembatanCount_qs)
-    JembatanKondisi_qs = Jembatan.objects.values('kondisi').annotate(count=Count('kondisi'))
-    # print(JembatanKondisi_qs)
-    JembatanBaik = JembatanRusak = JembatanBaru = JembatanNone= 0
-    for jemb in JembatanKondisi_qs:
-        if jemb['kondisi'] == 'BAIK':
-            JembatanBaik = jemb['count']
-        elif jemb['kondisi'] == 'RUSAK':
-            JembatanRusak = jemb['count']
-        elif jemb['kondisi'] == 'Baru':
-            JembatanBaru = jemb['count']
-    JembatanNone = JembatanCount_qs - (JembatanBaik + JembatanRusak + JembatanBaru)
-    print(JembatanBaik,JembatanRusak,JembatanBaru,JembatanNone)
-    JembatanTotal = JembatanBaik + JembatanRusak + JembatanBaru + JembatanNone
-    print(JembatanTotal)
-    JembatanPerc = round((JembatanBaik+JembatanBaru)/JembatanTotal*100, 2)
-    # print(JembatanPerc)
-
-    PatokKode_qs = MonitoringPatokhgu.objects.count()
-    # print(PatokKode_qs)
-    PatokPeriode_qs = MonitoringPatokhgu.objects.values('periode').annotate(count=Count('periode'))
-    # print(PatokPeriode_qs)
-    PatokQ1 = PatokQ2 = PatokQ3 = PatokQ4 = 0
-    for patok in PatokPeriode_qs:
-        if patok['periode'] == 'Q1':
-            PatokQ1 = patok['count']
-        elif patok['periode'] == 'Q2':
-            PatokQ2 = patok['count']
-        elif patok['periode'] == 'Q3':
-            PatokQ3 = patok['count']
-        elif patok['periode'] == 'Q4':
-            PatokQ4 = patok['count']
-    PatokNone = PatokKode_qs - (PatokQ1 + PatokQ2 + PatokQ3 + PatokQ4)
-    print(PatokQ1, PatokQ2, PatokQ3, PatokQ4, PatokNone)
-    PatokPrec = round((PatokQ1 + PatokQ2 + PatokQ3 + PatokQ4)/PatokKode_qs*100, 2)
-    # print(PatokPrec)
     
+    MR_qs = Road.objects.filter(rd_sym="MR")
+    print(MR_qs.count())
+    CR_qs = Road.objects.filter(rd_sym="CR")
+    print(CR_qs.count())
+    CT_qs = Road.objects.filter(rd_sym="CT")
+    print(CT_qs.count())
+
     ## Visualization
     ## Color pallete
     color3 = ['#003f5c','#bc5090','#ffa600']
@@ -177,50 +147,9 @@ def Monitoring(request):
     color7 = ['#003f5c','#374c80','#7a5195','#bc5090','#ef5675','#ff764a','#ffa600']
     color8 = ['#003f5c','#2f4b7c','#665191','#a05195','#d45087','#f95d6a','#ff7c43','#ffa600']
 
-    ## Data cleansing
-    LabelJembatan = ['Baik', 'Rusak', 'Baru', 'N/A']
-    ValueJembatan = [JembatanBaik, JembatanRusak, JembatanBaru, JembatanNone]
-
-    LabelPatok = ['Q1','Q2','Q3','Q4','N/A',]
-    ValuePatok = [PatokQ1, PatokQ2, PatokQ3, PatokQ4, PatokNone]
-
-    ## Plotting
-    fig = make_subplots(rows=1,cols=2,
-                        specs=[
-                                [{"type": "domain"}, {"type": "domain"}],
-                            ],
-                        subplot_titles=(
-                            "Bridge Condition",
-                            "Periods Patok HGU")
-                        )
-
-    fig.add_trace(
-        go.Pie(name='',
-            values = LabelJembatan,
-            labels = ValueJembatan,
-            hovertemplate = "Kondisi %{label}: %{value}"
-        ),
-        row=1, col=1)
-    fig.update_traces(textinfo='value', textfont_size=20,
-                    marker=dict(colors=color4, line=dict(color='#000000', width=1)))
-
-    fig.add_trace(
-        go.Pie(name='',
-            values = LabelPatok,
-            labels = ValuePatok,
-            hovertemplate = "Kategori:  %{label}"
-        ),
-        row=1, col=2)
-    fig.update_traces(textinfo='value', textfont_size=20,
-                    marker=dict(colors=color5, line=dict(color='#000000', width=1)))
-    # Render the plot as HTML code
-    plot_fig = fig.to_html()
-
     # Context dictionary for passing data
     context = {
         'Title': Title,
-        'JembatanPerc': JembatanPerc,  # Percentage Data of Bridge Conditions
-        'PatokPrec': PatokPrec,  # Percentage Data of Patok Periods
-        'plot_fig': plot_fig,
+
     }
-    return render(request, "dashboard/asd.html", context)
+    return render(request, "dashboard/static_dashboard_monitoring.html", context)
