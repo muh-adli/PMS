@@ -16,6 +16,7 @@ class Afdeling(models.Model):
         managed = False
         db_table = 'afdeling'
 
+
 class Block(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
@@ -36,6 +37,7 @@ class Block(models.Model):
         managed = False
         db_table = 'block'
 
+
 class Hgu(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
@@ -48,6 +50,7 @@ class Hgu(models.Model):
     class Meta:
         managed = False
         db_table = 'hgu'
+
 
 class Jembatan(models.Model):
     gid = models.AutoField(primary_key=True)

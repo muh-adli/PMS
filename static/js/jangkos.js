@@ -18,7 +18,8 @@ async function fetchData() {
         const responseBlock = await fetch(Block);
         var dataBlock = await responseBlock.json();
         console.log("Data from Block endpoint:", dataBlock);
-    
+        
+        // adding geojson Layer into leaflet
         L.geoJSON(dataBlock, {
             style: {
                 color: '#C1F2B0', // outline color
@@ -37,27 +38,15 @@ async function fetchData() {
                 fillOpacity: 0
             }
         }).addTo(map);
-        // // Add polygons for HGU data
-        // dataHGU.features.forEach(feature => {
-        //     const coordinates = feature.geometry.coordinates[0][0]; // Accessing the coordinates
-        //     const latLngs = coordinates.map(coord => [coord[1], coord[0]]); // Converting to Leaflet LatLng format
-        //     L.polygon(latLngs).addTo(map); // You can use any property here
-        // });
+        // Fit map bounds after adding layers
+        map.fitBounds(dataHGU.getBounds(), { padding: [5, 5], maxZoom: 15 });
 
-        // // Add polygons for Block data
-        // dataBlock.forEach(block => {
-        //     const coordinates = block.geometry.coordinates[0][0]; // Accessing the coordinates
-        //     const latLngs = coordinates.map(coord => [coord[1], coord[0]]); // Converting to Leaflet LatLng format
-        //     L.polygon(latLngs)
-        //     .addTo(map)
-        //     .bindPopup(block.name);
-        // });
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 }
 // Call the function to fetch data
-fetchData();
+fetchData(); // TODO: make function that show load screen while fetching data
 
 // Leaflet Map
 var map = L.map('map').setView(

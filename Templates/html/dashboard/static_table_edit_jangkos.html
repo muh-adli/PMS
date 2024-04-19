@@ -207,14 +207,17 @@
                     fillColor: '#DC6B19',
                     fillOpacity: 1
                 },
+                // filter data by function leaflet
                 filter: dataFilter
-            }).addTo(map);
+            }).bindPopup(function (layer){
+                return layer.features.properties.block_name;
+            }).addTo(map); // TODO: Adding popup to show data
             var hgu = L.geoJSON(dataHGU, {
                 style: {
                     color: '#ff4122',
                     fillRule: 'evenodd',
                     bubblingMouseEvents: false,
-                    weight: 1,
+                    weight: 5,
                     fillOpacity: 0
                 }
             }).addTo(map);
