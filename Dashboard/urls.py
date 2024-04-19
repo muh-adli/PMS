@@ -8,7 +8,7 @@ from .views import *
 urlpatterns = [
     path('HomePage/', HomePage, name='HomePage'),
     ## Dashboard Jangkos
-    path('dasboard/center', jangkos, name='center'),
+    path('dasboard/center/', center, name='center'),
     ## Dashboard Jangkos
     path('dasboard/jangkos/', jangkos, name='jangkos'),
     path('dasboard/jangkos/table', JangkosTable, name='JangkosTable'),
