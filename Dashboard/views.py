@@ -155,10 +155,61 @@ def Monitoring(request):
     return render(request, "dashboard/static_dashboard_monitoring.html", context)
 
 @login_required(login_url="/login")
-def center(request):
-    Title = 'Dashboard - Center'
+def PatokTable(request):
+    Title = 'Dashboard - Patok'
+    ## Data collecting and cleansing from database
+    patok_qs = MonitoringPatokhgu.objects.all().order_by('no_patok')
 
+    ## Visualization
+    ## Color pallete
+    color3 = ['#003f5c','#bc5090','#ffa600']
+    color4 = ['#003f5c','#7a5195','#ef5675','#ffa600']
+    color5 = ['#003f5c','#58508d','#bc5090','#ff6361','#ffa600']
+    color6 = ['#003f5c','#444e86','#955196','#dd5182','#ff6e54','#ffa600']
+    color7 = ['#003f5c','#374c80','#7a5195','#bc5090','#ef5675','#ff764a','#ffa600']
+    color8 = ['#003f5c','#2f4b7c','#665191','#a05195','#d45087','#f95d6a','#ff7c43','#ffa600']
+
+    # Context dictionary for passing data
     context = {
         'Title': Title,
+        'TableData' : patok_qs
     }
-    return render(request, "dashboard/static_dashboard_center.html", context)
+    return render(request, "dashboard/static_table_patok.html", context)
+
+@login_required(login_url="/login")
+def PatokEdit(request, gid):
+
+    # Title
+    Title = 'Edit Jangkos'
+    geomid = gid
+
+    patok_qs = get_object_or_404(MonitoringPatokhgu, gid=gid)
+    # print(Jangkos_qs)
+
+    # Wrangling and Cleaning
+
+    # print(data)
+    form = EditPatokForm(instance=patok_qs)
+
+    # Editing data
+    if request.method == 'POST' :
+        # print(request.POST)
+        form = EditPatokForm(request.POST, instance=patok_qs)
+        if form.is_valid():
+            form.save()
+            print("Blok updated successfully.")
+            messages.success(request, 'Blok updated successfully.')
+            return redirect('JangkosTable')
+        else:
+            print(form.errors)
+            print("Error saving data.")
+            messages.error(request, 'Error saving data.')
+    else:
+        messages.error(request, 'Error loading data.')
+
+    context={
+        'form':form,
+        'Title':Title,
+        'geomid':geomid,
+    }
+    return render(request,'dashboard/static_table_edit_patok.html', context )

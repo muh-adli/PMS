@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{Title}}</title>
+
+    {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% comment %} <!-- Leaflet CDN --> {% endcomment %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html{
+            background-color: #063970;
+            color: #DCE2F0;
+        }
+        body{
+            height: 100%;
+        }
+        .card-header {
+            background-color: rgb(209, 231, 221);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid min-vh-100">
+
+        <!-- Header -->
+    <div class="row header p-2 border-bottom">
+
+        <!-- Header bar -->
+        <div class="d-flex flex-wrap align-content-center justify-content-center justify-content-lg-start">
+
+            <!-- Logo -->
+            <a class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none" href="{% url 'HomePage' %}">
+                <img src="{% static '/logo/TAP-Logomini.png' %}" class="bi me-2 shadow-sm" width="26" height="35" alt="">
+            </a>
+
+            <!-- List Menu -->
+            <ul class="nav col-11 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                        Dashboard
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Dashboard Center</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'jangkos' %}">Jangkos</a>
+                        <a class="dropdown-item" href="{% url 'pupuk' %}">Pupuk</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'Monitoring' %}">Monitoring</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                        Maps
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'MapHectare' %}">Hectare Statement</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Afdeling</a>
+                        <a class="dropdown-item" href="{% url 'Mapblock' %}">Block</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#" class="nav-link px-2 disabled">
+                        Coming Soon...
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link px-2 disabled">
+                        Coming Soon...
+                    </a>
+                </li>
+            </ul>
+
+            <!-- User -->
+            <div class="d-flex justify-content-end align-items-end">
+                <div class="mt-auto mx-3">
+                    <h5>Hello, {{ request.user }}</h5>
+                </div>
+                <a href="{% url 'LogoutUser' %}">
+                    <button  type="button" class="btn btn-outline-dark me-2 shadow-sm" >
+                        Log Out
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Content -->
+    <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <h5 class="card-header">
+                        Edit Data
+                    </h5>
+                    <div class="card-body align-items-center" >
+
+                        <form action="" method="POST">
+                            <div class="row m-0">
+                                <div class="col-sm-4 py-1">
+                                    <label for="firstName" class="form-label">Block</label>
+                                    {{ form.block_name }}
+                                </div>
+                                <div class="col-sm-4 py-1">
+                                    <label for="lastName" class="form-label">Afdeling</label>
+                                    {{ form.afd_name }}
+                                </div>
+                                <div class="col-sm-4 py-1">
+                                    <label for="lastName" class="form-label">Nomor Patok</label>
+                                    {{ form.no_patok }}
+                                </div>
+                            </div>
+                            <div class="row m-0">
+                                <div class="col-12 col-sm-6 py-1">
+                                    <label for="address2" class="form-label">Latitude</label>
+                                    {{ form.longitude }}
+                                </div>
+                                <div class="col-12 col-sm-6 py-1">
+                                    <label for="address2" class="form-label">Longitude</label>
+                                    {{ form.latitude }}
+                                </div>
+                            </div>
+                            <div class="row m-0">
+                                {% csrf_token %}
+                                <div class="col-12 col-sm-6 py-1">
+                                    <label for="address2" class="form-label">Periode</label>
+                                    {{ form.periode }}
+                                </div>
+                                <div class="col-12 col-sm-6 py-1">
+                                    <label for="address2" class="form-label">Status</label>
+                                    {{ form.status }}
+                                </div>
+                            </div>
+                            <div class="row m-1 p-1">
+                                <button type="submit" class="btn btn-success" >
+                                    Edit
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" >
+            <div class="col-12 mt-3">
+                <div class="card" >
+                    <h5 class="card-header">
+                        Map
+                    </h5>
+                    <div id="map" style="height:40vh;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+<script>
+    const HGU = "/map/api/v1/hgu/"
+    const Patok = "/map/api/v1/patok/"
+
+    function dataFilter(feature) {
+        // Check if the objectid property of the feature is equal to 1
+        if (feature.properties.objectid === {{geomid}}) {
+            return true; // Return true if it matches
+        } else {
+            return false; // Return false otherwise
+        }
+    }
+    async function fetchData() {
+        try {
+            // Fetch data from HGU endpoint
+            const responseHGU = await fetch(HGU);
+            var dataHGU = await responseHGU.json();
+            console.log("Data from HGU endpoint:", dataHGU);
+        
+            // Fetch data from Patok endpoint
+            const responsePatok = await fetch(Patok);
+            var dataPatok = await responsePatok.json();
+            console.log("Data from Patok endpoint:", dataPatok);
+        
+            var blok = L.geoJSON(dataPatok, {
+                style: {
+                    color: '#DC6B19', // outline color
+                    weight: 1,
+                    opacity: 1,
+                    fillColor: '#DC6B19',
+                    fillOpacity: 1
+                },
+                // filter data by function leaflet
+                filter: dataFilter
+            }).bindPopup(function (layer){
+                return layer.features.properties.no_patok;
+            }).addTo(map); // TODO: Adding popup to show data
+            var hgu = L.geoJSON(dataHGU, {
+                style: {
+                    color: '#ff4122',
+                    fillRule: 'evenodd',
+                    bubblingMouseEvents: false,
+                    weight: 5,
+                    fillOpacity: 0
+                }
+            }).addTo(map);
+
+            // Fit map bounds after adding layers
+            map.fitBounds(blok.getBounds(), { padding: [50, 50], maxZoom: 15 });
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    var map = L.map('map', {
+            center: [1.2098191417100188, 117.90810018140084],
+            zoom: 12,
+            scrollWheelZoom: false
+        })
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Call the function to fetch data
+    fetchData();
+
+</script>
+
+</body>
+</html>

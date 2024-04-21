@@ -11,10 +11,12 @@ urlpatterns = [
     path('dasboard/center/', center, name='center'),
     ## Dashboard Jangkos
     path('dasboard/jangkos/', jangkos, name='jangkos'),
-    path('dasboard/jangkos/table', JangkosTable, name='JangkosTable'),
+    path('dasboard/jangkos/table/', JangkosTable, name='JangkosTable'),
     path('dasboard/jangkos/table/edit/<int:gid>/', JangkosEdit, name='JangkosEdit'),
     ## Dashboard Pupuk
     path('dasboard/pupuk/', pupuk, name='pupuk'),
     ## Dashboard Monitoring
     path('dasboard/monitoring/', Monitoring, name='Monitoring'),
+    path('monitoring/patok/table/', PatokTable, name='PatokTable'),
+    path('monitoring/patok/table/<int:gid>/', PatokEdit, name='PatokEdit'),
 ]
