@@ -26,6 +26,15 @@ def HomePage(request):
     return render(request, "static_home.html",context)
 
 @login_required(login_url="/login")
+def center(request):
+    Title = 'Dashboard - Center'
+
+    context = {
+        'Title': Title,
+    }
+    return render(request, "dashboard/static_dashboard_center.html", context)
+
+@login_required(login_url="/login")
 def jangkos(request):
     Title = 'Dashboard - Jangkos'
 
