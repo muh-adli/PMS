@@ -52,8 +52,8 @@ def JangkosTable(request):
     TableData = Jangkos.objects.values(
         'afd_name','block_name','dumps','aplikasi','selisih','gid'
         )
-    # print(type(TableData))
-    # print(TableData)
+    
+    # Download Content
 
     context = {
         'TableData' : TableData,
@@ -224,3 +224,7 @@ def Monitoring(request):
         'plot_fig': plot_fig,
     }
     return render(request, "dashboard/asd.html", context)
+
+@login_required(login_url="/login")
+def ExtJangkos(request):
+    return render(request, "dashboard/asd.html")
