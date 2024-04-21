@@ -16,4 +16,5 @@ urlpatterns = [
     ## Dashboard Monitoring
     path('monitoring/', Monitoring, name='Monitoring'),
     path('monitoring/patok/table/', PatokTable, name='PatokTable'),
+    path('monitoring/patok/table/<int:gid>/', PatokEdit, name='PatokEdit'),
 ]

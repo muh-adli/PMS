@@ -175,3 +175,41 @@ def PatokTable(request):
         'TableData' : patok_qs
     }
     return render(request, "dashboard/static_table_patok.html", context)
+
+@login_required(login_url="/login")
+def PatokEdit(request, gid):
+
+    # Title
+    Title = 'Edit Jangkos'
+    geomid = gid
+
+    patok_qs = get_object_or_404(MonitoringPatokhgu, gid=gid)
+    # print(Jangkos_qs)
+
+    # Wrangling and Cleaning
+
+    # print(data)
+    form = EditPatokForm(instance=patok_qs)
+
+    # Editing data
+    if request.method == 'POST' :
+        # print(request.POST)
+        form = EditPatokForm(request.POST, instance=patok_qs)
+        if form.is_valid():
+            form.save()
+            print("Blok updated successfully.")
+            messages.success(request, 'Blok updated successfully.')
+            return redirect('JangkosTable')
+        else:
+            print(form.errors)
+            print("Error saving data.")
+            messages.error(request, 'Error saving data.')
+    else:
+        messages.error(request, 'Error loading data.')
+
+    context={
+        'form':form,
+        'Title':Title,
+        'geomid':geomid,
+    }
+    return render(request,'dashboard/static_table_edit_patok.html', context )
