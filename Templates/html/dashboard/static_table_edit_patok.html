@@ -185,7 +185,15 @@
     const HGU = "/map/api/v1/hgu/"
     const Patok = "/map/api/v1/patok/"
 
-    function dataFilter(feature) {
+    function unSelectedData(feature) {
+        // Check if the objectid property of the feature is equal to 1
+        if (feature.properties.objectid === {{geomid}}) {
+            return false; // Return true if it matches
+        } else {
+            return true; // Return false otherwise
+        }
+    }
+    function SelectedData(feature) {
         // Check if the objectid property of the feature is equal to 1
         if (feature.properties.objectid === {{geomid}}) {
             return true; // Return true if it matches
@@ -205,19 +213,40 @@
             var dataPatok = await responsePatok.json();
             console.log("Data from Patok endpoint:", dataPatok);
         
-            var blok = L.geoJSON(dataPatok, {
-                style: {
-                    color: '#DC6B19', // outline color
-                    weight: 1,
-                    opacity: 1,
-                    fillColor: '#DC6B19',
-                    fillOpacity: 1
+            var patokSelected = L.geoJSON(dataPatok, {
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, {
+                        radius: 10, // Adjust the radius of the circle as needed
+                        color: '#293241', // Outline color
+                        weight: 1,
+                        opacity: 1,
+                        fillColor: '#293241', // Blue sky color
+                        fillOpacity: 1
+                    });
                 },
                 // filter data by function leaflet
-                filter: dataFilter
+                filter: SelectedData
             }).bindPopup(function (layer){
                 return layer.features.properties.no_patok;
             }).addTo(map); // TODO: Adding popup to show data
+
+            var patok = L.geoJSON(dataPatok, {
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, {
+                        radius: 8, // Adjust the radius of the circle as needed
+                        color: '#3186cc', // Outline color
+                        weight: 1,
+                        opacity: 1,
+                        fillColor: '#3186cc', // Blue sky color
+                        fillOpacity: 1
+                    });
+                },
+                // filter data by function leaflet
+                filter: unSelectedData
+            }).bindPopup(function (layer){
+                return layer.features.properties.no_patok;
+            }).addTo(map); // TODO: Adding popup to show data
+
             var hgu = L.geoJSON(dataHGU, {
                 style: {
                     color: '#ff4122',
@@ -229,7 +258,7 @@
             }).addTo(map);
 
             // Fit map bounds after adding layers
-            map.fitBounds(blok.getBounds(), { padding: [50, 50], maxZoom: 15 });
+            map.fitBounds(patokSelected.getBounds(), { padding: [50, 50], maxZoom: 15 });
 
         } catch (error) {
             console.error('Error fetching data:', error);

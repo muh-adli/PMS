@@ -41,7 +41,7 @@ async function fetchData() {
         console.log("Data from Block endpoint:", dataBridge);
 
         // adding geojson Layer into leaflet
-        var hgu = L.geoJSON(dataHGU, {
+        L.geoJSON(dataHGU, {
             style: {
                 color: '#ff4122',
                 fillRule: 'evenodd',
@@ -65,7 +65,7 @@ async function fetchData() {
 
 
         // Fit map bounds after adding layers
-        map.fitBounds(hgu.getBounds(), { padding: [5, 5], maxZoom: 15 });
+        map.fitBounds(dataHGU.getBounds(), { padding: [5, 5], maxZoom: 15 });
 
     } catch (error) {
         console.error('Error fetching data:', error);
