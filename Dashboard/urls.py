@@ -9,10 +9,11 @@ urlpatterns = [
     path('HomePage/', HomePage, name='HomePage'),
     ## Dashboard Jangkos
     path('jangkos/', jangkos, name='jangkos'),
-    path('jangkos/table', JangkosTable, name='JangkosTable'),
+    path('jangkos/table/', JangkosTable, name='JangkosTable'),
     path('jangkos/table/edit/<int:gid>/', JangkosEdit, name='JangkosEdit'),
     ## Dashboard Pupuk
     path('pupuk/', pupuk, name='pupuk'),
     ## Dashboard Monitoring
     path('monitoring/', Monitoring, name='Monitoring'),
+    path('monitoring/patok/table/', PatokTable, name='PatokTable'),
 ]
