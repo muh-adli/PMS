@@ -1,4 +1,4 @@
-package com.project.webgis;
+package com.project.webgis.adapter;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,8 +12,8 @@ public class NetworkReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        //if(isConnected(context)) Toast.makeText(context, "Connected.", Toast.LENGTH_LONG).show();
-        //else Toast.makeText(context, "Lost connect.", Toast.LENGTH_LONG).show();
+        //if(isConnected(context)) Toast.makeText(context, "Back online", Toast.LENGTH_SHORT).show();
+        //else Toast.makeText(context, "Connection lost", Toast.LENGTH_SHORT).show();
     }
 
     public boolean isConnected(Context context) {

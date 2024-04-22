@@ -3,6 +3,9 @@
     <style name="Base.Theme.WebGIS" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="android:textColorPrimary">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/textColor</item>
     </style>
 
     <style name="Theme.WebGIS" parent="Base.Theme.WebGIS" />

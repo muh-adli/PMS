@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_dashboard"
+        android:icon="@drawable/baseline_dashboard_24"
+        android:title="@string/menu_dashboard"/>
+
+    <item
+        android:id="@+id/menu_map"
+        android:icon="@drawable/baseline_map_24"
+        android:title="@string/menu_map"/>
+
+    <item
+        android:id="@+id/menu_monitor"
+        android:icon="@drawable/baseline_monitor_24"
+        android:title="@string/menu_monitor"/>
+
+    <item
+        android:id="@+id/menu_other"
+        android:icon="@drawable/baseline_more_horiz_24"
+        android:title="@string/menu_other"/>
+</menu>

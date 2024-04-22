@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey">#d2d2d2</color>
+
+    <color name="textColor">#000000</color>
+
+    <color name="bottomNavigationBackground">#D2D2D2</color>
+    <color name="bottomNavigationIcon">#707070</color>
+    <color name="bottomNavigationIconSelected">#191919</color>
 </resources>

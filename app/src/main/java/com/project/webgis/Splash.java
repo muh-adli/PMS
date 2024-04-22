@@ -13,6 +13,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.project.webgis.activity.MainActivity;
+import com.project.webgis.activity.MapActivity;
+import com.project.webgis.adapter.NetworkReceiver;
+
 public class Splash extends AppCompatActivity {
 
     private final BroadcastReceiver networkReceiver = new NetworkReceiver();
@@ -29,10 +33,6 @@ public class Splash extends AppCompatActivity {
             return insets;
         });
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(networkReceiver, filter);
-
         splashText = findViewById(R.id.splashText);
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -46,6 +46,5 @@ public class Splash extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(networkReceiver);
     }
 }

@@ -4,5 +4,9 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="menu_dashboard">Dashboard</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_monitor">Monitor</string>
+    <string name="menu_other">Other</string>
     <!-- Strings used for fragments for navigation -->
 </resources>
