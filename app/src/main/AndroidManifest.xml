@@ -26,12 +26,6 @@
             android:exported="false"
             android:label="@string/title_activity_main" />
         <activity
-            android:name=".activity.MonitorActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.DashboardActivity"
-            android:exported="false" />
-        <activity
             android:name=".Splash"
             android:exported="true"
             android:theme="@style/Theme.WebGIS">
@@ -41,7 +35,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MapActivity" />
     </application>
 
 </manifest>

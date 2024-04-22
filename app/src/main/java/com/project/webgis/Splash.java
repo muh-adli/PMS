@@ -2,7 +2,6 @@ package com.project.webgis;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
@@ -14,7 +13,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.project.webgis.activity.MainActivity;
-import com.project.webgis.activity.MapActivity;
 import com.project.webgis.adapter.NetworkReceiver;
 
 public class Splash extends AppCompatActivity {
