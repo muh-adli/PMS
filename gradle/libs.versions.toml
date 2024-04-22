@@ -12,6 +12,8 @@ navigationFragment = "2.6.0"
 navigationUi = "2.6.0"
 lifecycleLivedataKtx = "2.6.1"
 lifecycleViewmodelKtx = "2.6.1"
+shimmerlayout = "2.1.0"
+skeleton = "1.1.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +28,8 @@ navigation-fragment = { group = "androidx.navigation", name = "navigation-fragme
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+shimmerlayout = { module = "io.supercharge:shimmerlayout", version.ref = "shimmerlayout" }
+skeleton = { module = "com.ethanhua:skeleton", version.ref = "skeleton" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
