@@ -8,5 +8,7 @@
     <string name="menu_map">Map</string>
     <string name="menu_monitor">Monitor</string>
     <string name="menu_other">Other</string>
+    <string name="dashboard_geometry">Geometry</string>
+    <string name="dashboard_table">Table</string>
     <!-- Strings used for fragments for navigation -->
 </resources>

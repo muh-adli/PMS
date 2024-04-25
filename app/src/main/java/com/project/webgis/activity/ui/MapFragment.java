@@ -1,4 +1,4 @@
-package com.project.webgis.activity.ui.map;
+package com.project.webgis.activity.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

@@ -14,9 +14,9 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.project.webgis.R;
-import com.project.webgis.activity.ui.dashboard.DashboardFragment;
-import com.project.webgis.activity.ui.map.MapFragment;
-import com.project.webgis.activity.ui.monitor.MonitorFragment;
+import com.project.webgis.activity.ui.Dashboard.DashboardFragment;
+import com.project.webgis.activity.ui.MapFragment;
+import com.project.webgis.activity.ui.MonitorFragment;
 import com.project.webgis.adapter.NetworkReceiver;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 if (itemId == R.id.menu_dashboard) {
                     fm.beginTransaction().hide(active).show(fragmentDashboard).commit();
                     active = fragmentDashboard;
-                    Toast.makeText(getApplicationContext(), "Dashboard", Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.menu_map) {
                     if (firstMap) {
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                         fm.beginTransaction().hide(active).show(fragmentMap).commit();
                     }
                     active = fragmentMap;
-                    Toast.makeText(getApplicationContext(), "Map", Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.menu_monitor) {
                     if (firstMonitor) {
@@ -73,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
                         fm.beginTransaction().hide(active).show(fragmentMonitor).commit();
                     }
                     active = fragmentMonitor;
-                    Toast.makeText(getApplicationContext(), "Monitor", Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.menu_other) {
                     if (firstOther) {
@@ -83,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
                         fm.beginTransaction().hide(active).show(fragmentOther).commit();
                     }
                     active = fragmentOther;
-                    Toast.makeText(getApplicationContext(), "Other", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
