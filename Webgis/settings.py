@@ -26,8 +26,11 @@ SECRET_KEY = 'django-insecure-+r9#q!+l$)bz54tfh5$gt4^hx!8rpy@taghmj69y03sj98r9w+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    '192.168.100.11', # Your IP Address
+    'localhost', # localhost
+    '127.0.0.1' # Default django IP
+    ]
 
 # Application definition
 
