@@ -43,7 +43,7 @@
 
 <div class="container-fluid min-vh-100">
 
-        <!-- Header -->
+    <!-- Header -->
     <div class="row header p-2 border-bottom">
 
         <!-- Header bar -->
@@ -61,34 +61,35 @@
                         Dashboard
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'center' %}">Dashboard Center</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'jangkos' %}">Jangkos</a>
-                        <a class="dropdown-item" href="{% url 'pupuk' %}">Pupuk</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'Monitoring' %}">Monitoring</a>
+                        <a class="dropdown-item" href="{% url 'Center' %}">Dashboard Center</a>
+                        <a class="dropdown-item" href="{% url 'Hectare' %}">Hectare Statement</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                    <a class="nav-link px-2 link-body-emphasis" href="{% url 'MapHectare' %}">
                         Maps
                     </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                        Monitoring
+                    </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'MapHectare' %}">Hectare Statement</a>
+                        <a class="dropdown-item" href="{% url 'Monitoring' %}">Patok HGU</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Afdeling</a>
-                        <a class="dropdown-item" href="{% url 'Mapblock' %}">Block</a>
+                        <a class="dropdown-item" href="{% url 'Jangkos' %}">Tankos</a>
+                        <a class="dropdown-item" href="{% url 'Pupuk' %}">Pupuk</a>
                     </div>
                 </li>
                 <li>
-                    <a href="#" class="nav-link px-2 disabled">
-                        Coming Soon...
+                    <a href="#" class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
+                        Reports
                     </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link px-2 disabled">
-                        Coming Soon...
-                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">1</a>
+                        <a class="dropdown-item" href="#">2</a>
+                        <a class="dropdown-item" href="#">3</a>
+                    </div>
                 </li>
             </ul>
 
@@ -105,7 +106,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Content -->
     <div class="row d-flex py-2 m-0 bg-warning align-items-center justify-content-center">

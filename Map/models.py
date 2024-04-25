@@ -136,3 +136,38 @@ class Road(models.Model):
     class Meta:
         managed = False
         db_table = 'road'
+        
+class DumpTankos(models.Model):
+    gid = models.AutoField(primary_key=True)
+    afdeling = models.CharField(max_length=5, blank=True, null=True)
+    block = models.CharField(max_length=5, blank=True, null=True)
+    location = models.CharField(max_length=10, blank=True, null=True)
+    dumps = models.DateField(blank=True, null=True)
+    aplikasi = models.DateField(blank=True, null=True)
+    selisih = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    status = models.CharField(max_length=10, blank=True, null=True)
+    ton_dumps = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ton_lap = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    geom = models.PointField(srid=32650, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'dump_tankos'
+
+class AplikasiTankos(models.Model):
+    gid = models.AutoField(primary_key=True)
+    afdeling = models.CharField(max_length=5, blank=True, null=True)
+    block = models.CharField(max_length=5, blank=True, null=True)
+    jml_pokok = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ha_area = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    tonase = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    aplikasi = models.DateField(blank=True, null=True)
+    ton_lap = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    prog_pokok = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    prog_ha = models.IntegerField(blank=True, null=True)
+    sph = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    geom = models.MultiPolygonField(srid=32650, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'aplikasi_tankos'

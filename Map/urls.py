@@ -8,7 +8,6 @@ from .views import *
 urlpatterns = [
     ### Map Urls
     path('HectareStatement/', MapHectare, name='MapHectare'),
-    path('block/', MapBlock, name='Mapblock'),
 
     ### API Urls
     ## Boundary
@@ -20,5 +19,9 @@ urlpatterns = [
     ## Point
     path('api/v1/jembatan/', JembatanData, name='JembatanData'),
     path('api/v1/patok/', PatokData, name='PatokData'),
+
+    ## Tankos
+    path('api/v1/aplikasi/', TankosAplikasi, name='TankosAplikasi'),
+    path('api/v1/dump/', TankosDump, name='TankosDump'),
 
 ]

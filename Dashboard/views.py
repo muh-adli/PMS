@@ -1,7 +1,7 @@
 ## Django build-in fuctions
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Count
+from django.db.models import F, Count, Sum
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib import messages
 from django.core.serializers import serialize
@@ -33,6 +33,22 @@ def center(request):
         'Title': Title,
     }
     return render(request, "dashboard/static_dashboard_center.html", context)
+
+@login_required(login_url="/login")
+def hectare(request):
+    Title = 'Dashboard - Hectare Statement'
+    ha_qs = Planted.objects.aggregate(Sum('ha'))
+    hgu_qs = Hgu.objects.values('ha')
+    
+    print(ha_qs, type(ha_qs))
+    print(hgu_qs, type(hgu_qs))
+
+    context = {
+        'Title': Title,
+        'Planted': ha_qs,
+        'HGU': hgu_qs,
+    }
+    return render(request, "dashboard/static_dashboard_hectarestatement.html", context)
 
 @login_required(login_url="/login")
 def jangkos(request):
@@ -126,20 +142,19 @@ def JangkosEdit(request, gid):
 def pupuk(request):
     Title = 'Dashboard - Pupuk'
     # ## Data collecting and cleansing from database
-    # pupuk_qs = 
+    # pupuk_qs =
 
     ## Context
     context = {
         'Title':Title,
-        
     }
-    return render(request, "dashboard/dashboard_jangkos.html", context)
+    return render(request, "dashboard/static_dashboard_pupuk.html", context)
 
 @login_required(login_url="/login")
 def Monitoring(request):
     Title = 'Dashboard - Monitoring'
     ## Data collecting and cleansing from database
-    
+
     MR_qs = Road.objects.filter(rd_sym="MR")
     print(MR_qs.count())
     CR_qs = Road.objects.filter(rd_sym="CR")
