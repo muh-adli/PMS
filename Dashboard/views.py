@@ -37,16 +37,16 @@ def center(request):
 @login_required(login_url="/login")
 def hectare(request):
     Title = 'Dashboard - Hectare Statement'
-    ha_qs = Planted.objects.aggregate(Sum('ha'))
-    hgu_qs = Hgu.objects.values('ha')
+    Planted_qs = Planted.objects.aggregate(total_ha=Sum('ha'))
+    HGU_qs = Hgu.objects.aggregate(total_ha=Sum('ha'))
     
-    print(ha_qs, type(ha_qs))
-    print(hgu_qs, type(hgu_qs))
+    tot_Planted = round(Planted_qs['total_ha'], 2)
+    tot_HGU = round(HGU_qs['total_ha'], 2)
 
     context = {
         'Title': Title,
-        'Planted': ha_qs,
-        'HGU': hgu_qs,
+        'Planted': tot_Planted,
+        'HGU': tot_HGU,
     }
     return render(request, "dashboard/static_dashboard_hectarestatement.html", context)
 

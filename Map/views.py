@@ -54,6 +54,7 @@ def AfdelingBoundary(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Afdeling_qs, content_type='json')
 
+@login_required()
 def JembatanData(request):
     now = datetime.now()
     # print("start: ", str(now))
@@ -70,6 +71,7 @@ def JembatanData(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Jembatan_qs, content_type='json')
 
+@login_required()
 def PatokData(request):
     now = datetime.now()
     # print("start: ", str(now))
@@ -85,6 +87,23 @@ def PatokData(request):
     print("PatokData qs: ", round(delta.total_seconds(), 3),'S')
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
+def PlantedData(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = Planted.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Planted_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("PlantedData qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Planted_qs, content_type='json')
 
 @login_required()
 def BlockBoundary(request):
@@ -103,6 +122,7 @@ def BlockBoundary(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Block_qs, content_type='json')
 
+@login_required()
 def JangkosData(request):
     qs = Block.objects.annotate(
             jangkos = Case(
