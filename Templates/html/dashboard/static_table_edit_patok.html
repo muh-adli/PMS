@@ -207,12 +207,12 @@
             const responseHGU = await fetch(HGU);
             var dataHGU = await responseHGU.json();
             console.log("Data from HGU endpoint:", dataHGU);
-        
+
             // Fetch data from Patok endpoint
             const responsePatok = await fetch(Patok);
             var dataPatok = await responsePatok.json();
             console.log("Data from Patok endpoint:", dataPatok);
-        
+
             var patokSelected = L.geoJSON(dataPatok, {
                 pointToLayer: function (feature, latlng) {
                     return L.circleMarker(latlng, {
@@ -224,28 +224,28 @@
                         fillOpacity: 1
                     });
                 },
-                // filter data by function leaflet
-                filter: SelectedData
-            }).bindPopup(function (layer){
-                return layer.features.properties.no_patok;
-            }).addTo(map); // TODO: Adding popup to show data
+                // Filter data by function leaflet
+                filter: SelectedData,
+                onEachFeature: function(feature, layer) {
+                    if (feature.properties && feature.properties.no_patok) {
+                        layer.bindPopup(feature.properties.no_patok);
+                    }
+                }
+            }).addTo(map); // Adding popup to show data
 
             var patok = L.geoJSON(dataPatok, {
                 pointToLayer: function (feature, latlng) {
                     return L.circleMarker(latlng, {
-                        radius: 8, // Adjust the radius of the circle as needed
-                        color: '#3186cc', // Outline color
+                        radius: 8,
+                        color: '#3186cc',
                         weight: 1,
                         opacity: 1,
-                        fillColor: '#3186cc', // Blue sky color
+                        fillColor: '#3186cc',
                         fillOpacity: 1
                     });
                 },
-                // filter data by function leaflet
                 filter: unSelectedData
-            }).bindPopup(function (layer){
-                return layer.features.properties.no_patok;
-            }).addTo(map); // TODO: Adding popup to show data
+            }).addTo(map);
 
             var hgu = L.geoJSON(dataHGU, {
                 style: {

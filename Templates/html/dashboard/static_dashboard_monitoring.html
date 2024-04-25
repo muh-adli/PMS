@@ -17,9 +17,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""></script>
+
+    {% comment %} <!-- Markercluster CSS --> {% endcomment %}
+    <link rel="stylesheet" href="{% static "js/markercluster/MarkerCluster.css" %}">
+    <link rel="stylesheet" href="{% static "js/markercluster/MarkerCluster.Default.css" %}">
 
     <style>
         * {
@@ -155,7 +156,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 
 {% comment %} Leaflet Map {% endcomment %}
-<script src="{% static "js/map_monitoring.js" %}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+
+{% comment %} Markercluster {% endcomment %}
+<script src="{% static "js/markercluster/leaflet.markercluster.js" %}"></script>
+
+{% comment %} Map script {% endcomment %}
+{% comment %} <script src="{% static "js/map_monitoring.js" %}"></script> {% endcomment %}
 
 <script>
     // data
@@ -216,6 +225,118 @@
             document.body.removeChild(loader);
         });
     });
+
+    const HGU = "/map/api/v1/hgu/"
+    const Patok = "/map/api/v1/patok/"
+    const Bridge = "/map/api/v1/jembatan/"
+    // const Road = "/map/api/v1/jangkos/"
+
+    let dataBlock = [];
+    let dataHGU = [];
+
+
+    var geojsonMarkerOptions = {
+        radius: 3,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 1
+    };
+    var geojsonMarkerOptionss = {
+        radius: 3,
+        fillColor: "#ffffff",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 1
+    };
+    const markers = L.markerClusterGroup();
+    async function fetchData() {
+        try {
+            // Fetch data
+            const responseHGU = await fetch(HGU);
+            var dataHGU = await responseHGU.json();
+            console.log("Data from HGU endpoint:", dataHGU);
+
+            const responsePatok = await fetch(Patok);
+            var dataPatok = await responsePatok.json();
+            console.log("Data from Block endpoint:", dataPatok);
+
+            // const responseBridge = await fetch(Bridge);
+            // var dataBridge = await responseBridge.json();
+            // console.log("Data from Block endpoint:", dataBridge);
+
+            // adding geojson Layer into leaflet
+            var hgu = L.geoJSON(dataHGU, {
+                style: {
+                    color: '#ff4122',
+                    fillRule: 'evenodd',
+                    bubblingMouseEvents: false,
+                    weight: 3,
+                    fillOpacity: 0
+                }
+            }).addTo(map);
+
+            L.geoJSON(dataPatok, {
+                pointToLayer: function (feature, latlng) {
+                    // Define default marker options
+                    var defaultOptions = {
+                        radius: 4,
+                        fillColor: "#ff7800",
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    };
+            
+                    // Customize marker options based on feature properties
+                    var markerOptions = Object.assign({}, defaultOptions); // Clone default options
+                    if (feature.properties && feature.properties.periode) {
+                        // Assuming 'condition' is the property to base the color on
+                        if (feature.properties.periode === true) {
+                            markerOptions.fillColor = 'green'; // Change color for condition 1
+                        } else if (feature.properties.periode === false) {
+                            markerOptions.fillColor = 'blue'; // Change color for condition 2
+                        }
+                        // Add more conditions as needed
+                    }
+            
+                    // Create circle marker with customized options
+                    return L.circleMarker(latlng, markerOptions);
+                }
+            }).addTo(map); // TODO: make popup /w patok att
+
+            // L.geoJSON(dataBridge, {
+            //     pointToLayer: function (feature, latlng) {
+            //         return L.circleMarker(latlng, geojsonMarkerOptionss);
+            //     }
+            // }).addTo(map); // TODO: clustering point and popup /w att
+
+
+            // Fit map bounds after adding layers
+            map.fitBounds(hgu.getBounds(), {
+                padding: [5, 5],
+                maxZoom: 15
+            });
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+    // Call the function to fetch data
+    fetchData(); // TODO: make function that show load screen while fetching data
+
+    // Leaflet Map
+    var map = L.map('map').setView(
+        [1.2098191417100188, 117.90810018140084],
+        10);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    map.addLayer(markers);
 </script>
 </body>
 

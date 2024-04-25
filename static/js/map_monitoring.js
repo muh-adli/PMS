@@ -8,6 +8,7 @@ const Bridge = "/map/api/v1/jembatan/"
 let dataBlock = [];
 let dataHGU = [];
 
+
 var geojsonMarkerOptions = {
     radius: 3,
     fillColor: "#ff7800",
@@ -36,9 +37,9 @@ async function fetchData() {
         var dataPatok = await responsePatok.json();
         console.log("Data from Block endpoint:", dataPatok);
 
-        const responseBridge = await fetch(Bridge);
-        var dataBridge = await responseBridge.json();
-        console.log("Data from Block endpoint:", dataBridge);
+        // const responseBridge = await fetch(Bridge);
+        // var dataBridge = await responseBridge.json();
+        // console.log("Data from Block endpoint:", dataBridge);
 
         // adding geojson Layer into leaflet
         var hgu = L.geoJSON(dataHGU, {
@@ -57,12 +58,14 @@ async function fetchData() {
             }
         }).addTo(map); // TODO: make popup /w patok att
 
-        L.geoJSON(dataBridge, {
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, geojsonMarkerOptionss);
-            }
-        }).addTo(map); // TODO: clustering point and popup /w att
+        // L.geoJSON(dataBridge, {
+        //     pointToLayer: function (feature, latlng) {
+        //         return L.circleMarker(latlng, geojsonMarkerOptionss);
+        //     }
+        // }).addTo(map); // TODO: clustering point and popup /w att
 
+        const markers = L.markerClusterGroup();
+        map.addLayer(markers);
 
         // Fit map bounds after adding layers
         map.fitBounds(hgu.getBounds(), { padding: [5, 5], maxZoom: 15 });
