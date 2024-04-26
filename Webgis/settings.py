@@ -26,11 +26,9 @@ SECRET_KEY = 'django-insecure-+r9#q!+l$)bz54tfh5$gt4^hx!8rpy@taghmj69y03sj98r9w+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '192.168.100.11', # Your IP Address
-    'localhost', # localhost
-    '127.0.0.1' # Default django IP
-    ]
+ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
 
 # Application definition
 
@@ -53,6 +51,7 @@ INSTALLED_APPS = [
     'Accounts',
     'Map',
     'Dashboard',
+    'MobileAPI',
 
 ]
 
@@ -96,9 +95,10 @@ WSGI_APPLICATION = 'Webgis.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        # 'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'webgis',
         'USER': 'postgres',
-        'PASSWORD': '12345',
+        'PASSWORD': '123',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -151,10 +151,11 @@ MEDIA_ROOT = BASE_DIR, 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Geodjango Path
-OSGEO4W_ROOT=r'C:\OSGeo4W'
-GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308'
-GDAL_DATA = r'%OSGEO4W_ROOT%\apps\gdal\share\gdal'
-PROJ_LIB = r'%OSGEO4W_ROOT%\share\proj'
+# OSGEO4W_ROOT=r'C:\OSGeo4W'
+GDAL_LIBRARY_PATH = r"C:\OSGeo4W\bin\gdal308.dll"
+# GDAL_DATA = r'"C:\OSGeo4W\bin\gdal308.dll"'
+PROJ_LIB = r"C:\OSGeo4W\share\proj"
+GEOS_LIBRARY_PATH = r"C:\OSGeo4W\bin\geos_c.dll"
 
 LOGIN_URL=''
 LOGOUT_REDIRECT_URL=''
