@@ -156,5 +156,5 @@ GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308'
 GDAL_DATA = r'%OSGEO4W_ROOT%\apps\gdal\share\gdal'
 PROJ_LIB = r'%OSGEO4W_ROOT%\share\proj'
 
-LOGIN_URL='/Accounts/login/'
-LOGOUT_REDIRECT_URL='/Accounts/login/'
+LOGIN_URL=''
+LOGOUT_REDIRECT_URL=''

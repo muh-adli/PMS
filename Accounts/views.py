@@ -3,35 +3,42 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
+from .forms import *
+
 # Create your views here.
 def LandingPage(request):
-    html = "accounts/LandingPage.html"
-    return render(request, html)
 
-def LoginUser(request):
+    Title = "Palm Management System"
+    html = "accounts/LandingPage.html"
+    form = LoginForm()
+
     if request.method == 'POST':
         # print("masuk post")
-        username = request.POST.get('Username')
-        password = request.POST.get('Password')
-        # print(password, username)
-        user = authenticate(request, username=username, password=password)
-        # print(user)
-        if user is not None:
-            login(request, user)
-            messages.info(request, "Credentials Valid")
-            return redirect('HomePage')
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            # print(password, username)
+            user = authenticate(request, username=username, password=password)
+            # print(user)
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Credentials Valid")
+                return redirect('HomePage')
         else:
             # print("invalid")
             messages.error(request, "Invalid Credentials")
-            return render(request, "LoginPage.html")
-    else:
-        # print("tidak post")
-        return render(request, "LoginPage.html")
+            # return render(request, "LoginPage.html")
+    context = {
+        'Title':Title,
+        'form':form,
+    }
+    return render(request, html, context)
 
 def LogoutUser(request):
     logout(request)
     messages.warning(request, "Logout")
-    return redirect('LoginUser')
+    return redirect('LandingPage')
 
 def Register(request):
     if request.method == 'POST':

@@ -61,20 +61,20 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-center align-items-center align-self-center">
                 <div class="col-4 card">
-                    <form method="POST" action="{% url 'LoginUser' %}" name="login" >
+                    <form method="POST" action="{% url 'LandingPage' %}" name="login" >
                     {% csrf_token %}
                         <div class="card-header">
                             Welcome
                         </div>
                         <div class="card-body">
                                 <div class="form-floating m-1">
-                                    <textarea class="form-control" placeholder="Username" name="Username" style="height: 10px;"></textarea>
+                                    {{ form.username }}
                                     <label>
                                         Username
                                     </label>
                                 </div>
                                 <div class="form-floating m-1">
-                                    <textarea class="form-control" placeholder="Password" name="Password" style="height: 10px"></textarea>
+                                    {{ form.password }}
                                     <label>
                                         Password
                                     </label>
