@@ -68,13 +68,13 @@
                         </div>
                         <div class="card-body">
                                 <div class="form-floating m-1">
-                                    {{ form.username }}
+                                    {{ login.username }}
                                     <label>
                                         Username
                                     </label>
                                 </div>
                                 <div class="form-floating m-1">
-                                    {{ form.password }}
+                                    {{ login.password }}
                                     <label>
                                         Password
                                     </label>
@@ -82,7 +82,7 @@
                         </div>
                         <div class="card-footer align-items-center">
                             <div class="d-flex align-items-center justify-content-center align-items-center">
-                                <button type="submit" value="submit" class="btn btn-success mb-1 mx-1">Log In</button>
+                                <button type="submit" name="login" class="btn btn-success mb-1 mx-1">Log In</button>
                     </form>
                                 <button type="button" class="btn btn-outline-secondary mb-1 mx-1" data-toggle="modal" data-target="#RegisterModal">
                                     Register
@@ -98,21 +98,11 @@
                         </div>
                 </div>
             </div>
-            {% comment %} <div class="row bottom-left">
-                <figure>
-                    <blockquote class="blockquote">
-                        <p>فَاذْكُرُوْنِيْٓ اَذْكُرْكُمْ وَاشْكُرُوْا لِيْ وَلَا تَكْفُرُوْنِࣖ</p>
-                    </blockquote>
-                    <figcaption class="blockquote-footer">
-                        Al-baqarah:<cite title="Source Title">152</cite>
-                    </figcaption>
-                </figure>
-            </div> {% endcomment %}
-
-            <!-- Modal -->
         </div>
     </div>
 
+
+    <!-- Modal -->
     {% comment %} Modal {% endcomment %}
     <div class="modal fade" id="RegisterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -124,13 +114,13 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                <form method="POST" action="{%url 'Register'%}" name="register">
+                <form method="POST" action="{%url 'LandingPage'%}" name="register">
                 {% csrf_token %}
                     <div class="container-fluid">
                         <div class="row my-1">
                             <div class="col">
-                                <div class="form-floating m-1">
-                                    <textarea class="form-control" placeholder="Username" name="Username" style="height: 10px;"></textarea>
+                                <div class="form-floating m-2">
+                                    {{ regis.username }}
                                     <label>
                                         Username
                                     </label>
@@ -138,16 +128,16 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <div class="form-floating mx-1">
-                                        <textarea class="form-control" placeholder="Password" name="Password" style="height: 10px;"></textarea>
+                                    <div class="form-floating m-2">
+                                        {{ regis.password1 }}
                                         <label>
                                             Password
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-auto">
-                                    <div class="form-floating mx-1">
-                                        <textarea class="form-control" placeholder="Passwordagain" name="Passwordagain" style="height: 10px;"></textarea>
+                                <div class="col-sm-6">
+                                    <div class="form-floating m-2">
+                                        {{ regis.password2 }}
                                         <label>
                                             Password Again
                                         </label>
@@ -155,8 +145,8 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-floating m-1">
-                                    <textarea class="form-control" placeholder="email" name="email" style="height: 10px;"></textarea>
+                                <div class="form-floating m-2">
+                                    {{ regis.email }}
                                     <label>
                                         E-mail
                                     </label>
@@ -166,8 +156,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" value="register" class="btn btn-outline-success" name="register">Submit</button>
+                    <button type="submit" name="register" class="btn btn-outline-success">Submit</button>
                 </div>
                 </form>
             </div>
