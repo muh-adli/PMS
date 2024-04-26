@@ -19,13 +19,13 @@ from plotly.offline import plot
 import plotly.graph_objects as go
 
 # Create your views here.
-@login_required(login_url="/login")
+@login_required(login_url="")
 def HomePage(request):
     Title = 'HomePage'
     context = {'Title':Title}
     return render(request, "static_home.html",context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def center(request):
     Title = 'Dashboard - Center'
 
@@ -34,7 +34,7 @@ def center(request):
     }
     return render(request, "dashboard/static_dashboard_center.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def hectare(request):
     Title = 'Dashboard - Hectare Statement'
     Planted_qs = Planted.objects.aggregate(total_ha=Sum('ha'))
@@ -50,7 +50,7 @@ def hectare(request):
     }
     return render(request, "dashboard/static_dashboard_hectarestatement.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def jangkos(request):
     Title = 'Dashboard - Jangkos'
 
@@ -71,7 +71,7 @@ def jangkos(request):
     }
     return render(request, "dashboard/static_dashboard_jangkos.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def JangkosTable(request):
     Title = 'Table - Jangkos'
     TableData = Jangkos.objects.values(
@@ -86,7 +86,7 @@ def JangkosTable(request):
     }
     return render(request, "dashboard/static_table_jangkos.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def JangkosEdit(request, gid):
 
     # Title
@@ -138,7 +138,7 @@ def JangkosEdit(request, gid):
     }
     return render(request,'dashboard/static_table_edit_jangkos.html', context )
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def pupuk(request):
     Title = 'Dashboard - Pupuk'
     # ## Data collecting and cleansing from database
@@ -150,7 +150,7 @@ def pupuk(request):
     }
     return render(request, "dashboard/static_dashboard_pupuk.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def Monitoring(request):
     Title = 'Dashboard - Monitoring'
     ## Data collecting and cleansing from database
@@ -178,7 +178,7 @@ def Monitoring(request):
     }
     return render(request, "dashboard/static_dashboard_monitoring.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def PatokTable(request):
     Title = 'Dashboard - Patok'
     ## Data collecting and cleansing from database
@@ -200,7 +200,7 @@ def PatokTable(request):
     }
     return render(request, "dashboard/static_table_patok.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def PatokEdit(request, gid):
 
     # Title
@@ -238,6 +238,6 @@ def PatokEdit(request, gid):
     }
     return render(request, "dashboard/asd.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="")
 def ExtJangkos(request):
     return render(request, "dashboard/asd.html")
