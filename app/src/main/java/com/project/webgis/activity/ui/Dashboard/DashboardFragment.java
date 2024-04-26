@@ -29,10 +29,6 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        //transaction.add(R.id.child_fragment_container, childGeometry).commit();
-        //transaction.add(R.id.child_fragment_container, childTable).commit();
-        //transaction.hide(childTable).commit();
 
         FragmentManager fm = getChildFragmentManager();
 
@@ -45,10 +41,6 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (active != childGeometry) {
-                    //transaction.replace(R.id.child_fragment_container, childGeometry).commit();
-                    //transaction.show(childGeometry).hide(active).commit();
-                    //active = childGeometry;
-
                     fm.beginTransaction().hide(active).show(childGeometry).commit();
                     active = childGeometry;
                 }
@@ -59,10 +51,6 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (active != childTable) {
-                    //transaction.add(R.id.child_fragment_container, childTable).hide(active).commit();
-                    //transaction.show(childTable).hide(active).commit();
-                    //active = childTable;
-
                     if (firstTable) {
                         fm.beginTransaction().add(R.id.child_fragment_container, childTable).hide(active).commit();
                         firstTable = false;

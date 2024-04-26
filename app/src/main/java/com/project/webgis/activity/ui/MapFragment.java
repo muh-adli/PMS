@@ -1,6 +1,10 @@
 package com.project.webgis.activity.ui;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +43,11 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Context ctx = getContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+
+        Bitmap arrowMap = BitmapFactory.decodeResource(getResources(), org.osmdroid.library.R.drawable.round_navigation_white_48);
+
         map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
 
@@ -50,16 +59,15 @@ public class MapFragment extends Fragment {
         this.mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getActivity()),map);
         this.mLocationOverlay.enableMyLocation();
         this.mLocationOverlay.enableFollowLocation();
+        this.mLocationOverlay.setDrawAccuracyEnabled(false);
+        this.mLocationOverlay.setPersonIcon(arrowMap);
         map.getOverlays().add(this.mLocationOverlay);
 
         this.mCompassOverlay = new CompassOverlay(getActivity(), new InternalCompassOrientationProvider(getActivity()), map);
         this.mCompassOverlay.enableCompass();
         map.getOverlays().add(this.mCompassOverlay);
 
-        mRotationGestureOverlay = new RotationGestureOverlay(getActivity(), map);
-        mRotationGestureOverlay.setEnabled(true);
-        map.setMultiTouchControls(true);
-        map.getOverlays().add(this.mRotationGestureOverlay);
+
     }
 
     @Override

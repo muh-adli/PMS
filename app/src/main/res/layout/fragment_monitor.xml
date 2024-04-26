@@ -5,27 +5,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    tools:context=".activity.ui.MonitorFragment"
     android:paddingStart="20dp"
+    android:paddingTop="10dp"
     android:paddingEnd="20dp"
-    android:paddingTop="10dp">
+    android:paddingBottom="10dp"
+    tools:context=".activity.ui.Monitor.MonitorFragment">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/top_nav_background"
-        android:layout_marginBottom="10dp">
-        <TextView
-            android:id="@+id/text_dashboard"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/monitor_switch"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="@string/menu_monitor"
-            />
-    </FrameLayout>
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/top_nav_background">
+
+            <TextView
+                android:id="@+id/text_dashboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/menu_monitor"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/child_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/monitor_switch"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <Button
+            android:id="@+id/buttonTankos"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_weight="33.33"
+            android:background="@drawable/button_background_left"
+            android:text="@string/monitor_tankos" />
+
+        <Button
+            android:id="@+id/buttonPatok"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_weight="33.33"
+            android:background="@drawable/button_background_mid"
+            android:text="@string/monitor_patok" />
+
+        <Button
+            android:id="@+id/buttonPupuk"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_weight="33.33"
+            android:background="@drawable/button_background_right"
+            android:text="@string/monitor_pupuk" />
+    </LinearLayout>
 </RelativeLayout>

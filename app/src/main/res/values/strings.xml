@@ -10,5 +10,8 @@
     <string name="menu_other">Other</string>
     <string name="dashboard_geometry">Geometry</string>
     <string name="dashboard_table">Table</string>
+    <string name="monitor_tankos">Tankos</string>
+    <string name="monitor_patok">Patok HGU</string>
+    <string name="monitor_pupuk">Pupuk</string>
     <!-- Strings used for fragments for navigation -->
 </resources>

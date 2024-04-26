@@ -110,7 +110,7 @@
     <LinearLayout
         android:id="@+id/dashboard_switch"
         android:layout_width="match_parent"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="50dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
