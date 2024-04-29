@@ -14,7 +14,7 @@ urlpatterns = [
     path('api/v1/hgu/', HGUBoundary, name='HGUBoundary'),
     path('api/v1/afdeling/', AfdelingBoundary, name='AfdelingBoundary'),
     path('api/v1/block/', BlockBoundary, name='BlockBoundary'),
-    path('api/v1/jangkos/', JangkosData, name='JangkosData'),
+    # path('api/v1/jangkos/', JangkosData, name='JangkosData'),
     path('api/v1/planted/', PlantedData, name='PlantedData'),
 
     ## Point

@@ -73,7 +73,7 @@
                         Monitoring
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'Monitoring' %}">Patok HGU</a>
+                        <a class="dropdown-item" href="{% url 'Patok' %}">Patok HGU</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'Jangkos' %}">Tankos</a>
                         <a class="dropdown-item" href="{% url 'Pupuk' %}">Pupuk</a>
@@ -201,6 +201,21 @@
             return false; // Return false otherwise
         }
     }
+    function getColor(periode) {
+        // Define colors based on 'periode'
+        // Example: Assuming 'periode' can have values 'Q1', 'Q2', 'Q3', 'Q4', and null
+        var colors = {
+            'Q1': '#003f5c',
+            'Q2': '#58508d',
+            'Q3': '#bc5090',
+            'Q4': '#ff6361',
+            'null': '#ffa600' // Note: 'null' is a string here, not null
+        };
+
+        // Return color based on 'periode'
+        return colors[periode] || '#808080'; // Return color or default if 'periode' not found
+    }
+
     async function fetchData() {
         try {
             // Fetch data from HGU endpoint
@@ -216,11 +231,11 @@
             var patokSelected = L.geoJSON(dataPatok, {
                 pointToLayer: function (feature, latlng) {
                     return L.circleMarker(latlng, {
-                        radius: 10, // Adjust the radius of the circle as needed
-                        color: '#293241', // Outline color
+                        radius: 16, // Adjust the radius of the circle as needed
+                        color: 'black', // Outline color
                         weight: 1,
                         opacity: 1,
-                        fillColor: '#293241', // Blue sky color
+                        fillColor: 'green', // Blue sky color
                         fillOpacity: 1
                     });
                 },
@@ -233,12 +248,12 @@
             var patok = L.geoJSON(dataPatok, {
                 pointToLayer: function (feature, latlng) {
                     return L.circleMarker(latlng, {
-                        radius: 8, // Adjust the radius of the circle as needed
-                        color: '#3186cc', // Outline color
+                        radius: 12,
+                        fillColor: getColor(feature.properties.periode),
+                        color: "#000",
                         weight: 1,
                         opacity: 1,
-                        fillColor: '#3186cc', // Blue sky color
-                        fillOpacity: 1
+                        fillOpacity: 0.8
                     });
                 },
                 // filter data by function leaflet

@@ -75,7 +75,7 @@
                         Monitoring
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'Monitoring' %}">Patok HGU</a>
+                        <a class="dropdown-item" href="{% url 'Patok' %}">Patok HGU</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'Jangkos' %}">Tankos</a>
                         <a class="dropdown-item" href="{% url 'Pupuk' %}">Pupuk</a>
@@ -108,8 +108,8 @@
     </div>
 
     <!-- Content -->
-    <div class="row d-flex py-2 m-0 bg-warning align-items-center justify-content-center">
-        <div class="row bg-info">
+    <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
+        <div class="row">
             <div class="card-body align-items-center text-center">
                 {% if TableData %}
                 <div class="table-responsive-sm">
@@ -142,7 +142,7 @@
                         </tbody>
                     </table>
                     <div>
-                        <a href="{% url 'jangkos' %}" type="button" class="btn btn-sm btn-success active">
+                        <a href="{% url 'Patok' %}" type="button" class="btn btn-sm btn-success active">
                             Back
                         </a>
                     </div>

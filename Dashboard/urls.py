@@ -8,17 +8,17 @@ from .views import *
 urlpatterns = [
     path('HomePage/', HomePage, name='HomePage'),
     ## Dashboard
-    path('dasboard/center/', center, name='Center'),
-    path('dasboard/hectare/', hectare, name='Hectare'),
+    path('center/', center, name='Center'),
+    path('hectare/', hectare, name='Hectare'),
 
     ## Dashboard Jangkos
-    path('dasboard/jangkos/', jangkos, name='Jangkos'),
-    path('dasboard/jangkos/table/', JangkosTable, name='JangkosTable'),
-    path('dasboard/jangkos/table/edit/<int:gid>/', JangkosEdit, name='JangkosEdit'),
+    path('jangkos/', jangkos, name='Jangkos'),
+    path('jangkos/table/', JangkosTable, name='JangkosTable'),
+    path('jangkos/table/edit/<int:gid>/', JangkosEdit, name='JangkosEdit'),
     ## Dashboard Pupuk
-    path('dasboard/pupuk/', pupuk, name='Pupuk'),
+    path('pupuk/', pupuk, name='Pupuk'),
     ## Dashboard Monitoring
-    path('dasboard/monitoring/', Monitoring, name='Monitoring'),
-    path('dasboard/monitoring/patok/table/', PatokTable, name='PatokTable'),
-    path('dasboard/monitoring/patok/table/<int:gid>/', PatokEdit, name='PatokEdit'),
+    path('patok/', Patok, name='Patok'),
+    path('patok/table/', PatokTable, name='PatokTable'),
+    path('patok/table/<int:gid>/', PatokEdit, name='PatokEdit'),
 ]

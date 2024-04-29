@@ -24,7 +24,7 @@ class EditJangkosFormAdd(forms.ModelForm):
         )
     )
     class Meta:
-        model = Block
+        model = HguBlock
         fields = ('afd_name','block_name','area')
 
 class EditJangkosForm(forms.ModelForm):
@@ -43,7 +43,7 @@ class EditJangkosForm(forms.ModelForm):
         )
     )
     class Meta:
-        model = Jangkos
+        model = TankosAplsummary
         fields = ('dumps','aplikasi')
 
 
@@ -108,7 +108,7 @@ class EditPatokForm(forms.ModelForm):
         )
     )
     class Meta:
-        model = MonitoringPatokhgu
+        model = HguPatok
         fields = (
             'block_name',
             'afd_name',

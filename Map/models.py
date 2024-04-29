@@ -1,7 +1,21 @@
 from django.contrib.gis.db import models
 
 # Create your models here.
-class Afdeling(models.Model):
+class Hgu(models.Model):
+    gid = models.AutoField(primary_key=True)
+    objectid = models.FloatField(blank=True, null=True)
+    werks = models.IntegerField(blank=True, null=True)
+    comp_code = models.IntegerField(blank=True, null=True)
+    spmon = models.DateField(blank=True, null=True)
+    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    geom = models.MultiPolygonField(srid=32650, dim=4, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'hgu'
+
+
+class HguAfdeling(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
     afd_name = models.CharField(max_length=50, blank=True, null=True)
@@ -14,10 +28,10 @@ class Afdeling(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'afdeling'
+        db_table = 'hgu_afdeling'
 
 
-class Block(models.Model):
+class HguBlock(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
     afd_name = models.CharField(max_length=50, blank=True, null=True)
@@ -35,24 +49,32 @@ class Block(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'block'
+        db_table = 'hgu_block'
 
 
-class Hgu(models.Model):
+class HguJalan(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
-    werks = models.IntegerField(blank=True, null=True)
-    comp_code = models.IntegerField(blank=True, null=True)
-    spmon = models.DateField(blank=True, null=True)
-    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    geom = models.MultiPolygonField(srid=32650, dim=4, blank=True, null=True)
+    afd_name = models.CharField(max_length=50, blank=True, null=True)
+    block_name = models.CharField(max_length=15, blank=True, null=True)
+    road_cat = models.CharField(max_length=30, blank=True, null=True)
+    road_name = models.CharField(max_length=20, blank=True, null=True)
+    perkerasan = models.CharField(max_length=50, blank=True, null=True)
+    keterangan = models.CharField(max_length=50, blank=True, null=True)
+    spmon = models.CharField(max_length=50, blank=True, null=True)
+    rd_sym = models.CharField(max_length=50, blank=True, null=True)
+    road_code = models.CharField(max_length=50, blank=True, null=True)
+    werks = models.FloatField(blank=True, null=True)
+    kj = models.CharField(max_length=15, blank=True, null=True)
+    panjang = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    geom = models.MultiLineStringField(srid=32650, dim=4, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'hgu'
+        db_table = 'hgu_jalan'
 
 
-class Jembatan(models.Model):
+class HguJembatan(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
     werks = models.FloatField(blank=True, null=True)
@@ -72,10 +94,10 @@ class Jembatan(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'jembatan'
+        db_table = 'hgu_jembatan'
 
 
-class MonitoringPatokhgu(models.Model):
+class HguPatok(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
     kode = models.CharField(max_length=20, blank=True, null=True)
@@ -92,10 +114,10 @@ class MonitoringPatokhgu(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'monitoring_patokhgu'
+        db_table = 'hgu_patok'
 
 
-class Planted(models.Model):
+class HguPlanted(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
     afd_name = models.CharField(max_length=50, blank=True, null=True)
@@ -113,61 +135,85 @@ class Planted(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'planted'
+        db_table = 'hgu_planted'
 
 
-class Road(models.Model):
+class KaveldOa(models.Model):
     gid = models.AutoField(primary_key=True)
-    objectid = models.FloatField(blank=True, null=True)
     afd_name = models.CharField(max_length=50, blank=True, null=True)
     block_name = models.CharField(max_length=15, blank=True, null=True)
-    road_cat = models.CharField(max_length=30, blank=True, null=True)
-    road_name = models.CharField(max_length=20, blank=True, null=True)
-    perkerasan = models.CharField(max_length=50, blank=True, null=True)
-    keterangan = models.CharField(max_length=50, blank=True, null=True)
-    spmon = models.CharField(max_length=50, blank=True, null=True)
-    rd_sym = models.CharField(max_length=50, blank=True, null=True)
-    road_code = models.CharField(max_length=50, blank=True, null=True)
+    shape_leng = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     werks = models.FloatField(blank=True, null=True)
-    kj = models.CharField(max_length=15, blank=True, null=True)
-    panjang = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    geom = models.MultiLineStringField(srid=32650, dim=4, blank=True, null=True)
+    afd_code = models.CharField(max_length=50, blank=True, null=True)
+    spmon = models.CharField(max_length=50, blank=True, null=True)
+    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    planted = models.CharField(max_length=50, blank=True, null=True)
+    luas20 = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    luas20q2 = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    block_code = models.CharField(max_length=50, blank=True, null=True)
+    yop = models.CharField(max_length=50, blank=True, null=True)
+    topo = models.CharField(max_length=50, blank=True, null=True)
+    estate = models.CharField(max_length=50, blank=True, null=True)
+    driven = models.CharField(max_length=20, blank=True, null=True)
+    shape_le_1 = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    shape_area = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    kaveld = models.CharField(max_length=10, blank=True, null=True)
+    ancak = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    geom = models.MultiPolygonField(srid=32650, dim=4, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'road'
-        
-class DumpTankos(models.Model):
-    gid = models.AutoField(primary_key=True)
-    afdeling = models.CharField(max_length=5, blank=True, null=True)
-    block = models.CharField(max_length=5, blank=True, null=True)
-    location = models.CharField(max_length=10, blank=True, null=True)
-    dumps = models.DateField(blank=True, null=True)
-    aplikasi = models.DateField(blank=True, null=True)
-    selisih = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    status = models.CharField(max_length=10, blank=True, null=True)
-    ton_dumps = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    ton_lap = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    geom = models.PointField(srid=32650, blank=True, null=True)
+        db_table = 'kaveld_oa'
+
+
+class TankosAplpokok(models.Model):
+    afdeling = models.CharField(blank=True, null=True)
+    block = models.CharField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    pokok = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'dump_tankos'
+        db_table = 'tankos_aplpokok'
 
-class AplikasiTankos(models.Model):
+
+class TankosAplsummary(models.Model):
     gid = models.AutoField(primary_key=True)
-    afdeling = models.CharField(max_length=5, blank=True, null=True)
-    block = models.CharField(max_length=5, blank=True, null=True)
-    jml_pokok = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    ha_area = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    tonase = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    afdeling = models.CharField(max_length=5)
+    block = models.CharField(max_length=5)
+    tot_pokok = models.IntegerField(blank=True, null=True)
+    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    tot_tonase = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     aplikasi = models.DateField(blank=True, null=True)
-    ton_lap = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    prog_pokok = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    prog_ha = models.IntegerField(blank=True, null=True)
-    sph = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    prog_pokok = models.IntegerField(blank=True, null=True)
+    prog_tonase = models.FloatField(blank=True, null=True)
+    sph = models.FloatField(blank=True, null=True)
     geom = models.MultiPolygonField(srid=32650, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'aplikasi_tankos'
+        db_table = 'tankos_aplsummary'
+
+
+class TankosApltonase(models.Model):
+    afdeling = models.CharField(blank=True, null=True)
+    block = models.CharField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    tonase = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tankos_apltonase'
+
+
+class TankosDumpdata(models.Model):
+    gid = models.AutoField(primary_key=True)
+    afdeling = models.CharField(max_length=5, blank=True, null=True)
+    block = models.CharField(max_length=5, blank=True, null=True)
+    location = models.CharField(max_length=10, blank=True, null=True)
+    dump_date = models.DateField(blank=True, null=True)
+    geom = models.PointField(srid=32650, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tankos_dumpdata'

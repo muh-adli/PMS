@@ -2,28 +2,24 @@ console.log("JS masok")
 
 const HGU = "/map/api/v1/hgu/"
 const Patok = "/map/api/v1/patok/"
-const Bridge = "/map/api/v1/jembatan/"
-// const Road = "/map/api/v1/jangkos/"
 
-let dataBlock = [];
+let dataPatok = [];
 let dataHGU = [];
 
-var geojsonMarkerOptions = {
-    radius: 3,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 1
-};
-var geojsonMarkerOptionss = {
-    radius: 3,
-    fillColor: "#ffffff",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 1
-};
+function getColor(periode) {
+    // Define colors based on 'periode'
+    // Example: Assuming 'periode' can have values 'Q1', 'Q2', 'Q3', 'Q4', and null
+    var colors = {
+        'Q1': '#003f5c',
+        'Q2': '#58508d',
+        'Q3': '#bc5090',
+        'Q4': '#ff6361',
+        'null': '#ffa600' // Note: 'null' is a string here, not null
+    };
+
+    // Return color based on 'periode'
+    return colors[periode] || '#808080'; // Return color or default if 'periode' not found
+}
 
 async function fetchData() {
     try {
@@ -34,11 +30,7 @@ async function fetchData() {
 
         const responsePatok = await fetch(Patok);
         var dataPatok = await responsePatok.json();
-        console.log("Data from Block endpoint:", dataPatok);
-
-        const responseBridge = await fetch(Bridge);
-        var dataBridge = await responseBridge.json();
-        console.log("Data from Block endpoint:", dataBridge);
+        console.log("Data from Patok endpoint:", dataPatok);
 
         // adding geojson Layer into leaflet
         var hgu = L.geoJSON(dataHGU, {
@@ -53,16 +45,16 @@ async function fetchData() {
 
         L.geoJSON(dataPatok, {
             pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, geojsonMarkerOptions);
+                return L.circleMarker(latlng, {
+                    radius: 8,
+                    fillColor: getColor(feature.properties.periode),
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
             }
-        }).addTo(map); // TODO: make popup /w patok att
-
-        L.geoJSON(dataBridge, {
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, geojsonMarkerOptionss);
-            }
-        }).addTo(map); // TODO: clustering point and popup /w att
-
+        }).addTo(map);
 
         // Fit map bounds after adding layers
         map.fitBounds(hgu.getBounds(), { padding: [5, 5], maxZoom: 15 });
@@ -80,5 +72,5 @@ var map = L.map('map').setView(
     10);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://www.linkedin.com/in/muh-adli/">Contributors</a>'
 }).addTo(map);

@@ -42,7 +42,7 @@ def AfdelingBoundary(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Afdeling.objects.annotate(
+    qs = HguAfdeling.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -50,7 +50,7 @@ def AfdelingBoundary(request):
     end = datetime.now()
     # print("end: ", str(end))
     delta = end - now
-    print("AfdelingBoundary qs: ", round(delta.total_seconds(), 3),'S')
+    print("Afdeling qs: ", round(delta.total_seconds(), 3),'S')
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Afdeling_qs, content_type='json')
 
@@ -59,7 +59,7 @@ def JembatanData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Jembatan.objects.annotate(
+    qs = HguJembatan.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -76,7 +76,7 @@ def PatokData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = MonitoringPatokhgu.objects.annotate(
+    qs = HguPatok.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -93,7 +93,7 @@ def PlantedData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Planted.objects.annotate(
+    qs = HguPlanted.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -110,7 +110,7 @@ def BlockBoundary(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Block.objects.annotate(
+    qs = HguBlock.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -122,25 +122,25 @@ def BlockBoundary(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Block_qs, content_type='json')
 
-@login_required()
-def JangkosData(request):
-    qs = Block.objects.annotate(
-            jangkos = Case(
-                        When(gid__jangkos_gid__isnull=False, then=Value('Data Available')),
-                        default=Value('No Data Available'),
-                        output_field=CharField()
-                        )
-        ).order_by('jangkos')
-    for block in qs:
-        print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
-    return HttpResponse(qs, content_type='json')
+# @login_required()
+# def JangkosData(request):
+#     qs = Block.objects.annotate(
+#             jangkos = Case(
+#                         When(gid__jangkos_gid__isnull=False, then=Value('Data Available')),
+#                         default=Value('No Data Available'),
+#                         output_field=CharField()
+#                         )
+#         ).order_by('jangkos')
+#     for block in qs:
+#         print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
+#     return HttpResponse(qs, content_type='json')
 
 @login_required()
 def TankosAplikasi(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = AplikasiTankos.objects.annotate(
+    qs = TankosAplsummary.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -157,7 +157,7 @@ def TankosDump(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = DumpTankos.objects.annotate(
+    qs = TankosDumpdata.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 

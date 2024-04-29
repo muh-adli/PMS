@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-+r9#q!+l$)bz54tfh5$gt4^hx!8rpy@taghmj69y03sj98r9w+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '*',
+    '192.168.100.11', # Your IP Address
+    'localhost', # localhost
+    '127.0.0.1' # Default django IP
+    ]
 
 CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
 
@@ -40,14 +45,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.gis",
-    "rest_framework",
-    "rest_framework_gis",
     'django.contrib.humanize',
 
-    # third-party apps
+    ## third-party library
+    'django_tables2',
+    "rest_framework",
+    "rest_framework_gis",
 
-
-    # apps
+    ## Django apps
     'Accounts',
     'Map',
     'Dashboard',
@@ -98,7 +103,7 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'webgis',
         'USER': 'postgres',
-        'PASSWORD': '123',
+        'PASSWORD': '12345',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -151,11 +156,10 @@ MEDIA_ROOT = BASE_DIR, 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Geodjango Path
-# OSGEO4W_ROOT=r'C:\OSGeo4W'
-GDAL_LIBRARY_PATH = r"C:\OSGeo4W\bin\gdal308.dll"
-# GDAL_DATA = r'"C:\OSGeo4W\bin\gdal308.dll"'
-PROJ_LIB = r"C:\OSGeo4W\share\proj"
-GEOS_LIBRARY_PATH = r"C:\OSGeo4W\bin\geos_c.dll"
+OSGEO4W_ROOT=r'C:\OSGeo4W' # OSGEO4W Path
+GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308' # GDAL Lib Path
+GDAL_DATA = r'%OSGEO4W_ROOT%\apps\gdal\share\gdal' # GDAL DATA Path
+PROJ_LIB = r'%OSGEO4W_ROOT%\share\proj' # Proj Path
 
 LOGIN_URL=''
 LOGOUT_REDIRECT_URL=''
