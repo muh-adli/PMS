@@ -1,11 +1,11 @@
 ## Django build-in fuctions
+from django.http import HttpResponse
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Count, Sum
+from django.db.models import F, Count, Sum, Q
 from django.contrib.gis.db.models.functions import Transform
-from django.contrib import messages
-from django.core.serializers import serialize
-from django.http import JsonResponse
+
 
 # Models and forms
 from .models import *
@@ -14,11 +14,9 @@ from .tables import *
 from Map.models import *
 
 ## Library
-from django_tables2.tables import Paginator
-import django_tables2 as tables
-from plotly.subplots import make_subplots
-from plotly.offline import plot
-import plotly.graph_objects as go
+import pandas as pd
+from datetime import datetime
+import io
 
 # Create your views here.
 @login_required(login_url="")
@@ -226,21 +224,91 @@ def Patok(request):
         }
     return render(request, "dashboard/static_dashboard_patok.html", context)
 
-
 def PatokTable(request):
     Title = 'Dashboard - Patok'
-    ## Data collecting and cleansing from database
-    patok_qs = HguPatok.objects.all()
-    # patok_pagi = PatokTable(patok_qs)
-    # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
+    query = request.GET.get('q')
+    if query:
+        patok_qs = HguPatok.objects.filter(no_patok__icontains=query).order_by('no_patok')
 
-    # Context dictionary for passing data
-    context = {
-        'Title': Title,
-        'TableData' : patok_qs,
-        # 'patok_pagi' : patok_pagi
-    }
+        ## Checking available data
+        if patok_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('PatokTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : patok_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        patok_qs = HguPatok.objects.all()
+        # patok_pagi = PatokTable(patok_qs)
+        # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : patok_qs,
+            # 'patok_pagi' : patok_pagi
+        }
     return render(request, "dashboard/static_table_patok.html", context)
+
+def PatokExtract(request):
+
+    date = str(datetime.now().strftime('%d-%m-%Y'))
+    print(date)
+    ## Data collecting and cleansing from database
+    patok_qs = HguPatok.objects.values(
+        'kode',
+        'afd_name',
+        'block_name',
+        'no_patok',
+        'periode',
+        'status',
+        'x',
+        'y',
+        'longitude',
+        'latitude',
+    ).order_by('no_patok')
+    data = pd.DataFrame(patok_qs)
+    data = data.rename(columns={
+    'kode':'Kode',
+    'afdeling': 'Afdeling',
+    'block_name': 'Block',
+    'no_patok': 'Patok',
+    'periode':'Periode',
+    'status':'Status',
+    'x':'Koordinat X',
+    'y':'Koordinat Y',
+    'longitude':'Longitude',
+    'latitude':'Latitude',
+    })
+    data = data.reindex(columns=[
+    'Kode',
+    'Afdeling',
+    'Block',
+    'Patok',
+    'Periode',
+    'Status',
+    'Koordinat X',
+    'Koordinat Y',
+    'Longitude',
+    'Latitude',
+    ])
+    # Create BytesIO buffer to write the Excel file
+    output = io.BytesIO()
+    data.to_excel(output, index=False)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={date}_Patok.xlsx'
+    return response
 
 @login_required(login_url="")
 def PatokEdit(request, gid):

@@ -151,10 +151,17 @@
                                     {{ form.status }}
                                 </div>
                             </div>
-                            <div class="row m-1 p-1">
-                                <button type="submit" class="btn btn-success" >
-                                    Edit
-                                </button>
+                            <div class="row center-block align-items-center justify-content-center mt-3">
+                                <div class="col-lg-11 col-md-10 my-1 text-center">
+                                    <button type="submit" class="btn btn-success btn-block">
+                                        Submit
+                                    </button>
+                                </div>
+                                <div class="col-lg-1 col-md-2 my-1 text-center">
+                                    <a href="{% url "PatokTable" %}" class="btn btn-secondary btn-block">
+                                        Cancel
+                                    </a>
+                                </div>
                             </div>
                         </form>
 
@@ -169,7 +176,7 @@
                     <h5 class="card-header">
                         Map
                     </h5>
-                    <div id="map" style="height:40vh;"></div>
+                    <div id="map" style="height:45vh;"></div>
                 </div>
             </div>
         </div>

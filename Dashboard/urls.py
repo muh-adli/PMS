@@ -1,10 +1,9 @@
 from django.urls import path
+
+## import function and else
 from .views import *
-# from rest_framework.routers import DefaultRouter
 
-# router = DefaultRouter()
-# router.register(r'rest', rmhViewSet, basename='rest')
-
+## URL pattern and function
 urlpatterns = [
     path('HomePage/', HomePage, name='HomePage'),
     ## Dashboard
@@ -20,5 +19,6 @@ urlpatterns = [
     ## Dashboard Monitoring
     path('patok/', Patok, name='Patok'),
     path('patok/table/', PatokTable, name='PatokTable'),
+    path('patok/table/ext', PatokExtract, name='PatokExtract'),
     path('patok/table/<int:gid>/', PatokEdit, name='PatokEdit'),
 ]
