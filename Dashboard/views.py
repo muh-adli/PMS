@@ -238,6 +238,11 @@ def TankosEdit(request, gid):
     }
     return render(request,'dashboard/static_tankos_table_edit.html', context )
 
+
+@login_required(login_url="")
+def ExtJangkos(request):
+    return render(request, "dashboard/asd.html")
+
 @login_required(login_url="")
 def Pupuk(request):
     Title = 'Dashboard - Pupuk'
@@ -399,7 +404,10 @@ def PatokEdit(request, gid):
     if request.method == 'POST':
         form = EditPatokForm(request.POST, instance=patok_obj)
         if form.is_valid():
-            form.save()  # This will update the existing object
+            patok_obj = form.save(commit=False)
+            patok_obj.status = 'Bagus'
+            patok_obj.save()
+
             messages.success(request, 'Blok updated successfully.')
             return redirect('PatokTable')
         else:
@@ -416,7 +424,3 @@ def PatokEdit(request, gid):
         'geomid': gid,
     }
     return render(request, "dashboard/static_patok_table_edit.html", context)
-
-@login_required(login_url="")
-def ExtJangkos(request):
-    return render(request, "dashboard/asd.html")
