@@ -45,14 +45,23 @@ async function fetchData() {
 
         L.geoJSON(dataPatok, {
             pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, {
-                    radius: 8,
+                var circleMarker = L.circleMarker(latlng, {
+                    radius: 4,
                     fillColor: getColor(feature.properties.periode),
                     color: "#000",
                     weight: 1,
                     opacity: 1,
                     fillOpacity: 0.8
                 });
+
+                // Bind a popup to the circle marker with multiple lines of content
+                circleMarker.bindPopup(
+                    "Patok: " + feature.properties.no_patok + "<br>" +
+                    "Periode: " + feature.properties.periode + "<br>" +
+                    '<a href="/dashboard/patok/table/' + feature.properties.objectid + '/" target="_blank">Edit</a>'
+                );
+
+                return circleMarker;
             }
         }).addTo(map);
 
