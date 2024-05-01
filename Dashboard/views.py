@@ -32,7 +32,7 @@ def center(request):
     context = {
         'Title': Title,
     }
-    return render(request, "dashboard/static_dashboard_center.html", context)
+    return render(request, "dashboard/static_center_dashboard.html", context)
 
 @login_required(login_url="")
 def hectare(request):
@@ -48,14 +48,14 @@ def hectare(request):
         'Planted': tot_Planted,
         'HGU': tot_HGU,
     }
-    return render(request, "dashboard/static_dashboard_hectarestatement.html", context)
+    return render(request, "dashboard/static_hectarestatement_dashboard.html", context)
 
 @login_required(login_url="")
-def jangkos(request):
-    Title = 'Dashboard - Jangkos'
+def Tankos(request):
+    Title = 'Dashboard - Tankos'
 
     ## Querying data
-    jangkos_qs = TankosSummary.objects.values(
+    Tankos_qs = TankosSummary.objects.values(
         'afdeling',
         'block',
         'area',
@@ -64,17 +64,8 @@ def jangkos(request):
         'status',
         )
 
-    afdeling = models.CharField(max_length=5, blank=True, null=True)
-    block = models.CharField(max_length=5, blank=True, null=True)
-    area = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
-    date_delta = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    status = models.TextField(blank=True, null=True)
-    pokok = models.IntegerField(blank=True, null=True)
-    tonase = models.FloatField(blank=True, null=True)
-
     ## Table data
-    TableData = jangkos_qs.order_by('afdeling','block')[:10]
+    TableData = Tankos_qs.order_by('afdeling','block')[:10]
     # print(TableData)
 
     ## Context
@@ -82,11 +73,99 @@ def jangkos(request):
         'TableData' : TableData,
         'Title':Title
     }
-    return render(request, "dashboard/static_dashboard_jangkos.html", context)
+    return render(request, "dashboard/static_tankos_dashboard.html", context)
+
+def AplPokokTable(request):
+    Title = 'Dashboard - pokok'
+    query = request.GET.get('q')
+    if query:
+        pokok_qs = TankosAplpokok.objects.filter(block=query).order_by('-date')
+
+        ## Checking available data
+        if pokok_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('AplPokokTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : pokok_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        pokok_qs = TankosAplpokok.objects.all().order_by('-date') #TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : pokok_qs,
+        }
+    return render(request, "dashboard/static_tankos_tabledata.html", context)
+
+def AplTonaseTable(request):
+    Title = 'Dashboard - tonase'
+    query = request.GET.get('q')
+    if query:
+        tonase_qs = TankosApltonase.objects.filter(block=query).order_by('-date')
+
+        ## Checking available data
+        if tonase_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('AplTonaseTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : tonase_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        tonase_qs = TankosApltonase.objects.all().order_by('-date') #TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : tonase_qs,
+        }
+    return render(request, "dashboard/static_tankos_tabledata.html", context)
+
+def DumpTable(request):
+    Title = 'Dashboard - dump'
+    query = request.GET.get('q')
+    if query:
+        dump_qs = TankosDumpdata.objects.filter(location=query).order_by('-dump_date')
+
+        ## Checking available data
+        if dump_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('DumpTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : dump_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        dump_qs = TankosDumpdata.objects.all().order_by('-dump_date') #TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : dump_qs,
+        }
+    return render(request, "dashboard/static_tankos_tabledata.html", context)
+
 
 @login_required(login_url="")
-def JangkosTable(request):
-    Title = 'Table - Jangkos'
+def TankosTable(request):
+    Title = 'Table - Tankos'
     TableData = TankosSummary.objects.values(
         'afdeling',
         'block',
@@ -102,13 +181,13 @@ def JangkosTable(request):
         'TableData' : TableData,
         'Title':Title
     }
-    return render(request, "dashboard/static_table_jangkos.html", context)
+    return render(request, "dashboard/static_tankos_table.html", context)
 
 @login_required(login_url="")
-def JangkosEdit(request, gid):
+def TankosEdit(request, gid):
 
     # Title
-    Title = 'Edit Jangkos'
+    Title = 'Edit Tankos'
     geomid = gid
 
     #  Query
@@ -119,8 +198,8 @@ def JangkosEdit(request, gid):
             ).get(gid=gid)
     print(Block_qs)
 
-    # Jangkos_qs = get_object_or_404(Jangkos, id=gid)
-    # print(Jangkos_qs)
+    # Tankos_qs = get_object_or_404(Tankos, id=gid)
+    # print(Tankos_qs)
 
     # Wrangling and Cleaning
     data = {
@@ -129,21 +208,21 @@ def JangkosEdit(request, gid):
         'area' : str(round(Block_qs['ha'], 2)) + ' Ha'
     }
     # print(data)
-    # form = EditJangkosForm(instance=Jangkos_qs)
-    FormAdditional = EditJangkosFormAdd(initial=data)
+    # form = EditTankosForm(instance=Tankos_qs)
+    FormAdditional = EditTankosFormAdd(initial=data)
 
     # Editing data
     if request.method == 'POST' :
         # print(request.POST)
-        form = EditJangkosForm(
+        form = EditTankosForm(
                                 request.POST,
-                                # instance=Jangkos_qs
+                                # instance=Tankos_qs
                             )
         if form.is_valid():
             form.save()
             print("Blok updated successfully.")
             messages.success(request, 'Blok updated successfully.')
-            return redirect('JangkosTable')
+            return redirect('TankosTable')
         else:
             print(form.errors)
             print("Error saving data.")
@@ -157,10 +236,10 @@ def JangkosEdit(request, gid):
         'Title':Title,
         'geomid':geomid,
     }
-    return render(request,'dashboard/static_table_edit_jangkos.html', context )
+    return render(request,'dashboard/static_tankos_table_edit.html', context )
 
 @login_required(login_url="")
-def pupuk(request):
+def Pupuk(request):
     Title = 'Dashboard - Pupuk'
     # ## Data collecting and cleansing from database
     # pupuk_qs =
@@ -169,7 +248,7 @@ def pupuk(request):
     context = {
         'Title':Title,
     }
-    return render(request, "dashboard/static_dashboard_pupuk.html", context)
+    return render(request, "dashboard/static_pupuk_dashboard.html", context)
 
 @login_required(login_url="")
 def Patok(request):
@@ -222,7 +301,7 @@ def Patok(request):
         'count' : list_value,
         'table' : table,
         }
-    return render(request, "dashboard/static_dashboard_patok.html", context)
+    return render(request, "dashboard/static_patok_dashboard.html", context)
 
 def PatokTable(request):
     Title = 'Dashboard - Patok'
@@ -254,7 +333,7 @@ def PatokTable(request):
             'TableData' : patok_qs,
             # 'patok_pagi' : patok_pagi
         }
-    return render(request, "dashboard/static_table_patok.html", context)
+    return render(request, "dashboard/static_patok_table.html", context)
 
 def PatokExtract(request):
 
@@ -345,7 +424,7 @@ def PatokEdit(request, gid):
         'Title':Title,
         'geomid':geomid,
     }
-    return render(request, "dashboard/static_table_edit_patok.html", context)
+    return render(request, "dashboard/static_patok_table_edit.html", context)
 
 @login_required(login_url="")
 def ExtJangkos(request):

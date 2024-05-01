@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 {% load static %}
-{% load django_tables2 %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,9 +9,6 @@
     {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    {% comment %} <!-- Plotly.js CDN --> {% endcomment %}
-    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
 
     {% comment %} <!-- Leaflet CDN --> {% endcomment %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -38,9 +34,6 @@
         .card-header {
             background-color: rgb(209, 231, 221);
         }
-
-        {% comment %} Loading Animation {% endcomment %}
-
     </style>
 </head>
 
@@ -82,7 +75,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url 'Patok' %}">Patok HGU</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'Jangkos' %}">Tankos</a>
+                        <a class="dropdown-item" href="{% url 'Tankos' %}">Tankos</a>
                         <a class="dropdown-item" href="{% url 'Pupuk' %}">Pupuk</a>
                     </div>
                 </li>
@@ -113,33 +106,60 @@
     </div>
 
     <!-- Content -->
-    <div class="row d-flex flex-column py-2 m-0 align-items-center justify-content-center">
-        <div class="row" style="height:41vh;">
-            <div class="col-md-8">
-                <div class="card" style="height:41vh;">
-                    <h5 class="card-header">Recent Updates</h5>
-                    <div class="card-body align-items-center text-center">
-                        {% render_table table %}
-                        <a href="{% url 'PatokTable' %}" type="button" class="btn btn-sm btn-outline-success">
-                            View Data
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card" style="height:41vh;">
-                    <h5 class="card-header">Progress</h5>
-                    <div class="card-body">
-                        <div id='graph' style="height:38vh;"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
+        <div class="row" style="height:31vh;">
+            <div class="col-md-12">
+                <div class="card" style="height:30vh;">
+                    <h5 class="card-header">
+                        Edit Data
+                    </h5>
+                    <div class="card-body align-items-center" >
+
+                        <form action="" method="POST">
+                            <div class="row m-0">
+                                <div class="col-sm-4 py-1">
+                                    <label for="firstName" class="form-label">Afdeling</label>
+                                    {{ formadd.afd_name }}
+                                </div>
+                                <div class="col-sm-4 py-1">
+                                    <label for="lastName" class="form-label">Block</label>
+                                    {{ formadd.block_name }}
+                                </div>
+                                <div class="col-sm-4 py-1">
+                                    <label for="lastName" class="form-label">Area</label>
+                                    {{ formadd.area }}
+                                </div>
+                            </div>
+                            <div class="row m-0">
+                                {% csrf_token %}
+                                <div class="col-12 col-sm-6 py-1">
+                                    <label for="address2" class="form-label">Dumps</label>
+                                    {{ form.dumps }}
+                                </div>
+                                <div class="col-12 col-sm-6 py-1">
+                                    <label for="address2" class="form-label">Aplikasi</label>
+                                    {{ form.aplikasi }}
+                                </div>
+                            </div>
+                            <div class="row m-1 p-1">
+                                <button type="submit" class="btn btn-success" >
+                                    Edit
+                                </button>
+                            </div>
+                        </form>
+
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row my-3">
-            <div class="col-12">
-                <div class="card">
-                    <h5 class="card-header">Maps</h5>
-                    <div id="map" style="height:43vh;"></div>
+
+        <div class="row"style="height:60vh;">
+            <div class="col-md-12">
+                <div class="card" style="height:60vh;">
+                    <h5 class="card-header">
+                        Map
+                    </h5>
+                    <div id="map" style="height:57vh;"></div>
                 </div>
             </div>
         </div>
@@ -147,62 +167,91 @@
 </div>
 
 
-{% comment %} Loading Screen {% endcomment %}
-<div class="loader"></div>
-
+<div class="loader-div">
+    <img class="loader-img" src="{% static "img/loader.gif" %}" style="height:120px; width: auto;" />
+</div>
 {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-
-{% comment %} Leaflet Map {% endcomment %}
-<script src="{% static "js/patok_map.js" %}"></script>
-{% comment %} <script src="{% static "js/patok_graph.js" %}"></script> {% endcomment %}
-
 <script>
-    // data
-    var trace1 = {
-        type: 'bar',
-        x: {{ periode|safe }},
-        y: {{ count|safe }},
-        marker: {
-            color: ['#003f5c','#58508d','#bc5090','#ff6361','#ffa600'],
-            line: {
-                width: 2.5
-            }
-        },
-    };
-    var data = [ trace1 ];
+    const HGU = "/map/api/v1/hgu/"
+    const Block = "/map/api/v1/block/"
 
-    // layouting
-    var layout = {
-        autosize: true,
-        margin: {
-            t: 0,
-            l: 0,
-            r:0,
-            pad: 0
-        },
-        font: {size: 14},
-    }; // TODO: botom margin resize
+    function dataFilter(feature) {
+        // Check if the objectid property of the feature is equal to 1
+        if (feature.properties.objectid === {{geomid}}) {
+            return true; // Return true if it matches
+        } else {
+            return false; // Return false otherwise
+        }
+    }
+    async function fetchData() {
+        try {
+            // Fetch data from HGU endpoint
+            const responseHGU = await fetch(HGU);
+            var dataHGU = await responseHGU.json();
+            console.log("Data from HGU endpoint:", dataHGU);
+        
+            // Fetch data from Block endpoint
+            const responseBlock = await fetch(Block);
+            var dataBlock = await responseBlock.json();
+            console.log("Data from Block endpoint:", dataBlock);
+        
+            var blok = L.geoJSON(dataBlock, {
+                style: {
+                    color: '#DC6B19', // outline color
+                    weight: 1,
+                    opacity: 1,
+                    fillColor: '#DC6B19',
+                    fillOpacity: 1
+                },
+                // filter data by function leaflet
+                filter: dataFilter
+            }).bindPopup(function (layer){
+                return layer.features.properties.block_name;
+            }).addTo(map); // TODO: Adding popup to show data
+            var hgu = L.geoJSON(dataHGU, {
+                style: {
+                    color: '#ff4122',
+                    fillRule: 'evenodd',
+                    bubblingMouseEvents: false,
+                    weight: 5,
+                    fillOpacity: 0
+                }
+            }).addTo(map);
 
-    // configuration
-    var config = {
-        responsive: true,
-        displayModeBar: false,
+            // Fit map bounds after adding layers
+            map.fitBounds(blok.getBounds(), { padding: [50, 50], maxZoom: 15 });
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     }
 
-    Plotly.newPlot('graph', data, layout, config);
+    var map = L.map('map', {
+            center: [1.2098191417100188, 117.90810018140084],
+            zoom: 12,
+            scrollWheelZoom: false
+        })
 
-    window.addEventListener("load", () => {
-        const loader = document.querySelector(".loader");
-        loader.classList.add("loader--hidden");
-        loader.addEventListener("transitionend", () => {
-            document.body.removeChild(loader);
-        });
-    });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Call the function to fetch data
+    fetchData();
+
 </script>
+
 </body>
 
 </html>
+6.045.340
+0.75 %
+45.340
+
+6.000.000
+0.75 %
+45.000

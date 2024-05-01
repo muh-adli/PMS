@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{Title}}</title>
-
     {% comment %} <!-- Bootstrap CDN --> {% endcomment %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% comment %} <!-- Plotly.js CDN --> {% endcomment %}
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
 
     {% comment %} <!-- Leaflet CDN --> {% endcomment %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -75,7 +77,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url 'Patok' %}">Patok HGU</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'Jangkos' %}">Tankos</a>
+                        <a class="dropdown-item" href="{% url 'Tankos' %}">Tankos</a>
                         <a class="dropdown-item" href="{% url 'Pupuk' %}">Pupuk</a>
                     </div>
                 </li>
@@ -107,64 +109,54 @@
 
     <!-- Content -->
     <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
-        <div class="row" style="height:31vh;">
-            <div class="col-md-12">
-                <div class="card" style="height:30vh;">
-                    <h5 class="card-header">
-                        Edit Data
-                    </h5>
-                    <div class="card-body align-items-center" >
-
-                        <form action="" method="POST">
-                            <div class="row m-0">
-                                <div class="col-sm-4 py-1">
-                                    <label for="firstName" class="form-label">Afdeling</label>
-                                    {{ formadd.afd_name }}
-                                </div>
-                                <div class="col-sm-4 py-1">
-                                    <label for="lastName" class="form-label">Block</label>
-                                    {{ formadd.block_name }}
-                                </div>
-                                <div class="col-sm-4 py-1">
-                                    <label for="lastName" class="form-label">Area</label>
-                                    {{ formadd.area }}
-                                </div>
-                            </div>
-                            <div class="row m-0">
-                                {% csrf_token %}
-                                <div class="col-12 col-sm-6 py-1">
-                                    <label for="address2" class="form-label">Dumps</label>
-                                    {{ form.dumps }}
-                                </div>
-                                <div class="col-12 col-sm-6 py-1">
-                                    <label for="address2" class="form-label">Aplikasi</label>
-                                    {{ form.aplikasi }}
-                                </div>
-                            </div>
-                            <div class="row m-1 p-1">
-                                <button type="submit" class="btn btn-success" >
-                                    Edit
-                                </button>
-                            </div>
-                        </form>
-
+        <div class="row">
+            <div class="card-body align-items-center text-center">
+                {% if searchData %}
+                <div class="table-responsive-sm">
+                    <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th class="table-success">Nomor Patok</th>
+                                <th class="table-success">Afdeling</th>
+                                <th class="table-success">Block</th>
+                                <th class="table-success">Latitude</th>
+                                <th class="table-success">Longitude</th>
+                                <th class="table-success">Periode</th>
+                                <th class="table-success">Status</th>
+                                <th class="table-success"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in searchData %}
+                            <tr class="text-center">
+                                <td>{{ data.no_patok }}</td>
+                                <td>{{ data.afd_name }}</td>
+                                <td>{{ data.block_name }}</td>
+                                <td>{{ data.longitude }}</td>
+                                <td>{{ data.latitude }}</td>
+                                <td>{{ data.periode }}</td>
+                                <td>{{ data.status }}</td>
+                                <td><a href="{% url 'PatokEdit' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Edit</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div>
+                        <a href="{% url 'Patok' %}" type="button" class="btn btn-sm btn-success active">
+                            Back
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="row"style="height:60vh;">
-            <div class="col-md-12">
-                <div class="card" style="height:60vh;">
-                    <h5 class="card-header">
-                        Map
-                    </h5>
-                    <div id="map" style="height:57vh;"></div>
-                </div>
+                {% else %}
+                    <p>No data available</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+
+
 
 
 <div class="loader-div">
@@ -176,82 +168,29 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 <script>
-    const HGU = "/map/api/v1/hgu/"
-    const Block = "/map/api/v1/block/"
+    $(document).ready(function() {
+        $(".loader-div").hide(); // hide loader
+    });
+    $(document).on( "load", function() {
+        $(".loader-div").show(); // show loader
+        console.log( "window loaded" );
+    });
+    TESTER = document.getElementById('myGraph');
+	Plotly.newPlot( TESTER, [{
+	x: [1, 2, 3, 4, 5],
+	y: [1, 2, 4, 8, 16] }], {
+	margin: { t: 0 } } );
 
-    function dataFilter(feature) {
-        // Check if the objectid property of the feature is equal to 1
-        if (feature.properties.objectid === {{geomid}}) {
-            return true; // Return true if it matches
-        } else {
-            return false; // Return false otherwise
-        }
-    }
-    async function fetchData() {
-        try {
-            // Fetch data from HGU endpoint
-            const responseHGU = await fetch(HGU);
-            var dataHGU = await responseHGU.json();
-            console.log("Data from HGU endpoint:", dataHGU);
-        
-            // Fetch data from Block endpoint
-            const responseBlock = await fetch(Block);
-            var dataBlock = await responseBlock.json();
-            console.log("Data from Block endpoint:", dataBlock);
-        
-            var blok = L.geoJSON(dataBlock, {
-                style: {
-                    color: '#DC6B19', // outline color
-                    weight: 1,
-                    opacity: 1,
-                    fillColor: '#DC6B19',
-                    fillOpacity: 1
-                },
-                // filter data by function leaflet
-                filter: dataFilter
-            }).bindPopup(function (layer){
-                return layer.features.properties.block_name;
-            }).addTo(map); // TODO: Adding popup to show data
-            var hgu = L.geoJSON(dataHGU, {
-                style: {
-                    color: '#ff4122',
-                    fillRule: 'evenodd',
-                    bubblingMouseEvents: false,
-                    weight: 5,
-                    fillOpacity: 0
-                }
-            }).addTo(map);
-
-            // Fit map bounds after adding layers
-            map.fitBounds(blok.getBounds(), { padding: [50, 50], maxZoom: 15 });
-
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }
-
-    var map = L.map('map', {
-            center: [1.2098191417100188, 117.90810018140084],
-            zoom: 12,
-            scrollWheelZoom: false
-        })
+    var map = L.map('map').setView([51.505, -0.09], 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Call the function to fetch data
-    fetchData();
-
+    L.marker([51.5, -0.09]).addTo(map)
+        .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+        .openPopup();
 </script>
-
 </body>
 
 </html>
-6.045.340
-0.75 %
-45.340
-
-6.000.000
-0.75 %
-45.000

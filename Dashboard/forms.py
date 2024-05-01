@@ -1,7 +1,7 @@
 from django import forms
 from .models import *
 
-class EditJangkosFormAdd(forms.ModelForm):
+class EditTankosFormAdd(forms.ModelForm):
     afd_name = forms.CharField(
         label="Afdeling",
         widget=forms.TextInput(
@@ -27,7 +27,7 @@ class EditJangkosFormAdd(forms.ModelForm):
         model = HguBlock
         fields = ('afd_name','block_name','area')
 
-class EditJangkosForm(forms.ModelForm):
+class EditTankosForm(forms.ModelForm):
     dumps = forms.DateField(
         label="Dumps",
         widget=forms.DateInput(

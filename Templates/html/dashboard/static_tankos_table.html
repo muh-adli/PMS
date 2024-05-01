@@ -77,7 +77,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url 'Patok' %}">Patok HGU</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'Jangkos' %}">Tankos</a>
+                        <a class="dropdown-item" href="{% url 'Tankos' %}">Tankos</a>
                         <a class="dropdown-item" href="{% url 'Pupuk' %}">Pupuk</a>
                     </div>
                 </li>
@@ -108,41 +108,40 @@
     </div>
 
     <!-- Content -->
-    <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
-        <div class="row">
+    <div class="row d-flex py-2 m-0 bg-warning align-items-center justify-content-center">
+        <div class="row bg-info">
+            <div class="m-2">
+                <button type="button" class="btn btn-primary">Download</button>
+            </div>
             <div class="card-body align-items-center text-center">
-                {% if searchData %}
+                {% if TableData %}
                 <div class="table-responsive-sm">
                     <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
                         <thead>
                             <tr>
-                                <th class="table-success">Nomor Patok</th>
                                 <th class="table-success">Afdeling</th>
                                 <th class="table-success">Block</th>
-                                <th class="table-success">Latitude</th>
-                                <th class="table-success">Longitude</th>
-                                <th class="table-success">Periode</th>
+                                <th class="table-success">Area (ha)</th>
+                                <th class="table-success">Dumps</th>
+                                <th class="table-success">Delta Days</th>
                                 <th class="table-success">Status</th>
-                                <th class="table-success"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for data in searchData %}
+                            {% for row in TableData %}
                             <tr class="text-center">
-                                <td>{{ data.no_patok }}</td>
-                                <td>{{ data.afd_name }}</td>
-                                <td>{{ data.block_name }}</td>
-                                <td>{{ data.longitude }}</td>
-                                <td>{{ data.latitude }}</td>
-                                <td>{{ data.periode }}</td>
-                                <td>{{ data.status }}</td>
-                                <td><a href="{% url 'PatokEdit' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Edit</a></td>
+                                <td>{{ row.afdeling }}</td>
+                                <td>{{ row.block }}</td>
+                                <td>{{ row.area|floatformat:2 }}</td>
+                                <td>{{ row.date|date:"j F Y" }}</td>
+                                <td>{{ row.date_delta }} Days </td>
+                                <td>{{ row.status}}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                     <div>
-                        <a href="{% url 'Patok' %}" type="button" class="btn btn-sm btn-success active">
+                        <a href="{% url 'Tankos' %}" type="button" class="btn btn-sm btn-success active">
                             Back
                         </a>
                     </div>
