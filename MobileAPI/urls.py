@@ -7,6 +7,7 @@ from .views import *
 
 urlpatterns = [
     ### Map Urls
+    path('v1/account/loginRequest', ApiLoginRequest, name='ApiLoginRequest'),
     path('v1/map/block', ApiBlockBoundary, name='ApiBlockBoundary'),
 
 ]
