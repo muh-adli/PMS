@@ -392,37 +392,28 @@ def PatokExtract(request):
 @login_required(login_url="")
 def PatokEdit(request, gid):
 
-    # Title
-    Title = 'Edit Jangkos'
-    geomid = gid
+    title = 'Edit Jangkos'
+    # patok_obj = HguPatok.objects.values().filter(gid=gid)
+    patok_obj = get_object_or_404(HguPatok, gid=gid)
 
-    patok_qs = get_object_or_404(HguPatok, gid=gid)
-    print(patok_qs)
-
-    # Wrangling and Cleaning
-
-    form = EditPatokForm(instance=patok_qs)
-
-    # Editing data
-    if request.method == 'POST' :
-        # print(request.POST)
-        form = EditPatokForm(request.POST, instance=patok_qs)
+    if request.method == 'POST':
+        form = EditPatokForm(request.POST, instance=patok_obj)
         if form.is_valid():
-            form.save()
-            print("Blok updated successfully.")
+            form.save()  # This will update the existing object
             messages.success(request, 'Blok updated successfully.')
-            return redirect('JangkosTable')
+            return redirect('PatokTable')
         else:
-            print(form.errors)
-            print("Error saving data.")
-            messages.error(request, 'Error saving data.')
+            # Form is not valid, display form errors
+            error_message = "Error updating blok. Please check your input."
+            print("Error updating blok:", form.errors)
+            messages.error(request, error_message)
     else:
-        messages.error(request, 'Error loading data.')
+        form = EditPatokForm(instance=patok_obj)
 
-    context={
-        'form':form,
-        'Title':Title,
-        'geomid':geomid,
+    context = {
+        'form': form,
+        'title': title,
+        'geomid': gid,
     }
     return render(request, "dashboard/static_patok_table_edit.html", context)
 

@@ -48,7 +48,7 @@ class EditTankosForm(forms.ModelForm):
 
 
 class EditPatokForm(forms.ModelForm):
-    periode = (
+    periode_choices = (
         ("", "None"),
         ("Q1", "Q1"),
         ("Q2", "Q2"),
@@ -59,54 +59,68 @@ class EditPatokForm(forms.ModelForm):
     block_name = forms.CharField(
         label="Block",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
         )
     )
     afd_name = forms.CharField(
         label="Afdeling",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
         )
     )
     no_patok = forms.CharField(
         label="Nomor Patok",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
         )
     )
     longitude = forms.CharField(
         label="longitude",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
         )
     )
     latitude = forms.CharField(
         label="latitude",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
         )
     )
     periode = forms.ChoiceField(
         label="periode",
         widget=forms.Select(
             attrs={
-                'class': 'form-select',
-            }
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
         ),
-        choices=periode,
+        choices=periode_choices,
     )
     status = forms.CharField(
-        label="status",
+        label="Status",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
-        )
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'}
+        ),
+        required=False  # Make the status field optional
     )
+
     class Meta:
         model = HguPatok
         fields = (
@@ -118,4 +132,3 @@ class EditPatokForm(forms.ModelForm):
             'periode',
             'status',
         )
-
