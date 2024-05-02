@@ -6,6 +6,8 @@
 
         <item name="android:textColorPrimary">@color/textColor</item>
         <item name="android:textColorSecondary">@color/textColor</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="colorAccent">@color/accent</item>
     </style>
 
     <style name="Theme.WebGIS" parent="Base.Theme.WebGIS" />

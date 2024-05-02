@@ -12,8 +12,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.project.webgis.activity.LoginActivity;
 import com.project.webgis.activity.MainActivity;
 import com.project.webgis.adapter.NetworkReceiver;
+import com.project.webgis.adapter.SessionManager;
 
 public class Splash extends AppCompatActivity {
 
@@ -31,12 +33,23 @@ public class Splash extends AppCompatActivity {
             return insets;
         });
 
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        if (sessionManager.isLoggedIn()) {
+            sessionManager.logoutUser();
+        }
+
         splashText = findViewById(R.id.splashText);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(Splash.this, MainActivity.class));
-                finish();
+                SessionManager sessionManager = new SessionManager(getApplicationContext());
+                //if (sessionManager.isLoggedIn()) {
+                //    startActivity(new Intent(Splash.this, MainActivity.class));
+                //    finish();
+                //} else {
+                    startActivity(new Intent(Splash.this, LoginActivity.class));
+                    finish();
+                //}
             }
         }, 3000);
     }
