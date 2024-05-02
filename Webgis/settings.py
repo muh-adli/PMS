@@ -103,7 +103,7 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'webgis',
         'USER': 'postgres',
-        'PASSWORD': '123',
+        'PASSWORD': '12345',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -156,11 +156,10 @@ MEDIA_ROOT = BASE_DIR, 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Geodjango Path
-# OSGEO4W_ROOT=r'C:\OSGeo4W'
-GDAL_LIBRARY_PATH = r"C:\OSGeo4W\bin\gdal308.dll"
-# GDAL_DATA = r'"C:\OSGeo4W\bin\gdal308.dll"'
-PROJ_LIB = r"C:\OSGeo4W\share\proj"
-GEOS_LIBRARY_PATH = r"C:\OSGeo4W\bin\geos_c.dll"
+OSGEO4W_ROOT=r'C:\OSGeo4W' # OSGEO4W Path
+GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308' # GDAL Lib Path
+GDAL_DATA = r'%OSGEO4W_ROOT%\apps\gdal\share\gdal' # GDAL DATA Path
+PROJ_LIB = r'%OSGEO4W_ROOT%\share\proj' # Proj Path
 
 LOGIN_URL=''
 LOGOUT_REDIRECT_URL=''

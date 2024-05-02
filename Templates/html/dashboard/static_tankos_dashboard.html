@@ -202,7 +202,9 @@
                 <div class="card" style="height:30vh;">
                     <h5 class="card-header">Aplikasi</h5>
                     <div class="card-body align-items-center text-center">
-                        <div id="myGraph" style="height:20vh;"></div>
+                        <div style="height:20vh;">
+                            <div id='plotApl' class="d-flex align-items-center justify-content-center"></div>
+                        </div>
                         <a href="{% url "AplSummary" %}" type="button" class="btn btn-sm btn-outline-success">
                             View Data
                         </a>
@@ -213,7 +215,8 @@
                 <div class="card" style="height:30vh;">
                     <h5 class="card-header">Dump</h5>
                     <div class="card-body align-items-center text-center">
-                        <div id="myGraph" style="height:20vh;"></div>
+                        <div id="plotDump" class="d-flex align-items-center justify-content-center" style="height:20vh;">
+                        </div>
                         <a href="{% url "DumpTable" %}" type="button" class="btn btn-sm btn-outline-success">
                             View Data
                         </a>
@@ -237,11 +240,51 @@
 <script src="{% static "js/tankos_map.js" %}"></script>
 
 <script>
-    TESTER = document.getElementById('myGraph');
-	Plotly.newPlot( TESTER, [{
-	x: [1, 2, 3, 4, 5],
-	y: [1, 2, 4, 8, 16] }], {
-	margin: { t: 0 } } );
+    var dumpTrace = {
+        x: {{all_dates|safe}},
+        y: {{pokok_counts|safe}},
+        name: 'Pokok',
+        type: 'bar'
+    };
+    var dumpPlot = [dumpTrace];
+
+    var layout = {
+        barmode: 'group',
+        autosize: false,
+        width: 550,
+        height: 175,
+        margin: {
+            l: 0,
+            r: 0,
+            b: 0,
+            t: 0,
+            pad: 0
+        },
+    };
+    var config = {
+        responsive: true,
+        displayModeBar: false,
+    };
+
+    Plotly.newPlot('plotDump', dumpPlot, layout, config );
+
+    var pokokTrace = {
+        x: {{all_dates|safe}},
+        y: {{pokok_counts|safe}},
+        name: 'Pokok',
+        type: 'bar'
+    };
+
+    var tonaseTrace = {
+    x: {{all_dates|safe}},
+    y: {{tonase_counts|safe}},
+    name: 'Tonase',
+    type: 'bar'
+    };
+
+    var aplPlot = [pokokTrace, tonaseTrace];
+
+    Plotly.newPlot('plotApl', aplPlot, layout, config );
 
     window.addEventListener("load", () => {
         const loader = document.querySelector(".loader");

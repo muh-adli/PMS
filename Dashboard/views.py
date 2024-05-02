@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Count, Sum, Q
+from django.db.models import F, Count, Sum, Q, Min, Max
 from django.contrib.gis.db.models.functions import Transform
 
 
@@ -14,8 +14,12 @@ from .tables import *
 from Map.models import *
 
 ## Library
+from datetime import timedelta
+from django.utils import timezone
 import pandas as pd
 from datetime import datetime
+import plotly.graph_objs as go
+from plotly.offline import plot
 import io
 import time
 
@@ -55,24 +59,51 @@ def hectare(request):
 def Tankos(request):
     Title = 'Dashboard - Tankos'
 
-    ## Querying data
-    Tankos_qs = TankosSummary.objects.values(
-        'afdeling',
-        'block',
-        'area',
-        'date',
-        'date_delta',
-        'status',
-        )
+    pokok_count_by_date = TankosAplpokok.objects.values('date').annotate(count=Count('date'))
+    tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
 
-    ## Table data
-    TableData = Tankos_qs.order_by('afdeling','block')[:10]
-    # print(TableData)
+    # Query data from TankosAplpokok model
+    pokok_data = TankosAplpokok.objects.all()
+
+    # Query data from TankosApltonase model
+    tonase_data = TankosApltonase.objects.all()
+
+    # Get minimum and maximum dates
+    pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
+    pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
+
+    tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
+    tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
+
+    min_date = min(pokok_min_date, tonase_min_date)
+    max_date = max(pokok_max_date, tonase_max_date)
+
+    # Generate all dates between min and max date
+    all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
+    print(all_dates)
+    all_date = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
+    print(all_date)
+
+    # Aggregate data by date
+    pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
+    tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
+
+    # Initialize dictionaries to hold counts for each date
+    pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
+    tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
+
+    # Fill in counts for all dates, including missing ones
+    pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
+    tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
+    print(pokok_counts)
+    print(tonase_counts)
 
     ## Context
     context = {
-        'TableData' : TableData,
-        'Title':Title
+        'Title':Title,
+        'all_dates': all_date,
+        'pokok_counts':pokok_counts,
+        'tonase_counts':tonase_counts,
     }
     return render(request, "dashboard/static_tankos_dashboard.html", context)
 
@@ -81,6 +112,7 @@ def Tankos(request):
 def AplSummary(request):
     Title = 'Dashboard - Aplikasi'
     query = request.GET.get('q')
+
     if query:
         sum_qs = TankosAplsummary.objects.values(
             'gid',
@@ -356,28 +388,28 @@ def PatokExtract(request):
     ).order_by('no_patok')
     data = pd.DataFrame(patok_qs)
     data = data.rename(columns={
-    'kode':'Kode',
-    'afdeling': 'Afdeling',
-    'block_name': 'Block',
-    'no_patok': 'Patok',
-    'periode':'Periode',
-    'status':'Status',
-    'x':'Koordinat X',
-    'y':'Koordinat Y',
-    'longitude':'Longitude',
-    'latitude':'Latitude',
+        'kode':'Kode',
+        'afdeling': 'Afdeling',
+        'block_name': 'Block',
+        'no_patok': 'Patok',
+        'periode':'Periode',
+        'status':'Status',
+        'x':'Koordinat X',
+        'y':'Koordinat Y',
+        'longitude':'Longitude',
+        'latitude':'Latitude',
     })
     data = data.reindex(columns=[
-    'Kode',
-    'Afdeling',
-    'Block',
-    'Patok',
-    'Periode',
-    'Status',
-    'Koordinat X',
-    'Koordinat Y',
-    'Longitude',
-    'Latitude',
+        'Kode',
+        'Afdeling',
+        'Block',
+        'Patok',
+        'Periode',
+        'Status',
+        'Koordinat X',
+        'Koordinat Y',
+        'Longitude',
+        'Latitude',
     ])
     # Create BytesIO buffer to write the Excel file
     output = io.BytesIO()
