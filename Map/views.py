@@ -72,6 +72,23 @@ def JembatanData(request):
     return HttpResponse(Jembatan_qs, content_type='json')
 
 @login_required()
+def DumpData(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = TankosDumpdata.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Dumpdata qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
 def PatokData(request):
     now = datetime.now()
     # print("start: ", str(now))
@@ -134,23 +151,6 @@ def BlockBoundary(request):
 #     for block in qs:
 #         print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
 #     return HttpResponse(qs, content_type='json')
-
-@login_required()
-def TankosAplikasi(request):
-    now = datetime.now()
-    # print("start: ", str(now))
-
-    qs = TankosAplsummary.objects.annotate(
-        geometry=Transform('geom', 4326),
-    ).all()
-
-    Block_qs = serialize('geojson', qs)
-    end = datetime.now()
-    # print("end: ", str(end))
-    delta = end - now
-    print("BlockBoundary qs: ", round(delta.total_seconds(), 3),'S')
-    # return render(request, "html/map.html", {'Building_qs':Building_qs})
-    return HttpResponse(Block_qs, content_type='json')
 
 @login_required()
 def TankosDump(request):

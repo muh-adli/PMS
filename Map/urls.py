@@ -20,9 +20,9 @@ urlpatterns = [
     ## Point
     path('api/v1/jembatan/', JembatanData, name='JembatanData'),
     path('api/v1/patok/', PatokData, name='PatokData'),
+    path('api/v1/dump/', DumpData, name='DumpData'),
 
     ## Tankos
-    path('api/v1/aplikasi/', TankosAplikasi, name='AplikasiData'),
     path('api/v1/dump/', TankosDump, name='DumpData'),
 
 ]

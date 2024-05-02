@@ -116,7 +116,7 @@
                 </button>
             </div>
             <div class="col-md-6 d-flex justify-content-end align-items-end">
-                <form class="form-inline" action="{% url 'PatokTable' %}" method="get">
+                <form class="form-inline" action="#" method="get">
                     {% csrf_token %}
                     <div class="input-group">
                         <input class="form-control" type="text" name="q" placeholder="Searchbar">
@@ -134,27 +134,21 @@
                     <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
                         <thead>
                             <tr>
-                                <th class="table-success">Nomor Patok</th>
                                 <th class="table-success">Afdeling</th>
                                 <th class="table-success">Block</th>
-                                <th class="table-success">Latitude</th>
-                                <th class="table-success">Longitude</th>
-                                <th class="table-success">Periode</th>
-                                <th class="table-success">Status</th>
+                                <th class="table-success">Location</th>
+                                <th class="table-success">Date</th>
                                 <th class="table-success"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for data in TableData %}
                             <tr class="text-center">
-                                <td>{{ data.no_patok }}</td>
-                                <td>{{ data.afd_name }}</td>
-                                <td>{{ data.block_name }}</td>
-                                <td>{{ data.longitude }}</td>
-                                <td>{{ data.latitude }}</td>
-                                <td>{{ data.periode }}</td>
-                                <td>{{ data.status }}</td>
-                                <td><a href="{% url 'PatokEdit' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Edit</a></td>
+                                <td>{{ data.afdeling }}</td>
+                                <td>{{ data.block }}</td>
+                                <td>{{ data.location }}</td>
+                                <td>{{ data.dump_date|date:"j F Y"  }}</td>
+                                <td><a href="#" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Edit</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

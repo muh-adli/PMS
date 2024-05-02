@@ -166,18 +166,7 @@ class KaveldOa(models.Model):
         db_table = 'kaveld_oa'
 
 
-class TankosAplpokok(models.Model):
-    afdeling = models.CharField(blank=True, null=True)
-    block = models.CharField(blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
-    pokok = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'tankos_aplpokok'
-
-
-class TankosAplsummary(models.Model):
+class TankosAplgeom(models.Model):
     gid = models.AutoField(primary_key=True)
     afdeling = models.CharField(max_length=5)
     block = models.CharField(max_length=5)
@@ -192,18 +181,7 @@ class TankosAplsummary(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tankos_aplsummary'
-
-
-class TankosApltonase(models.Model):
-    afdeling = models.CharField(blank=True, null=True)
-    block = models.CharField(blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
-    tonase = models.FloatField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'tankos_apltonase'
+        db_table = 'tankos_aplgeom'
 
 
 class TankosDumpdata(models.Model):

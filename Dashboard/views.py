@@ -17,6 +17,7 @@ from Map.models import *
 import pandas as pd
 from datetime import datetime
 import io
+import time
 
 # Create your views here.
 @login_required(login_url="")
@@ -75,11 +76,66 @@ def Tankos(request):
     }
     return render(request, "dashboard/static_tankos_dashboard.html", context)
 
-def AplPokokTable(request):
+
+## Aplikasi pokok and tonase
+def AplSummary(request):
+    Title = 'Dashboard - Aplikasi'
+    query = request.GET.get('q')
+    if query:
+        sum_qs = TankosAplsummary.objects.values(
+            'gid',
+            'afdeling',
+            'block',
+            'ha',
+            'target_tonase',
+            'target_pokok',
+            'prog_tonase',
+            'prog_pokok',
+            'app_sph',
+            'prog_ha',
+            'last_date',
+            ).filter(block__contains=query) # TODO: Paginate table to 15 item
+
+        ## Checking available data
+        if sum_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('AplSummary')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : sum_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        sum_qs = TankosAplsummary.objects.values(
+        'gid',
+        'afdeling',
+        'block',
+        'ha',
+        'target_tonase',
+        'target_pokok',
+        'prog_tonase',
+        'prog_pokok',
+        'app_sph',
+        'prog_ha',
+        'last_date',
+        ) # TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : sum_qs,
+        }
+    return render(request, "dashboard/static_tankosapl_table.html", context)
+
+def AplPokokTable(request, geomid):
     Title = 'Dashboard - pokok'
     query = request.GET.get('q')
     if query:
-        pokok_qs = TankosAplpokok.objects.filter(block=query).order_by('-date')
+        pokok_qs = TankosAplpokok.objects.filter(geomid=geomid).filter(date__contains=query).order_by('-date')
 
         ## Checking available data
         if pokok_qs is None:
@@ -95,20 +151,20 @@ def AplPokokTable(request):
 
     else:
         ## Data collecting and cleansing from database
-        pokok_qs = TankosAplpokok.objects.all().order_by('-date') #TODO: Paginate table to 15 item
+        pokok_qs = TankosAplpokok.objects.filter(geomid=geomid).order_by('-date') #TODO: Paginate table to 15 item
 
         ## Context dictionary for passing data
         context = {
             'Title': Title,
             'TableData' : pokok_qs,
         }
-    return render(request, "dashboard/static_tankos_tabledata.html", context)
+    return render(request, "dashboard/static_tankospokok_table.html", context)
 
-def AplTonaseTable(request):
+def AplTonaseTable(request, geomid):
     Title = 'Dashboard - tonase'
     query = request.GET.get('q')
     if query:
-        tonase_qs = TankosApltonase.objects.filter(block=query).order_by('-date')
+        tonase_qs = TankosApltonase.objects.filter(geomid=geomid).filter(date__contains=query).order_by('-date')
 
         ## Checking available data
         if tonase_qs is None:
@@ -124,24 +180,27 @@ def AplTonaseTable(request):
 
     else:
         ## Data collecting and cleansing from database
-        tonase_qs = TankosApltonase.objects.all().order_by('-date') #TODO: Paginate table to 15 item
+        tonase_qs = TankosApltonase.objects.filter(geomid=geomid).order_by('-date') #TODO: Paginate table to 15 item
 
         ## Context dictionary for passing data
         context = {
             'Title': Title,
             'TableData' : tonase_qs,
         }
-    return render(request, "dashboard/static_tankos_tabledata.html", context)
+    return render(request, "dashboard/static_tankostonase_table.html", context)
 
+
+## Dump
 def DumpTable(request):
     Title = 'Dashboard - dump'
     query = request.GET.get('q')
     if query:
-        dump_qs = TankosDumpdata.objects.filter(location=query).order_by('-dump_date')
+        dump_qs = TankosDumpdata.objects.filter(location__contains=query).order_by('dump_date')
 
         ## Checking available data
         if dump_qs is None:
             messages.warning("Data isn't available")
+            time.sleep(5)
             return redirect('DumpTable')
 
         else:
@@ -151,109 +210,48 @@ def DumpTable(request):
                 'TableData' : dump_qs,
             }
 
-    else:
-        ## Data collecting and cleansing from database
-        dump_qs = TankosDumpdata.objects.all().order_by('-dump_date') #TODO: Paginate table to 15 item
+    ## Data collecting and cleansing from database
+    dump_qs = TankosDumpdata.objects.all().order_by('dump_date') #TODO: Paginate table to 15 item
 
-        ## Context dictionary for passing data
-        context = {
-            'Title': Title,
-            'TableData' : dump_qs,
-        }
-    return render(request, "dashboard/static_tankos_tabledata.html", context)
-
-
-@login_required(login_url="")
-def TankosTable(request):
-    Title = 'Table - Tankos'
-    TableData = TankosSummary.objects.values(
-        'afdeling',
-        'block',
-        'area',
-        'date',
-        'date_delta',
-        'status',
-        )
-    
-    # Download Content
-
+    ## Context dictionary for passing data
     context = {
-        'TableData' : TableData,
-        'Title':Title
+        'Title': Title,
+        'TableData' : dump_qs,
     }
-    return render(request, "dashboard/static_tankos_table.html", context)
+    return render(request, "dashboard/static_tankosdump_table.html", context)
 
 @login_required(login_url="")
-def TankosEdit(request, gid):
+def DumpEdit(request, gid):
 
-    # Title
-    Title = 'Edit Tankos'
-    geomid = gid
+    title = 'Edit Dump'
+    dumps_obj = get_object_or_404(TankosDumpdata, gid=gid)
+    geom_id = dumps_obj.location
 
-    #  Query
-    Block_qs = HguPlanted.objects.values(
-            'afd_name','block_name','ha'
-            ).annotate(
-                geometry=Transform('geom', 4326)
-            ).get(gid=gid)
-    print(Block_qs)
-
-    # Tankos_qs = get_object_or_404(Tankos, id=gid)
-    # print(Tankos_qs)
-
-    # Wrangling and Cleaning
-    data = {
-        'afd_name' : Block_qs['afd_name'],
-        'block_name' : Block_qs['block_name'],
-        'area' : str(round(Block_qs['ha'], 2)) + ' Ha'
-    }
-    # print(data)
-    # form = EditTankosForm(instance=Tankos_qs)
-    FormAdditional = EditTankosFormAdd(initial=data)
-
-    # Editing data
-    if request.method == 'POST' :
-        # print(request.POST)
-        form = EditTankosForm(
-                                request.POST,
-                                # instance=Tankos_qs
-                            )
+    if request.method == 'POST':
+        form = EditDumpForm(request.POST, instance=dumps_obj)
         if form.is_valid():
-            form.save()
-            print("Blok updated successfully.")
+            dumps_obj = form.save(commit=False)
+            dumps_obj.status = 'Bagus'
+            dumps_obj.save()
+
             messages.success(request, 'Blok updated successfully.')
-            return redirect('TankosTable')
+            return redirect('DumpTable')
         else:
-            print(form.errors)
-            print("Error saving data.")
-            messages.error(request, 'Error saving data.')
+            # Form is not valid, display form errors
+            error_message = "Error updating blok. Please check your input."
+            print("Error updating blok:", form.errors)
+            messages.error(request, error_message)
     else:
-        messages.error(request, 'Error loading data.')
+        form = EditDumpForm(instance=dumps_obj)
 
-    context={
-        'formadd':FormAdditional,
-        'form':form,
-        'Title':Title,
-        'geomid':geomid,
-    }
-    return render(request,'dashboard/static_tankos_table_edit.html', context )
-
-
-@login_required(login_url="")
-def ExtJangkos(request):
-    return render(request, "dashboard/asd.html")
-
-@login_required(login_url="")
-def Pupuk(request):
-    Title = 'Dashboard - Pupuk'
-    # ## Data collecting and cleansing from database
-    # pupuk_qs =
-
-    ## Context
     context = {
-        'Title':Title,
+        'form': form,
+        'title': title,
+        'geomid': geom_id,
     }
-    return render(request, "dashboard/static_pupuk_dashboard.html", context)
+    return render(request, "dashboard/static_tankosdump_table_edit.html", context)
+
+
 
 @login_required(login_url="")
 def Patok(request):
@@ -341,7 +339,6 @@ def PatokTable(request):
     return render(request, "dashboard/static_patok_table.html", context)
 
 def PatokExtract(request):
-
     date = str(datetime.now().strftime('%d-%m-%Y'))
     print(date)
     ## Data collecting and cleansing from database
@@ -424,3 +421,17 @@ def PatokEdit(request, gid):
         'geomid': gid,
     }
     return render(request, "dashboard/static_patok_table_edit.html", context)
+
+
+## Pupuk
+@login_required(login_url="")
+def Pupuk(request):
+    Title = 'Dashboard - Pupuk'
+    # ## Data collecting and cleansing from database
+    # pupuk_qs =
+
+    ## Context
+    context = {
+        'Title':Title,
+    }
+    return render(request, "dashboard/static_pupuk_dashboard.html", context)

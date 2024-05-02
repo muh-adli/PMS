@@ -47,6 +47,52 @@ class EditTankosForm(forms.ModelForm):
         fields = ('dumps','aplikasi')
 
 
+class EditDumpForm(forms.ModelForm):
+    afdeling = forms.CharField(
+        label="Afdeling",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
+        )
+    )
+    block = forms.CharField(
+        label="Block",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
+        )
+    )
+    location = forms.CharField(
+        label="Location",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+                }
+        )
+    )
+    dump_date = forms.CharField(
+        label="Date",
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'date'
+                }
+        )
+    )
+    class Meta:
+        model = TankosDumpdata
+        fields = (
+            'afdeling',
+            'block',
+            'location',
+            'dump_date',
+        )
+
 class EditPatokForm(forms.ModelForm):
     periode_choices = (
         ("", "None"),

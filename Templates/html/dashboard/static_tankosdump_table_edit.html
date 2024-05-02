@@ -114,57 +114,43 @@
                         Edit Data
                     </h5>
                     <div class="card-body align-items-center" >
-
                         <form action="" method="POST">
+                            {% csrf_token %}
                             <div class="row m-0">
                                 <div class="col-sm-4 py-1">
-                                    <label for="firstName" class="form-label">Block</label>
-                                    {{ form.block_name }}
+                                    <label for="firstName" class="form-label">Afdeling</label>
+                                    {{ form.afdeling }}
                                 </div>
                                 <div class="col-sm-4 py-1">
-                                    <label for="lastName" class="form-label">Afdeling</label>
-                                    {{ form.afd_name }}
+                                    <label for="lastName" class="form-label">Block</label>
+                                    {{ form.block }}
                                 </div>
                                 <div class="col-sm-4 py-1">
-                                    <label for="lastName" class="form-label">Nomor Patok</label>
-                                    {{ form.no_patok }}
+                                    <label for="lastName" class="form-label">Location</label>
+                                    {{ form.location }}
                                 </div>
                             </div>
                             <div class="row m-0">
                                 <div class="col-12 col-sm-6 py-1">
-                                    <label for="address2" class="form-label">Latitude</label>
-                                    {{ form.longitude }}
+                                    <label for="address2" class="form-label">Date</label>
+                                    {{ form.dump_date }}
                                 </div>
                                 <div class="col-12 col-sm-6 py-1">
-                                    <label for="address2" class="form-label">Longitude</label>
-                                    {{ form.latitude }}
-                                </div>
-                            </div>
-                            <div class="row m-0">
-                                {% csrf_token %}
-                                <div class="col-12 col-sm-6 py-1">
-                                    <label for="address2" class="form-label">Periode</label>
-                                    {{ form.periode }}
-                                </div>
-                                <div class="col-12 col-sm-6 py-1">
-                                    <label for="address2" class="form-label">Status</label>
-                                    {{ form.status }}
-                                </div>
-                            </div>
-                            <div class="row center-block align-items-center justify-content-center mt-3">
-                                <div class="col-lg-11 col-md-10 my-1 text-center">
-                                    <button type="submit" class="btn btn-success btn-block">
-                                        Submit
-                                    </button>
-                                </div>
-                                <div class="col-lg-1 col-md-2 my-1 text-center">
-                                    <a href="{% url "PatokTable" %}" class="btn btn-secondary btn-block">
-                                        Cancel
-                                    </a>
+                                    <div class="row center-block align-items-center justify-content-center mt-4">
+                                        <div class="col-6 text-center">
+                                            <button type="submit" class="btn btn-lg btn-success btn-block">
+                                                Submit
+                                            </button>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <a href="{% url "DumpTable" %}" class="btn btn-lg btn-secondary btn-block">
+                                                Back
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
-
                     </div>
                 </div>
             </div>
@@ -190,11 +176,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 <script>
     const HGU = "/map/api/v1/hgu/"
-    const Patok = "/map/api/v1/patok/"
+    const Patok = "/map/api/v1/dump/"
 
     function unSelectedData(feature) {
         // Check if the objectid property of the feature is equal to 1
-        if (feature.properties.objectid === {{geomid}}) {
+        if (feature.properties.location === '{{geomid}}') {
             return false; // Return true if it matches
         } else {
             return true; // Return false otherwise
@@ -202,7 +188,7 @@
     }
     function SelectedData(feature) {
         // Check if the objectid property of the feature is equal to 1
-        if (feature.properties.objectid === {{geomid}}) {
+        if (feature.properties.location === '{{geomid}}') {
             return true; // Return true if it matches
         } else {
             return false; // Return false otherwise
@@ -238,7 +224,7 @@
             var patokSelected = L.geoJSON(dataPatok, {
                 pointToLayer: function (feature, latlng) {
                     return L.circleMarker(latlng, {
-                        radius: 16, // Adjust the radius of the circle as needed
+                        radius: 9, // Adjust the radius of the circle as needed
                         color: 'black', // Outline color
                         weight: 1,
                         opacity: 1,
@@ -248,14 +234,12 @@
                 },
                 // filter data by function leaflet
                 filter: SelectedData
-            }).bindPopup(function (layer){
-                return layer.features.properties.no_patok;
             }).addTo(map); // TODO: Adding popup to show data
 
             var patok = L.geoJSON(dataPatok, {
                 pointToLayer: function (feature, latlng) {
                     return L.circleMarker(latlng, {
-                        radius: 12,
+                        radius: 3,
                         fillColor: getColor(feature.properties.periode),
                         color: "#000",
                         weight: 1,
@@ -263,11 +247,11 @@
                         fillOpacity: 0.8
                     });
                 },
-                // filter data by function leaflet
+                //// filter data by function leaflet
                 filter: unSelectedData
             }).bindPopup(function (layer){
                 return layer.features.properties.no_patok;
-            }).addTo(map); // TODO: Adding popup to show data
+            }).addTo(map); //// TODO: Adding popup to show data
 
             var hgu = L.geoJSON(dataHGU, {
                 style: {
@@ -280,7 +264,7 @@
             }).addTo(map);
 
             // Fit map bounds after adding layers
-            map.fitBounds(patokSelected.getBounds(), { padding: [50, 50], maxZoom: 15 });
+            map.fitBounds(patokSelected.getBounds(), { padding: [50, 50], maxZoom: 18 });
 
         } catch (error) {
             console.error('Error fetching data:', error);

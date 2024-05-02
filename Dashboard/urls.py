@@ -13,10 +13,16 @@ urlpatterns = [
 
     ## Dashboard Tankos
     path('tankos/', Tankos, name='Tankos'),
-    path('tankos/pokok/table', AplPokokTable, name='AplPokokTable'),
-    path('tankos/tonase/table', AplTonaseTable, name='AplTonaseTable'),
-    path('tankos/table/', TankosTable, name='TankosTable'),
-    path('tankos/table/edit/<int:gid>/', TankosEdit, name='TankosEdit'),
+
+    ## Dump
+    path('dump/table/', DumpTable, name='DumpTable'),
+    path('dump/table/<int:gid>/', DumpEdit, name='DumpEdit'),
+
+    ## Aplikasi
+    path('apl/summary/table/', AplSummary, name='AplSummary'),
+
+    path('apl/pokok/table/<int:geomid>/', AplPokokTable, name='AplPokokTable'),
+    path('apl/tonase/table/<int:geomid>/', AplTonaseTable, name='AplTonaseTable'),
 
     ## Dashboard Pupuk
     path('pupuk/', Pupuk, name='Pupuk'),
@@ -24,6 +30,6 @@ urlpatterns = [
     ## Dashboard Monitoring
     path('patok/', Patok, name='Patok'),
     path('patok/table/', PatokTable, name='PatokTable'),
-    path('patok/table/', PatokExtract, name='PatokExtract'),
+    path('patok/table/download/', PatokExtract, name='PatokExtract'),
     path('patok/table/<int:gid>/', PatokEdit, name='PatokEdit'),
 ]
