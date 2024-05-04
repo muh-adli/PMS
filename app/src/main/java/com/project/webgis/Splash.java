@@ -18,8 +18,6 @@ import com.project.webgis.adapter.NetworkReceiver;
 import com.project.webgis.adapter.SessionManager;
 
 public class Splash extends AppCompatActivity {
-
-    private final BroadcastReceiver networkReceiver = new NetworkReceiver();
     private TextView splashText;
 
     @Override
@@ -42,14 +40,8 @@ public class Splash extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                SessionManager sessionManager = new SessionManager(getApplicationContext());
-                //if (sessionManager.isLoggedIn()) {
-                //    startActivity(new Intent(Splash.this, MainActivity.class));
-                //    finish();
-                //} else {
                     startActivity(new Intent(Splash.this, LoginActivity.class));
                     finish();
-                //}
             }
         }, 3000);
     }
