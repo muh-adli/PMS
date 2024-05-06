@@ -1,51 +1,126 @@
 from django import forms
 from .models import *
 
-class EditTankosFormAdd(forms.ModelForm):
-    afd_name = forms.CharField(
+class addPokokForm(forms.ModelForm):
+    afdeling = forms.CharField(
         label="Afdeling",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'afdeling'
+            }
         ),
     )
-    block_name = forms.CharField(
+    block = forms.CharField(
         label="Block",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
-        )
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'block'
+            }
+        ),
     )
-    area = forms.CharField(
-        label="Area",
+    date = forms.CharField(
+        label="Date",
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'date'
+            }
+        ),
+    )
+    pokok = forms.CharField(
+        label="Pokok",
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'pokok'
+            }
+        ),
+    )
+    geomid = forms.CharField(
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'geomid'
+            }
+        ),
+    )
+
+    class Meta:
+        model = TankosAplpokok
+        fields = (
+            'afdeling',
+            'block',
+            'date',
+            'pokok',
+            'geomid',
+        )
+class addTonaseForm(forms.ModelForm):
+    afdeling = forms.CharField(
+        label="Afdeling",
         widget=forms.TextInput(
-            attrs={'class': 'form-control',
-                   'disabled': 'disabled'}
-        )
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'afdeling'
+            }
+        ),
     )
-    class Meta:
-        model = HguBlock
-        fields = ('afd_name','block_name','area')
-
-class EditTankosForm(forms.ModelForm):
-    dumps = forms.DateField(
-        label="Dumps",
+    block = forms.CharField(
+        label="Block",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'block'
+            }
+        ),
+    )
+    date = forms.CharField(
+        label="Date",
         widget=forms.DateInput(
-            attrs={'class': 'form-control',
-                   'type': 'date'}
-        )
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'date'
+            }
+        ),
     )
-    aplikasi = forms.DateField(
-        label="Aplikasi",
-        widget=forms.DateInput(
-            attrs={'class': 'form-control',
-                   'type': 'date'}
-        )
+    tonase = forms.CharField(
+        label="Tonase",
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'tonase'
+            }
+        ),
     )
-    class Meta:
-        model = TankosAplsummary
-        fields = ('dumps','aplikasi')
+    geomid = forms.CharField(
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'placeholder': 'geomid'
+            }
+        ),
+    )
 
+    class Meta:
+        model = TankosApltonase
+        fields = (
+            'afdeling',
+            'block',
+            'date',
+            'tonase',
+            'geomid',
+        )
 
 class EditDumpForm(forms.ModelForm):
     afdeling = forms.CharField(

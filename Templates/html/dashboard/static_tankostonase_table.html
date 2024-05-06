@@ -111,12 +111,12 @@
     <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
         <div class="row my-1">
             <div class="col-md-6 d-flex justify-content-start align-items-start">
-                <a href="" class="btn btn-success mx-1" onclick="downloadExcel()">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Input Data
-                </a>
+                </button>
             </div>
             <div class="col-md-6 d-flex justify-content-end align-items-end">
-                <form class="form-inline" action="#" method="get">
+                <form class="form-inline" action="{% url "AplTonaseTable" geomid=geomid %}" method="get">
                     {% csrf_token %}
                     <div class="input-group">
                         <div class="input-group-append d-flex justify-content-end align-items-end">
@@ -127,6 +127,15 @@
                 </form>
             </div>
         </div>
+        {% if messages %}
+            <div class="row">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
         <div class="row">
             <div class="card-body align-items-center text-center">
                 {% if TableData %}
@@ -157,30 +166,158 @@
                         </tbody>
                     </table>
                     <div>
-                        <a href="{% url "AplSummary" %}" type="button" class="btn btn-lg btn-success active">
+                        <a href="{% url "AplSummary" %}" type="button" class="btn btn-sm btn-success active">
                             Back
                         </a>
                     </div>
                 </div>
                 {% else %}
                     <p>No data available</p>
+                    <div>
+                        <a href="{% url "AplSummary" %}" type="button" class="btn btn-sm btn-success active">
+                            Back
+                        </a>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-{% comment %} <!-- Bootstrap CDN --> {% endcomment %}
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url "AplTonaseEdit" %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="afdeling">Afdeling</label>
+                            <select id="afdeling" class="form-control" name="afdeling" onchange="updateBlockChoices(), updateGeomidChoices()">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="block">Block</label>
+                            <select id="block" class="form-control" name="block" onchange="updateGeomidChoices()">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="date">Date</label>
+                            <input type="date" class="form-control" id="date" name="date">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="tonase">Tonase</label>
+                            <input type="number" class="form-control" id="tonase" name="tonase">
+                        </div>
+                        <input type="hidden" class="form-control" id="geomid" name="geomid">
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+{% comment %} <!-- Ajax CDN --> {% endcomment %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+{% comment %} <!-- Bootstrap CDN --> {% endcomment %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+
 <script>
-    function downloadExcel() {
-        // Redirect the user to the URL that triggers the download
-        window.location.href = "{% url 'PatokExtract' %}";
+    var blockChoicesMap = {{ choices|safe }};
+    var afdelingChoices = Object.keys(blockChoicesMap);
+
+    function updateAfdelingOptions() {
+        var afdelingSelect = document.getElementById("afdeling");
+
+        // Reset the options
+        afdelingSelect.innerHTML = "";
+
+        // Add options to the Afdeling select field
+        afdelingChoices.forEach(function(value) {
+            var option = document.createElement("option");
+            option.text = value;
+            option.value = value;
+            afdelingSelect.add(option);
+        });
     }
+    function updateBlockChoices() {
+        var afdelingSelect = document.getElementById("afdeling");
+        var blockSelect = document.getElementById("block");
+        var selectedAfdeling = afdelingSelect.value;
+
+        // Reset the options
+        blockSelect.innerHTML = "";
+
+        // Get the block choices for the selected Afdeling
+        var blockChoices = blockChoicesMap[selectedAfdeling];
+
+        // Add options to the Block select field
+        blockChoices.forEach(function(choice) {
+            var option = document.createElement("option");
+            option.text = choice.block;
+            option.value = choice.block;
+            blockSelect.add(option);
+        });
+    }
+
+    function selectGid(block, afdeling) {
+        // Access the choice object based on the afdeling
+        var options = blockChoicesMap[afdeling];
+
+        // Loop through the options to find the matching block
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].block === block) {
+                // Return the gid if the block matches
+                return options[i].gid;
+            }
+        }
+
+        // Return null if no matching block is found
+        return null;
+    }
+    function updateGeomidChoices(){
+        var afdelingSelect = document.getElementById("afdeling");
+        var blockSelect = document.getElementById("block");
+        var geomidSelect = document.getElementById("geomid");
+
+        // Get the selected values
+        var selectedAfdeling = afdelingSelect.value;
+        var selectedBlock = blockSelect.value;
+
+        // Use selectGid() function to get the gid
+        var gid = selectGid(selectedBlock, selectedAfdeling);
+        console.log(gid);
+
+        // Update geomidSelect with the gid
+        if (gid !== null) {
+            geomidSelect.value = gid;
+        } else {
+            // If gid is null, handle it accordingly (e.g., display an error message)
+            console.log("No gid found for the selected block and afdeling.");
+        }
+    }
+
+    // Call the function initially to set the initial Block choices
+    updateAfdelingOptions();
+    updateBlockChoices();
+    updateGeomidChoices();
+
 </script>
+
 </body>
 
 </html>

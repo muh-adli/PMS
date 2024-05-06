@@ -150,7 +150,7 @@
             <div class="col-md-9">
                 <div class="card" style="height:57vh;">
                     <h5 class="card-header">
-                        Update
+                        Last Update
                     </h5>
                     <div class="card-body align-items-center text-center" >
                         {% if TableData %}
@@ -198,27 +198,18 @@
             </div>
         </div>
         <div class="row"style="height:30vh;">
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="card" style="height:30vh;">
-                    <h5 class="card-header">Aplikasi</h5>
+                    <h5 class="card-header">Activity</h5>
                     <div class="card-body align-items-center text-center">
                         <div style="height:20vh;">
                             <div id='plotApl' class="d-flex align-items-center justify-content-center"></div>
                         </div>
                         <a href="{% url "AplSummary" %}" type="button" class="btn btn-sm btn-outline-success">
-                            View Data
+                            View Aplikasi
                         </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card" style="height:30vh;">
-                    <h5 class="card-header">Dump</h5>
-                    <div class="card-body align-items-center text-center">
-                        <div id="plotDump" class="d-flex align-items-center justify-content-center" style="height:20vh;">
-                        </div>
                         <a href="{% url "DumpTable" %}" type="button" class="btn btn-sm btn-outline-success">
-                            View Data
+                            View Dump
                         </a>
                     </div>
                 </div>
@@ -240,19 +231,11 @@
 <script src="{% static "js/tankos_map.js" %}"></script>
 
 <script>
-    var dumpTrace = {
-        x: {{all_dates|safe}},
-        y: {{pokok_counts|safe}},
-        name: 'Pokok',
-        type: 'bar'
-    };
-    var dumpPlot = [dumpTrace];
-
     var layout = {
         barmode: 'group',
-        autosize: false,
-        width: 550,
-        height: 175,
+        autosize: true,
+        width: 800,
+        height: 150,
         margin: {
             l: 0,
             r: 0,
@@ -260,17 +243,45 @@
             t: 0,
             pad: 0
         },
+        xaxis: {
+            autorange: true,
+            range: ['{{min_date|safe}}', '{{max_date|safe}}'],
+            rangeselector: {buttons: [
+                {
+                  count: 1,
+                  label: '1m',
+                  step: 'month',
+                  stepmode: 'backward'
+                },
+                {
+                  count: 6,
+                  label: '6m',
+                  step: 'month',
+                  stepmode: 'backward'
+                },
+                {step: 'all'}
+              ]},
+            rangeslider: {range: ['{{min_date|safe}}', '{{max_date|safe}}']},
+            type: 'date'
+          },
     };
     var config = {
         responsive: true,
         displayModeBar: false,
-    };
 
-    Plotly.newPlot('plotDump', dumpPlot, layout, config );
+    };
+    var dumpTrace = {
+        x: {{all_dates|safe}},
+        y: {{dump_counts|safe}},
+        text: {{dump_counts|safe}},
+        name: 'Dump',
+        type: 'bar'
+    };
 
     var pokokTrace = {
         x: {{all_dates|safe}},
         y: {{pokok_counts|safe}},
+        text: {{pokok_counts|safe}},
         name: 'Pokok',
         type: 'bar'
     };
@@ -278,11 +289,12 @@
     var tonaseTrace = {
     x: {{all_dates|safe}},
     y: {{tonase_counts|safe}},
+    text: {{tonase_counts|safe}},
     name: 'Tonase',
     type: 'bar'
     };
 
-    var aplPlot = [pokokTrace, tonaseTrace];
+    var aplPlot = [pokokTrace, tonaseTrace, dumpTrace];
 
     Plotly.newPlot('plotApl', aplPlot, layout, config );
 

@@ -22,7 +22,10 @@ urlpatterns = [
     path('apl/summary/table/', AplSummary, name='AplSummary'),
 
     path('apl/pokok/table/<int:geomid>/', AplPokokTable, name='AplPokokTable'),
+    path('apl/pokok/table/edit/', AplPokokEdit, name='AplPokokEdit'),
+
     path('apl/tonase/table/<int:geomid>/', AplTonaseTable, name='AplTonaseTable'),
+    path('apl/tonase/table/edit/', AplTonaseEdit, name='AplTonaseEdit'),
 
     ## Dashboard Pupuk
     path('pupuk/', Pupuk, name='Pupuk'),

@@ -9,7 +9,7 @@ class TankosAplpokok(models.Model):
     block = models.CharField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     pokok = models.IntegerField(blank=True, null=True)
-    geomid = models.ForeignKey(TankosAplgeom, models.DO_NOTHING, db_column='geomid', blank=True, null=True)
+    geomid = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -59,15 +59,15 @@ class TankosAplsummary(models.Model):
     gid = models.IntegerField(blank=True, null=True)
     block = models.CharField(max_length=5, blank=True, null=True)
     afdeling = models.CharField(max_length=5, blank=True, null=True)
-    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    target_tonase = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    target_pokok = models.IntegerField(blank=True, null=True)
+    tot_pokok = models.IntegerField(blank=True, null=True)
+    tot_tonase = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    sph = models.FloatField(blank=True, null=True)
     prog_tonase = models.FloatField(blank=True, null=True)
     prog_pokok = models.BigIntegerField(blank=True, null=True)
-    app_sph = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    prog_ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    prog_ha = models.FloatField(blank=True, null=True)
     last_date = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'tankos_aplsummary'
+

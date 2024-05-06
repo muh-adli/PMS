@@ -156,7 +156,7 @@
                                 <td>{{ data.prog_tonase|floatformat:2  }}</td>
                                 <td>{{ data.prog_pokok|floatformat:2  }}</td>
                                 <td>{{ data.app_sph|floatformat:2  }}</td>
-                                <td>{{ data.prog_ha|floatformat:2  }} % </td>
+                                <td>{{ data.prog_ha|floatformat:2  }}</td>
                                 <td>{{ data.last_date|date:"j F Y"  }}</td>
                                 <td>
                                     <a href="{% url 'AplTonaseTable' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Tonase</a>
@@ -167,7 +167,7 @@
                         </tbody>
                     </table>
                     <div>
-                        <a href="#" type="button" class="btn btn-lg btn-success active">
+                        <a href="{% url "Tankos" %}" type="button" class="btn btn-lg btn-success active">
                             Back
                         </a>
                     </div>
@@ -185,12 +185,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-<script>
-    function downloadExcel() {
-        // Redirect the user to the URL that triggers the download
-        window.location.href = "{% url 'PatokExtract' %}";
-    }
-</script>
+
 </body>
 
 </html>

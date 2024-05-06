@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Count, Sum, Q, Min, Max
-from django.contrib.gis.db.models.functions import Transform
 
 
 # Models and forms
@@ -13,15 +12,15 @@ from .forms import *
 from .tables import *
 from Map.models import *
 
+
 ## Library
 from datetime import timedelta
-from django.utils import timezone
 import pandas as pd
 from datetime import datetime
-import plotly.graph_objs as go
-from plotly.offline import plot
 import io
 import time
+from datetime import datetime
+
 
 # Create your views here.
 @login_required(login_url="")
@@ -62,11 +61,9 @@ def Tankos(request):
     pokok_count_by_date = TankosAplpokok.objects.values('date').annotate(count=Count('date'))
     tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
 
-    # Query data from TankosAplpokok model
     pokok_data = TankosAplpokok.objects.all()
-
-    # Query data from TankosApltonase model
     tonase_data = TankosApltonase.objects.all()
+    dump_data = TankosDumpdata.objects.all()
 
     # Get minimum and maximum dates
     pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
@@ -74,29 +71,37 @@ def Tankos(request):
 
     tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
     tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
+    
+    dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
+    dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
 
-    min_date = min(pokok_min_date, tonase_min_date)
-    max_date = max(pokok_max_date, tonase_max_date)
+    min_date = min(pokok_min_date, tonase_min_date, dump_min_date)
+    max_date = max(pokok_max_date, tonase_max_date, dump_max_date)
 
     # Generate all dates between min and max date
     all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
-    print(all_dates)
+    # print(all_dates)
     all_date = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
-    print(all_date)
+    # print(all_date)
 
     # Aggregate data by date
     pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
     tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
+    dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
 
     # Initialize dictionaries to hold counts for each date
     pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
     tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
+    dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
+
 
     # Fill in counts for all dates, including missing ones
     pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
     tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
+    dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
     print(pokok_counts)
     print(tonase_counts)
+    print(dump_counts)
 
     ## Context
     context = {
@@ -104,6 +109,9 @@ def Tankos(request):
         'all_dates': all_date,
         'pokok_counts':pokok_counts,
         'tonase_counts':tonase_counts,
+        'dump_counts':dump_counts,
+        'min_date': min_date,
+        'max_date': max_date,
     }
     return render(request, "dashboard/static_tankos_dashboard.html", context)
 
@@ -118,12 +126,11 @@ def AplSummary(request):
             'gid',
             'afdeling',
             'block',
-            'ha',
-            'target_tonase',
-            'target_pokok',
+            'tot_tonase',
+            'tot_pokok',
             'prog_tonase',
             'prog_pokok',
-            'app_sph',
+            'sph',
             'prog_ha',
             'last_date',
             ).filter(block__contains=query) # TODO: Paginate table to 15 item
@@ -143,17 +150,16 @@ def AplSummary(request):
     else:
         ## Data collecting and cleansing from database
         sum_qs = TankosAplsummary.objects.values(
-        'gid',
-        'afdeling',
-        'block',
-        'ha',
-        'target_tonase',
-        'target_pokok',
-        'prog_tonase',
-        'prog_pokok',
-        'app_sph',
-        'prog_ha',
-        'last_date',
+            'gid',
+            'afdeling',
+            'block',
+            'tot_tonase',
+            'tot_pokok',
+            'prog_tonase',
+            'prog_pokok',
+            'sph',
+            'prog_ha',
+            'last_date',
         ) # TODO: Paginate table to 15 item
 
         ## Context dictionary for passing data
@@ -166,6 +172,27 @@ def AplSummary(request):
 def AplPokokTable(request, geomid):
     Title = 'Dashboard - pokok'
     query = request.GET.get('q')
+
+    modalData = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    )
+    choices = {}
+
+    for item in modalData:
+        afdeling = item['afdeling']
+        block = item['block']
+        gid = item['gid']
+        if afdeling in choices:
+            choices[afdeling].append({'block': block, 'gid': gid})
+        else:
+            choices[afdeling] = [{'block': block, 'gid': gid}]
+
+    for afdeling, blocks in choices.items():
+        choices[afdeling] = sorted(blocks, key=lambda x: x['block'])
+    # print(choices)
+
     if query:
         pokok_qs = TankosAplpokok.objects.filter(geomid=geomid).filter(date__contains=query).order_by('-date')
 
@@ -179,6 +206,8 @@ def AplPokokTable(request, geomid):
             context = {
                 'Title': Title,
                 'TableData' : pokok_qs,
+                'choices': choices,
+                'geomid': geomid,
             }
 
     else:
@@ -189,15 +218,105 @@ def AplPokokTable(request, geomid):
         context = {
             'Title': Title,
             'TableData' : pokok_qs,
+            'choices': choices,
+            'geomid': geomid,
         }
     return render(request, "dashboard/static_tankospokok_table.html", context)
+
+
+def AplPokokEdit(request):
+    check_qs = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    ).order_by('gid')
+    # print(check_qs)
+
+    # print(request.POST)
+    if request.method == "POST":
+        print("masuk POST")
+
+        # Convert POST values to string to match with database values
+        afdeling = str(request.POST['afdeling'])
+        block = str(request.POST['block'])
+        geomid = request.POST['geomid']
+        date = request.POST.get('date')
+        pokok = request.POST.get('pokok')
+        
+        print(afdeling)
+        print(block)
+        print(geomid)
+        print(date)
+        print(pokok)
+
+        # Check if any object in the queryset matches the POST parameters
+        exists = False
+        for obj in check_qs:
+            if obj['afdeling'] == afdeling and obj['block'] == block and str(obj['gid']) == geomid:
+                exists = True
+
+        if exists:
+            print("Data masuk")
+            if date and pokok:
+                if TankosAplpokok.objects.filter(afdeling=afdeling, block=block, date=date).exists():
+                    # formatted_date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%y')
+                    messages.warning(request, f"Data on {afdeling}, {block} on {date} already exists.")
+                else:
+                    data ={
+                        'afdeling': afdeling,
+                        'block': block,
+                        'date': date,
+                        'pokok': pokok,
+                        'geomid': geomid,
+                    }
+                    print(data)
+                    form = addPokokForm(data=data)
+                    if form.is_valid():
+                        print("Form Valid")
+                        form.save()
+                        messages.success(request, "Data added successfully.")
+                    else:
+                        print("form invalid")
+            else:
+                print("date and pokok invalid")
+                messages.warning(request,  "Invalid Data")
+            ## TODO: validate form and input into database
+        else:
+            print("Data invalid")
+            messages.warning(request,  "Invalid Data")
+    else:
+        print("gamasuk POST")
+        messages.error(request, "Error in input data")
+        
+    return redirect('AplPokokTable', geomid=geomid)
+        ## TODO: add new data based on afdeling and block
 
 def AplTonaseTable(request, geomid):
     Title = 'Dashboard - tonase'
     query = request.GET.get('q')
+
+    modalData = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    )
+    choices = {}
+
+    for item in modalData:
+        afdeling = item['afdeling']
+        block = item['block']
+        gid = item['gid']
+        if afdeling in choices:
+            choices[afdeling].append({'block': block, 'gid': gid})
+        else:
+            choices[afdeling] = [{'block': block, 'gid': gid}]
+
+    for afdeling, blocks in choices.items():
+        choices[afdeling] = sorted(blocks, key=lambda x: x['block'])
+    # print(choices)
+
     if query:
         tonase_qs = TankosApltonase.objects.filter(geomid=geomid).filter(date__contains=query).order_by('-date')
-
         ## Checking available data
         if tonase_qs is None:
             messages.warning("Data isn't available")
@@ -208,8 +327,9 @@ def AplTonaseTable(request, geomid):
             context = {
                 'Title': Title,
                 'TableData' : tonase_qs,
+                'choices': choices,
+                'geomid': geomid,
             }
-
     else:
         ## Data collecting and cleansing from database
         tonase_qs = TankosApltonase.objects.filter(geomid=geomid).order_by('-date') #TODO: Paginate table to 15 item
@@ -218,8 +338,71 @@ def AplTonaseTable(request, geomid):
         context = {
             'Title': Title,
             'TableData' : tonase_qs,
+            'choices': choices,
+            'geomid': geomid,
         }
     return render(request, "dashboard/static_tankostonase_table.html", context)
+
+def AplTonaseEdit(request):
+    check_qs = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    ).order_by('gid')
+    # print(check_qs)
+
+    # print(request.POST)
+    if request.method == "POST":
+        print("masuk POST")
+        # print(request.POST.get('afdeling'))
+        # print(request.POST.get('block'))
+        # print(request.POST.get('geomid'))
+
+        # Convert POST values to string to match with database values
+        afdeling = str(request.POST['afdeling'])
+        block = str(request.POST['block'])
+        geomid = request.POST['geomid']
+        date = request.POST.get('date')
+        tonase = request.POST.get('tonase')
+    # Check if any object in the queryset matches the POST parameters
+        exists = False
+        for obj in check_qs:
+            if obj['afdeling'] == afdeling and obj['block'] == block and str(obj['gid']) == geomid:
+                exists = True
+
+        if exists:
+            print("Data masuk")
+            if date and tonase:
+                if TankosApltonase.objects.filter(afdeling=afdeling, block=block, date=date).exists():
+                    formatted_date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%y')
+                    messages.warning(request, f"Data on {afdeling}, {block} on {formatted_date} already exists.")
+                else:
+                    data ={
+                        'afdeling': afdeling,
+                        'block': block,
+                        'date': date,
+                        'tonase': tonase,
+                        'geomid': geomid,
+                    }
+
+                    form = addTonaseForm(data=data)
+                    if form.is_valid():
+                        print("Form Valid")
+                        form.save()
+                        messages.success(request, "Data added successfully.")
+            else:
+                print("Data invalid")
+                messages.warning(request,  "Invalid Data")
+            ## TODO: validate form and input into database
+        else:
+            print("Data invalid")
+            messages.warning(request,  "Invalid Data")
+    else:
+        print("gamasuk POST")
+        messages.error(request, "Error in input data")
+        
+    return redirect('AplTonaseTable', geomid=geomid)
+        ## TODO: add new data based on afdeling and block
 
 
 ## Dump
