@@ -134,16 +134,20 @@
                     <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
                         <thead>
                             <tr>
-                                <th class="table-success">Afdeling</th>
-                                <th class="table-success">Block</th>
+                                <th class="table-success" rowspan="2">Afdeling</th>
+                                <th class="table-success" rowspan="2">Block</th>
+                                <th class="table-success" colspan="2">Target</th>
+                                <th class="table-success" colspan="2">Progress</th>
+                                <th class="table-success" rowspan="2">sph</th>
+                                <th class="table-success" rowspan="2">progress</th>
+                                <th class="table-success" rowspan="2">Last Update</th>
+                                <th class="table-success" rowspan="2" >View Data</th>
+                            </tr>
+                            <tr>
                                 <th class="table-success">Tonase</th>
                                 <th class="table-success">Pokok</th>
                                 <th class="table-success">Tonase</th>
                                 <th class="table-success">Pokok</th>
-                                <th class="table-success">sph</th>
-                                <th class="table-success">progress</th>
-                                <th class="table-success">Last Update</th>
-                                <th class="table-success">View Data</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -151,16 +155,20 @@
                             <tr class="text-center">
                                 <td>{{ data.afdeling }}</td>
                                 <td>{{ data.block }}</td>
-                                <td>{{ data.target_tonase|floatformat:2  }}</td>
-                                <td>{{ data.target_pokok|floatformat:2  }}</td>
+                                <td>{{ data.tot_tonase|floatformat:2  }}</td>
+                                <td>{{ data.tot_pokok|floatformat:2  }}</td>
                                 <td>{{ data.prog_tonase|floatformat:2  }}</td>
                                 <td>{{ data.prog_pokok|floatformat:2  }}</td>
-                                <td>{{ data.app_sph|floatformat:2  }}</td>
+                                <td>{{ data.sph|floatformat:2  }}</td>
                                 <td>{{ data.prog_ha|floatformat:2  }}</td>
-                                <td>{{ data.last_date|date:"j F Y"  }}</td>
+                                {% if data.last_date %}
+                                    <td>{{ data.last_date|date:"j F Y"  }}</td>
+                                {% else %}
+                                    <td> - </td>
+                                {% endif %}
                                 <td>
-                                    <a href="{% url 'AplTonaseTable' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Tonase</a>
-                                    <a href="{% url 'AplPokokTable' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Pokok</a>
+                                    <a href="{% url 'AplTonaseTable' data.gid %}" class="btn btn-sm btn-success" role="button" aria-pressed="true">Tonase</a>
+                                    <a href="{% url 'AplPokokTable' data.gid %}" class="btn btn-sm btn-success" role="button" aria-pressed="true">Pokok</a>
                                 </td>
                             </tr>
                             {% endfor %}
