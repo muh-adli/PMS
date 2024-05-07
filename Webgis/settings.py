@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from django.contrib.messages import constants as messages
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,8 +27,14 @@ SECRET_KEY = 'django-insecure-+r9#q!+l$)bz54tfh5$gt4^hx!8rpy@taghmj69y03sj98r9w+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*',
+    '192.168.100.11', # Your IP Address
+    'localhost', # localhost
+    '127.0.0.1' # Default django IP
+    ]
 
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
 
 # Application definition
 
@@ -39,16 +46,18 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.gis",
+    'django.contrib.humanize',
+
+    ## third-party library
+    'django_tables2',
     "rest_framework",
     "rest_framework_gis",
 
-    # third-party apps
-
-
-    # apps
+    ## Django apps
     'Accounts',
     'Map',
     'Dashboard',
+    'MobileAPI',
 
 ]
 
@@ -92,6 +101,7 @@ WSGI_APPLICATION = 'Webgis.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        # 'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'webgis',
         'USER': 'postgres',
         'PASSWORD': '12345',
@@ -147,10 +157,19 @@ MEDIA_ROOT = BASE_DIR, 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Geodjango Path
-OSGEO4W_ROOT=r'C:\OSGeo4W'
-GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308'
-GDAL_DATA = r'%OSGEO4W_ROOT%\apps\gdal\share\gdal'
-PROJ_LIB = r'%OSGEO4W_ROOT%\share\proj'
+OSGEO4W_ROOT=r'C:\OSGeo4W' # OSGEO4W Path
+GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308' # GDAL Lib Path
+GDAL_DATA = r'%OSGEO4W_ROOT%\apps\gdal\share\gdal' # GDAL DATA Path
+PROJ_LIB = r'%OSGEO4W_ROOT%\share\proj' # Proj Path
 
-LOGIN_URL='/Accounts/login/'
-LOGOUT_REDIRECT_URL='/Accounts/login/'
+LOGIN_URL=''
+LOGOUT_REDIRECT_URL=''
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'

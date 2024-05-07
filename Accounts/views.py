@@ -3,35 +3,70 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
+from .forms import *
+
 # Create your views here.
 def LandingPage(request):
-    html = "accounts/LandingPage.html"
-    return render(request, html)
 
-def LoginUser(request):
+    Title = "Palm Management System"
+    html = "accounts/LandingPage.html"
+    formlogin = LoginForm()
+    formregis = RegisterForm()
+
     if request.method == 'POST':
         # print("masuk post")
-        username = request.POST.get('Username')
-        password = request.POST.get('Password')
-        # print(password, username)
-        user = authenticate(request, username=username, password=password)
-        # print(user)
-        if user is not None:
-            login(request, user)
-            messages.info(request, "Credentials Valid")
-            return redirect('HomePage')
-        else:
-            # print("invalid")
-            messages.error(request, "Invalid Credentials")
-            return render(request, "LoginPage.html")
-    else:
-        # print("tidak post")
-        return render(request, "LoginPage.html")
+        if 'login' in request.POST:
+            print("MASOK LOGIN")
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                print("FORM VALID")
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                # print(password, username)
+                user = authenticate(request, username=username, password=password)
+                # print(user)
+                if user is not None:
+                    login(request, user)
+                    messages.success(request, "Credentials Valid")
+                    print("BERHASIL LOGIN")
+                    return redirect('HomePage')
+                else:
+                    print("USER GA NEMU")
+                    messages.error(request, "Invalid Credentials")
+            else:
+                print("ERROR LOGIN")
+                messages.error(request, "Error Login")
+        if 'register' in request.POST:
+            print("MASOK REGISTER")
+            form = RegisterForm(request.POST)
+            if form.is_valid():
+                print("FORM REGIS VALID")
+                password1 = form.cleaned_data['password1']
+                password2 = form.cleaned_data['password2']
+                if password1 == password2:
+                    print("PASS SAMA")
+                    username = form.cleaned_data['username']
+                    password = form.cleaned_data['password1']
+                    email = form.cleaned_data['email']
+                    user = User.objects.create_user(username=username, email=email, password=password)
+                    messages.success(request, "User Created")
+                    return redirect('LandingPage')
+                else:
+                    messages.error(request, "Password didn't same")
+            else:
+                print("FORM REGIS ERROR")
+                messages.error(request, "Error Register")
+    context = {
+        'Title':Title,
+        'regis':formregis,
+        'login':formlogin,
+    }
+    return render(request, html, context)
 
 def LogoutUser(request):
     logout(request)
     messages.warning(request, "Logout")
-    return redirect('LoginUser')
+    return redirect('LandingPage')
 
 def Register(request):
     if request.method == 'POST':
@@ -48,7 +83,7 @@ def Register(request):
                                                 email=Email,
                                                 password=Password)
                 user.save()
-                messages.info(request, "Credentials Created")
+                messages.info(request, "User Created")
                 return redirect('LandingPage')
             else:
                 messages.info(request, "Password didn't match")

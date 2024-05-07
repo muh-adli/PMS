@@ -1,226 +1,652 @@
 ## Django build-in fuctions
+from django.http import HttpResponse
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Count
-from django.contrib.gis.db.models.functions import Transform
-from django.contrib import messages
-from django.core.serializers import serialize
-import json
-from django.http import JsonResponse
+from django.db.models import F, Count, Sum, Q, Min, Max
+
 
 # Models and forms
 from .models import *
 from .forms import *
+from .tables import *
 from Map.models import *
 
+
 ## Library
-from plotly.subplots import make_subplots
-from plotly.offline import plot
-import plotly.graph_objects as go
+from datetime import timedelta
+import pandas as pd
+from datetime import datetime
+import io
+import time
+from datetime import datetime
+
 
 # Create your views here.
-@login_required(login_url="/login")
+@login_required(login_url="")
 def HomePage(request):
     Title = 'HomePage'
     context = {'Title':Title}
     return render(request, "static_home.html",context)
 
-@login_required(login_url="/login")
-def jangkos(request):
-    Title = 'Dashboard - Jangkos'
+@login_required(login_url="")
+def center(request):
+    Title = 'Dashboard - Center'
 
-    ## Querying data
-    block_qs = Block.objects.annotate(
-        geometry=Transform('geom', 4326)
-    ).values('gid', 'objectid', 'afd_name', 'block_name', 'geometry', 'ha', 'estate')
-    jangkos_qs = Jangkos.objects.values('afd_name','block_name','dumps','aplikasi')
-
-    ## Table data
-    TableData = jangkos_qs.order_by('dumps','aplikasi')[:10]
-    # print(TableData)
-
-    ## Context
-    context = {
-        'TableData' : TableData,
-        'Title':Title
-    }
-    return render(request, "dashboard/static_dashboard_jangkos.html", context)
-
-@login_required(login_url="/login")
-def JangkosTable(request):
-    Title = 'Table - Jangkos'
-    TableData = Jangkos.objects.values(
-        'afd_name','block_name','dumps','aplikasi','selisih','gid'
-        )
-    # print(type(TableData))
-    # print(TableData)
-
-    context = {
-        'TableData' : TableData,
-        'Title':Title
-    }
-    return render(request, "dashboard/static_table_jangkos.html", context)
-
-@login_required(login_url="/login")
-def JangkosEdit(request, gid):
-
-    # Title
-    Title = 'Edit Jangkos'
-    geomid = gid
-
-    #  Query
-    Block_qs = Block.objects.values(
-            'afd_name','block_name','ha'
-            ).annotate(
-                geometry=Transform('geom', 4326)
-            ).get(gid=gid)
-    print(Block_qs)
-
-    Jangkos_qs = get_object_or_404(Jangkos, id=gid)
-    # print(Jangkos_qs)
-
-    # Wrangling and Cleaning
-    data = {
-        'afd_name' : Block_qs['afd_name'],
-        'block_name' : Block_qs['block_name'],
-        'area' : str(round(Block_qs['ha'], 2)) + ' Ha'
-    }
-    # print(data)
-    form = EditJangkosForm(instance=Jangkos_qs)
-    FormAdditional = EditJangkosFormAdd(initial=data)
-
-    # Editing data
-    if request.method == 'POST' :
-        # print(request.POST)
-        form = EditJangkosForm(request.POST, instance=Jangkos_qs)
-        if form.is_valid():
-            form.save()
-            print("Blok updated successfully.")
-            messages.success(request, 'Blok updated successfully.')
-            return redirect('JangkosTable')
-        else:
-            print(form.errors)
-            print("Error saving data.")
-            messages.error(request, 'Error saving data.')
-    else:
-        messages.error(request, 'Error loading data.')
-
-    context={
-        'formadd':FormAdditional,
-        'form':form,
-        'Title':Title,
-        'geomid':geomid,
-    }
-    return render(request,'dashboard/static_table_edit_jangkos.html', context )
-
-@login_required(login_url="/login")
-def pupuk(request):
-    Title = 'Dashboard - Pupuk'
-    # ## Data collecting and cleansing from database
-    # pupuk_qs = 
-
-    ## Context
-    context = {
-        'Title':Title,
-        
-    }
-    return render(request, "dashboard/dashboard_jangkos.html", context)
-
-@login_required(login_url="/login")
-def Monitoring(request):
-    Title = 'Dashboard - Monitoring'
-    ## Data collecting and cleansing from database
-    JembatanCount_qs = Jembatan.objects.count()
-    # print(JembatanCount_qs)
-    JembatanKondisi_qs = Jembatan.objects.values('kondisi').annotate(count=Count('kondisi'))
-    # print(JembatanKondisi_qs)
-    JembatanBaik = JembatanRusak = JembatanBaru = JembatanNone= 0
-    for jemb in JembatanKondisi_qs:
-        if jemb['kondisi'] == 'BAIK':
-            JembatanBaik = jemb['count']
-        elif jemb['kondisi'] == 'RUSAK':
-            JembatanRusak = jemb['count']
-        elif jemb['kondisi'] == 'Baru':
-            JembatanBaru = jemb['count']
-    JembatanNone = JembatanCount_qs - (JembatanBaik + JembatanRusak + JembatanBaru)
-    print(JembatanBaik,JembatanRusak,JembatanBaru,JembatanNone)
-    JembatanTotal = JembatanBaik + JembatanRusak + JembatanBaru + JembatanNone
-    print(JembatanTotal)
-    JembatanPerc = round((JembatanBaik+JembatanBaru)/JembatanTotal*100, 2)
-    # print(JembatanPerc)
-
-    PatokKode_qs = MonitoringPatokhgu.objects.count()
-    # print(PatokKode_qs)
-    PatokPeriode_qs = MonitoringPatokhgu.objects.values('periode').annotate(count=Count('periode'))
-    # print(PatokPeriode_qs)
-    PatokQ1 = PatokQ2 = PatokQ3 = PatokQ4 = 0
-    for patok in PatokPeriode_qs:
-        if patok['periode'] == 'Q1':
-            PatokQ1 = patok['count']
-        elif patok['periode'] == 'Q2':
-            PatokQ2 = patok['count']
-        elif patok['periode'] == 'Q3':
-            PatokQ3 = patok['count']
-        elif patok['periode'] == 'Q4':
-            PatokQ4 = patok['count']
-    PatokNone = PatokKode_qs - (PatokQ1 + PatokQ2 + PatokQ3 + PatokQ4)
-    print(PatokQ1, PatokQ2, PatokQ3, PatokQ4, PatokNone)
-    PatokPrec = round((PatokQ1 + PatokQ2 + PatokQ3 + PatokQ4)/PatokKode_qs*100, 2)
-    # print(PatokPrec)
-    
-    ## Visualization
-    ## Color pallete
-    color3 = ['#003f5c','#bc5090','#ffa600']
-    color4 = ['#003f5c','#7a5195','#ef5675','#ffa600']
-    color5 = ['#003f5c','#58508d','#bc5090','#ff6361','#ffa600']
-    color6 = ['#003f5c','#444e86','#955196','#dd5182','#ff6e54','#ffa600']
-    color7 = ['#003f5c','#374c80','#7a5195','#bc5090','#ef5675','#ff764a','#ffa600']
-    color8 = ['#003f5c','#2f4b7c','#665191','#a05195','#d45087','#f95d6a','#ff7c43','#ffa600']
-
-    ## Data cleansing
-    LabelJembatan = ['Baik', 'Rusak', 'Baru', 'N/A']
-    ValueJembatan = [JembatanBaik, JembatanRusak, JembatanBaru, JembatanNone]
-
-    LabelPatok = ['Q1','Q2','Q3','Q4','N/A',]
-    ValuePatok = [PatokQ1, PatokQ2, PatokQ3, PatokQ4, PatokNone]
-
-    ## Plotting
-    fig = make_subplots(rows=1,cols=2,
-                        specs=[
-                                [{"type": "domain"}, {"type": "domain"}],
-                            ],
-                        subplot_titles=(
-                            "Bridge Condition",
-                            "Periods Patok HGU")
-                        )
-
-    fig.add_trace(
-        go.Pie(name='',
-            values = LabelJembatan,
-            labels = ValueJembatan,
-            hovertemplate = "Kondisi %{label}: %{value}"
-        ),
-        row=1, col=1)
-    fig.update_traces(textinfo='value', textfont_size=20,
-                    marker=dict(colors=color4, line=dict(color='#000000', width=1)))
-
-    fig.add_trace(
-        go.Pie(name='',
-            values = LabelPatok,
-            labels = ValuePatok,
-            hovertemplate = "Kategori:  %{label}"
-        ),
-        row=1, col=2)
-    fig.update_traces(textinfo='value', textfont_size=20,
-                    marker=dict(colors=color5, line=dict(color='#000000', width=1)))
-    # Render the plot as HTML code
-    plot_fig = fig.to_html()
-
-    # Context dictionary for passing data
     context = {
         'Title': Title,
-        'JembatanPerc': JembatanPerc,  # Percentage Data of Bridge Conditions
-        'PatokPrec': PatokPrec,  # Percentage Data of Patok Periods
-        'plot_fig': plot_fig,
     }
-    return render(request, "dashboard/asd.html", context)
+    return render(request, "dashboard/static_center_dashboard.html", context)
+
+@login_required(login_url="")
+def hectare(request):
+    Title = 'Dashboard - Hectare Statement'
+    Planted_qs = HguPlanted.objects.aggregate(total_ha=Sum('ha'))
+    HGU_qs = Hgu.objects.aggregate(total_ha=Sum('ha'))
+    
+    tot_Planted = round(Planted_qs['total_ha'], 2)
+    tot_HGU = round(HGU_qs['total_ha'], 2)
+
+    context = {
+        'Title': Title,
+        'Planted': tot_Planted,
+        'HGU': tot_HGU,
+    }
+    return render(request, "dashboard/static_hectarestatement_dashboard.html", context)
+
+@login_required(login_url="")
+def Tankos(request):
+    Title = 'Dashboard - Tankos'
+
+    pokok_count_by_date = TankosAplpokok.objects.values('date').annotate(count=Count('date'))
+    tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
+
+    pokok_data = TankosAplpokok.objects.all()
+    tonase_data = TankosApltonase.objects.all()
+    dump_data = TankosDumpdata.objects.all()
+
+    # Get minimum and maximum dates
+    pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
+    pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
+
+    tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
+    tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
+    
+    dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
+    dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
+
+    min_date = min(pokok_min_date, tonase_min_date, dump_min_date)
+    max_date = max(pokok_max_date, tonase_max_date, dump_max_date)
+
+    # Generate all dates between min and max date
+    all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
+    # print(all_dates)
+    all_date = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
+    # print(all_date)
+
+    # Aggregate data by date
+    pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
+    tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
+    dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
+
+    # Initialize dictionaries to hold counts for each date
+    pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
+    tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
+    dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
+
+
+    # Fill in counts for all dates, including missing ones
+    pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
+    tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
+    dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
+    print(pokok_counts)
+    print(tonase_counts)
+    print(dump_counts)
+
+    ## Context
+    context = {
+        'Title':Title,
+        'all_dates': all_date,
+        'pokok_counts':pokok_counts,
+        'tonase_counts':tonase_counts,
+        'dump_counts':dump_counts,
+        'min_date': min_date,
+        'max_date': max_date,
+    }
+    return render(request, "dashboard/static_tankos_dashboard.html", context)
+
+
+## Aplikasi pokok and tonase
+def AplSummary(request):
+    Title = 'Dashboard - Aplikasi'
+    query = request.GET.get('q')
+
+    if query:
+        sum_qs = TankosAplsummary.objects.values(
+            'gid',
+            'afdeling',
+            'block',
+            'tot_tonase',
+            'tot_pokok',
+            'prog_tonase',
+            'prog_pokok',
+            'sph',
+            'prog_ha',
+            'last_date',
+            ).filter(block__contains=query) # TODO: Paginate table to 15 item
+
+        ## Checking available data
+        if sum_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('AplSummary')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : sum_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        sum_qs = TankosAplsummary.objects.values(
+            'gid',
+            'afdeling',
+            'block',
+            'tot_tonase',
+            'tot_pokok',
+            'prog_tonase',
+            'prog_pokok',
+            'sph',
+            'prog_ha',
+            'last_date',
+        ) # TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : sum_qs,
+        }
+    return render(request, "dashboard/static_tankosapl_table.html", context)
+
+def AplPokokTable(request, geomid):
+    Title = 'Dashboard - pokok'
+    query = request.GET.get('q')
+
+    modalData = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    )
+    choices = {}
+
+    for item in modalData:
+        afdeling = item['afdeling']
+        block = item['block']
+        gid = item['gid']
+        if afdeling in choices:
+            choices[afdeling].append({'block': block, 'gid': gid})
+        else:
+            choices[afdeling] = [{'block': block, 'gid': gid}]
+
+    for afdeling, blocks in choices.items():
+        choices[afdeling] = sorted(blocks, key=lambda x: x['block'])
+    # print(choices)
+
+    if query:
+        pokok_qs = TankosAplpokok.objects.filter(geomid=geomid).filter(date__contains=query).order_by('-date')
+
+        ## Checking available data
+        if pokok_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('AplPokokTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : pokok_qs,
+                'choices': choices,
+                'geomid': geomid,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        pokok_qs = TankosAplpokok.objects.filter(geomid=geomid).order_by('-date') #TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : pokok_qs,
+            'choices': choices,
+            'geomid': geomid,
+        }
+    return render(request, "dashboard/static_tankospokok_table.html", context)
+
+
+def AplPokokEdit(request):
+    check_qs = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    ).order_by('gid')
+    # print(check_qs)
+
+    # print(request.POST)
+    if request.method == "POST":
+        print("masuk POST")
+
+        # Convert POST values to string to match with database values
+        afdeling = str(request.POST['afdeling'])
+        block = str(request.POST['block'])
+        geomid = request.POST['geomid']
+        date = request.POST.get('date')
+        pokok = request.POST.get('pokok')
+        
+        print(afdeling)
+        print(block)
+        print(geomid)
+        print(date)
+        print(pokok)
+
+        # Check if any object in the queryset matches the POST parameters
+        exists = False
+        for obj in check_qs:
+            if obj['afdeling'] == afdeling and obj['block'] == block and str(obj['gid']) == geomid:
+                exists = True
+
+        if exists:
+            print("Data masuk")
+            if date and pokok:
+                if TankosAplpokok.objects.filter(afdeling=afdeling, block=block, date=date).exists():
+                    # formatted_date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%y')
+                    messages.warning(request, f"Data on {afdeling}, {block} on {date} already exists.")
+                else:
+                    data ={
+                        'afdeling': afdeling,
+                        'block': block,
+                        'date': date,
+                        'pokok': pokok,
+                        'geomid': geomid,
+                    }
+                    print(data)
+                    form = addPokokForm(data=data)
+                    if form.is_valid():
+                        print("Form Valid")
+                        form.save()
+                        messages.success(request, "Data added successfully.")
+                    else:
+                        print("form invalid")
+            else:
+                print("date and pokok invalid")
+                messages.warning(request,  "Invalid Data")
+            ## TODO: validate form and input into database
+        else:
+            print("Data invalid")
+            messages.warning(request,  "Invalid Data")
+    else:
+        print("gamasuk POST")
+        messages.error(request, "Error in input data")
+        
+    return redirect('AplPokokTable', geomid=geomid)
+        ## TODO: add new data based on afdeling and block
+
+def AplTonaseTable(request, geomid):
+    Title = 'Dashboard - tonase'
+    query = request.GET.get('q')
+
+    modalData = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    )
+    choices = {}
+
+    for item in modalData:
+        afdeling = item['afdeling']
+        block = item['block']
+        gid = item['gid']
+        if afdeling in choices:
+            choices[afdeling].append({'block': block, 'gid': gid})
+        else:
+            choices[afdeling] = [{'block': block, 'gid': gid}]
+
+    for afdeling, blocks in choices.items():
+        choices[afdeling] = sorted(blocks, key=lambda x: x['block'])
+    # print(choices)
+
+    if query:
+        tonase_qs = TankosApltonase.objects.filter(geomid=geomid).filter(date__contains=query).order_by('-date')
+        ## Checking available data
+        if tonase_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('AplTonaseTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : tonase_qs,
+                'choices': choices,
+                'geomid': geomid,
+            }
+    else:
+        ## Data collecting and cleansing from database
+        tonase_qs = TankosApltonase.objects.filter(geomid=geomid).order_by('-date') #TODO: Paginate table to 15 item
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : tonase_qs,
+            'choices': choices,
+            'geomid': geomid,
+        }
+    return render(request, "dashboard/static_tankostonase_table.html", context)
+
+def AplTonaseEdit(request):
+    check_qs = TankosAplgeom.objects.values(
+        'afdeling',
+        'block',
+        'gid',
+    ).order_by('gid')
+    # print(check_qs)
+
+    # print(request.POST)
+    if request.method == "POST":
+        print("masuk POST")
+        # print(request.POST.get('afdeling'))
+        # print(request.POST.get('block'))
+        # print(request.POST.get('geomid'))
+
+        # Convert POST values to string to match with database values
+        afdeling = str(request.POST['afdeling'])
+        block = str(request.POST['block'])
+        geomid = request.POST['geomid']
+        date = request.POST.get('date')
+        tonase = request.POST.get('tonase')
+    # Check if any object in the queryset matches the POST parameters
+        exists = False
+        for obj in check_qs:
+            if obj['afdeling'] == afdeling and obj['block'] == block and str(obj['gid']) == geomid:
+                exists = True
+
+        if exists:
+            print("Data masuk")
+            if date and tonase:
+                if TankosApltonase.objects.filter(afdeling=afdeling, block=block, date=date).exists():
+                    formatted_date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%y')
+                    messages.warning(request, f"Data on {afdeling}, {block} on {formatted_date} already exists.")
+                else:
+                    data ={
+                        'afdeling': afdeling,
+                        'block': block,
+                        'date': date,
+                        'tonase': tonase,
+                        'geomid': geomid,
+                    }
+
+                    form = addTonaseForm(data=data)
+                    if form.is_valid():
+                        print("Form Valid")
+                        form.save()
+                        messages.success(request, "Data added successfully.")
+            else:
+                print("Data invalid")
+                messages.warning(request,  "Invalid Data")
+            ## TODO: validate form and input into database
+        else:
+            print("Data invalid")
+            messages.warning(request,  "Invalid Data")
+    else:
+        print("gamasuk POST")
+        messages.error(request, "Error in input data")
+        
+    return redirect('AplTonaseTable', geomid=geomid)
+        ## TODO: add new data based on afdeling and block
+
+
+## Dump
+def DumpTable(request):
+    Title = 'Dashboard - dump'
+    query = request.GET.get('q')
+    if query:
+        dump_qs = TankosDumpdata.objects.filter(location__contains=query).order_by('dump_date')
+
+        ## Checking available data
+        if dump_qs is None:
+            messages.warning("Data isn't available")
+            time.sleep(5)
+            return redirect('DumpTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : dump_qs,
+            }
+
+    ## Data collecting and cleansing from database
+    dump_qs = TankosDumpdata.objects.all().order_by('dump_date') #TODO: Paginate table to 15 item
+
+    ## Context dictionary for passing data
+    context = {
+        'Title': Title,
+        'TableData' : dump_qs,
+    }
+    return render(request, "dashboard/static_tankosdump_table.html", context)
+
+@login_required(login_url="")
+def DumpEdit(request, gid):
+
+    title = 'Edit Dump'
+    dumps_obj = get_object_or_404(TankosDumpdata, gid=gid)
+    geom_id = dumps_obj.location
+
+    if request.method == 'POST':
+        form = EditDumpForm(request.POST, instance=dumps_obj)
+        if form.is_valid():
+            dumps_obj = form.save(commit=False)
+            dumps_obj.status = 'Bagus'
+            dumps_obj.save()
+
+            messages.success(request, 'Blok updated successfully.')
+            return redirect('DumpTable')
+        else:
+            # Form is not valid, display form errors
+            error_message = "Error updating blok. Please check your input."
+            print("Error updating blok:", form.errors)
+            messages.error(request, error_message)
+    else:
+        form = EditDumpForm(instance=dumps_obj)
+
+    context = {
+        'form': form,
+        'title': title,
+        'geomid': geom_id,
+    }
+    return render(request, "dashboard/static_tankosdump_table_edit.html", context)
+
+
+
+@login_required(login_url="")
+def Patok(request):
+    Title = 'Dashboard - Patok'
+
+    ## Data collecting and cleansing from database
+    patok_qs = HguPatok.objects.all()
+
+    ## data wrangling for Graph
+    list_key = []
+    list_value = []
+    periode_counts = {
+            'Q1': 0,
+            'Q2': 0,
+            'Q3': 0,
+            'Q4': 0,
+            'N/A': 0
+        }
+
+    for patok in patok_qs:
+        periode = patok.periode # get periode value in patok for loop
+        if periode == 'Q1':
+            periode_counts['Q1'] += 1
+        elif periode == 'Q2':
+            periode_counts['Q2'] += 1
+        elif periode == 'Q3':
+            periode_counts['Q3'] += 1
+        elif periode == 'Q4':
+            periode_counts['Q4'] += 1
+        else:
+            periode_counts['N/A'] += 1
+    # print(periode_counts)
+
+    for key, value in periode_counts.items():
+        list_key.append(key)
+        list_value.append(value)
+
+    # print(list_key)
+    # print(list_value)
+
+    ## Table
+    patokTable = patok_qs[:5]
+    print(patokTable)
+    table = PatokDashboardTable(patokTable)
+
+    ## Context dictionary for passing data
+    context = {
+        'Title' : Title,
+        'periode' : list_key,
+        'count' : list_value,
+        'table' : table,
+        }
+    return render(request, "dashboard/static_patok_dashboard.html", context)
+
+def PatokTable(request):
+    Title = 'Dashboard - Patok'
+    query = request.GET.get('q')
+    if query:
+        patok_qs = HguPatok.objects.filter(no_patok__icontains=query).order_by('no_patok')
+
+        ## Checking available data
+        if patok_qs is None:
+            messages.warning("Data isn't available")
+            return redirect('PatokTable')
+
+        else:
+            ## Context dictionary for passing data
+            context = {
+                'Title': Title,
+                'TableData' : patok_qs,
+            }
+
+    else:
+        ## Data collecting and cleansing from database
+        patok_qs = HguPatok.objects.all()
+        # patok_pagi = PatokTable(patok_qs)
+        # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
+
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : patok_qs,
+            # 'patok_pagi' : patok_pagi
+        }
+    return render(request, "dashboard/static_patok_table.html", context)
+
+def PatokExtract(request):
+    date = str(datetime.now().strftime('%d-%m-%Y'))
+    print(date)
+    ## Data collecting and cleansing from database
+    patok_qs = HguPatok.objects.values(
+        'kode',
+        'afd_name',
+        'block_name',
+        'no_patok',
+        'periode',
+        'status',
+        'x',
+        'y',
+        'longitude',
+        'latitude',
+    ).order_by('no_patok')
+    data = pd.DataFrame(patok_qs)
+    data = data.rename(columns={
+        'kode':'Kode',
+        'afdeling': 'Afdeling',
+        'block_name': 'Block',
+        'no_patok': 'Patok',
+        'periode':'Periode',
+        'status':'Status',
+        'x':'Koordinat X',
+        'y':'Koordinat Y',
+        'longitude':'Longitude',
+        'latitude':'Latitude',
+    })
+    data = data.reindex(columns=[
+        'Kode',
+        'Afdeling',
+        'Block',
+        'Patok',
+        'Periode',
+        'Status',
+        'Koordinat X',
+        'Koordinat Y',
+        'Longitude',
+        'Latitude',
+    ])
+    # Create BytesIO buffer to write the Excel file
+    output = io.BytesIO()
+    data.to_excel(output, index=False)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={date}_Patok.xlsx'
+    return response
+
+@login_required(login_url="")
+def PatokEdit(request, gid):
+
+    title = 'Edit Jangkos'
+    # patok_obj = HguPatok.objects.values().filter(gid=gid)
+    patok_obj = get_object_or_404(HguPatok, gid=gid)
+
+    if request.method == 'POST':
+        form = EditPatokForm(request.POST, instance=patok_obj)
+        if form.is_valid():
+            patok_obj = form.save(commit=False)
+            patok_obj.status = 'Bagus'
+            patok_obj.save()
+
+            messages.success(request, 'Blok updated successfully.')
+            return redirect('PatokTable')
+        else:
+            # Form is not valid, display form errors
+            error_message = "Error updating blok. Please check your input."
+            print("Error updating blok:", form.errors)
+            messages.error(request, error_message)
+    else:
+        form = EditPatokForm(instance=patok_obj)
+
+    context = {
+        'form': form,
+        'title': title,
+        'geomid': gid,
+    }
+    return render(request, "dashboard/static_patok_table_edit.html", context)
+
+
+## Pupuk
+@login_required(login_url="")
+def Pupuk(request):
+    Title = 'Dashboard - Pupuk'
+    # ## Data collecting and cleansing from database
+    # pupuk_qs =
+
+    ## Context
+    context = {
+        'Title':Title,
+    }
+    return render(request, "dashboard/static_pupuk_dashboard.html", context)

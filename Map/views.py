@@ -17,11 +17,7 @@ from datetime import datetime
 
 @login_required()
 def MapHectare(request):
-    return render(request, "map/Hectare.html")
-
-@login_required()
-def MapBlock(request):
-    return render(request, "map/block.html")
+    return render(request, "map/static_map.html")
 
 ## API GeoJSON
 @login_required()
@@ -46,7 +42,7 @@ def AfdelingBoundary(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Afdeling.objects.annotate(
+    qs = HguAfdeling.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -54,15 +50,16 @@ def AfdelingBoundary(request):
     end = datetime.now()
     # print("end: ", str(end))
     delta = end - now
-    print("AfdelingBoundary qs: ", round(delta.total_seconds(), 3),'S')
+    print("Afdeling qs: ", round(delta.total_seconds(), 3),'S')
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Afdeling_qs, content_type='json')
 
+@login_required()
 def JembatanData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Jembatan.objects.annotate(
+    qs = HguJembatan.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -74,11 +71,29 @@ def JembatanData(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Jembatan_qs, content_type='json')
 
+@login_required()
+def DumpData(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = TankosDumpdata.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Dumpdata qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
 def PatokData(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = MonitoringPatokhgu.objects.annotate(
+    qs = HguPatok.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -91,11 +106,28 @@ def PatokData(request):
     return HttpResponse(Patok_qs, content_type='json')
 
 @login_required()
+def PlantedData(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = HguPlanted.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Planted_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("PlantedData qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Planted_qs, content_type='json')
+
+@login_required()
 def BlockBoundary(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Block.objects.annotate(
+    qs = HguBlock.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -107,14 +139,33 @@ def BlockBoundary(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Block_qs, content_type='json')
 
-def JangkosData(request):
-    qs = Block.objects.annotate(
-            jangkos = Case(
-                        When(gid__jangkos_gid__isnull=False, then=Value('Data Available')),
-                        default=Value('No Data Available'),
-                        output_field=CharField()
-                        )
-        ).order_by('jangkos')
-    for block in qs:
-        print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
-    return HttpResponse(qs, content_type='json')
+# @login_required()
+# def JangkosData(request):
+#     qs = Block.objects.annotate(
+#             jangkos = Case(
+#                         When(gid__jangkos_gid__isnull=False, then=Value('Data Available')),
+#                         default=Value('No Data Available'),
+#                         output_field=CharField()
+#                         )
+#         ).order_by('jangkos')
+#     for block in qs:
+#         print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
+#     return HttpResponse(qs, content_type='json')
+
+@login_required()
+def TankosDump(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = TankosDumpdata.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Block_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("BlockBoundary qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Block_qs, content_type='json')
+
