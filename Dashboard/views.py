@@ -410,12 +410,15 @@ def DumpTable(request):
     Title = 'Dashboard - dump'
     query = request.GET.get('q')
     if query:
-        dump_qs = TankosDumpdata.objects.filter(location__contains=query).order_by('dump_date')
+        dump_qs = TankosDumpview.objects.filter(
+            location__icontains=query
+            ).order_by(
+                'location'
+            )
 
         ## Checking available data
         if dump_qs is None:
             messages.warning("Data isn't available")
-            time.sleep(5)
             return redirect('DumpTable')
 
         else:
@@ -426,7 +429,10 @@ def DumpTable(request):
             }
 
     ## Data collecting and cleansing from database
-    dump_qs = TankosDumpdata.objects.all().order_by('dump_date') #TODO: Paginate table to 15 item
+    dump_qs = TankosDumpview.objects.all(
+            ).order_by(
+                'location'
+            ) #TODO: Paginate table to 15 item
 
     ## Context dictionary for passing data
     context = {
@@ -508,16 +514,17 @@ def Patok(request):
     # print(list_value)
 
     ## Table
-    patokTable = patok_qs[:5]
-    print(patokTable)
-    table = PatokDashboardTable(patokTable)
+    patokTable = HguPatok.objects.exclude(update_date__isnull=True).order_by('-update_date')[:5]
+    # print(patokTable)
+    # table = PatokDashboardTable(patokTable)
 
     ## Context dictionary for passing data
     context = {
         'Title' : Title,
         'periode' : list_key,
         'count' : list_value,
-        'table' : table,
+        'patokTable' : patokTable,
+        # 'table' : table,
         }
     return render(request, "dashboard/static_patok_dashboard.html", context)
 
@@ -541,7 +548,7 @@ def PatokTable(request):
 
     else:
         ## Data collecting and cleansing from database
-        patok_qs = HguPatok.objects.all()
+        patok_qs = HguPatok.objects.all().order_by('no_patok')
         # patok_pagi = PatokTable(patok_qs)
         # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
 

@@ -31,27 +31,6 @@ class HguAfdeling(models.Model):
         db_table = 'hgu_afdeling'
 
 
-class HguBlock(models.Model):
-    gid = models.AutoField(primary_key=True)
-    objectid = models.FloatField(blank=True, null=True)
-    afd_name = models.CharField(max_length=50, blank=True, null=True)
-    block_name = models.CharField(max_length=15, blank=True, null=True)
-    werks = models.FloatField(blank=True, null=True)
-    afd_code = models.CharField(max_length=50, blank=True, null=True)
-    spmon = models.CharField(max_length=50, blank=True, null=True)
-    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    planted = models.CharField(max_length=50, blank=True, null=True)
-    block_code = models.CharField(max_length=50, blank=True, null=True)
-    yop = models.CharField(max_length=50, blank=True, null=True)
-    topo = models.CharField(max_length=50, blank=True, null=True)
-    estate = models.CharField(max_length=50, blank=True, null=True)
-    geom = models.MultiPolygonField(srid=32650, dim=4, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'hgu_block'
-
-
 class HguJalan(models.Model):
     gid = models.AutoField(primary_key=True)
     objectid = models.FloatField(blank=True, null=True)
@@ -66,8 +45,8 @@ class HguJalan(models.Model):
     road_code = models.CharField(max_length=50, blank=True, null=True)
     werks = models.FloatField(blank=True, null=True)
     kj = models.CharField(max_length=15, blank=True, null=True)
-    panjang = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    geom = models.MultiLineStringField(srid=32650, dim=4, blank=True, null=True)
+    panjang = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    geom = models.MultiLineStringField(srid=32650, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -111,6 +90,7 @@ class HguPatok(models.Model):
     periode = models.CharField(max_length=2, blank=True, null=True)
     status = models.CharField(max_length=15, blank=True, null=True)
     geom = models.PointField(srid=32650, blank=True, null=True)
+    update_date = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -191,6 +171,7 @@ class TankosDumpdata(models.Model):
     location = models.CharField(max_length=10, blank=True, null=True)
     dump_date = models.DateField(blank=True, null=True)
     geom = models.PointField(srid=32650, blank=True, null=True)
+    apl_date = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False

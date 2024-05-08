@@ -83,12 +83,14 @@
                 </li>
                 <li>
                     <a href="#" class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
-                        Reports
+                        Download Report
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">1</a>
-                        <a class="dropdown-item" href="#">2</a>
-                        <a class="dropdown-item" href="#">3</a>
+                        <a class="dropdown-item" href="#">Patok</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Tankos</a>
+                        <a class="dropdown-item" href="#">Aplikasi</a>
+                        <a class="dropdown-item" href="#">Dump</a>
                     </div>
                 </li>
             </ul>
@@ -106,6 +108,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Content -->
     <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
@@ -134,11 +137,17 @@
                     <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
                         <thead>
                             <tr>
-                                <th class="table-success">Afdeling</th>
-                                <th class="table-success">Block</th>
-                                <th class="table-success">Location</th>
-                                <th class="table-success">Date</th>
-                                <th class="table-success"></th>
+                                <th class="table-success" rowspan="2" style="vertical-align: middle;">Afdeling</th>
+                                <th class="table-success" rowspan="2" style="vertical-align: middle;">Block</th>
+                                <th class="table-success" rowspan="2" style="vertical-align: middle;">Location</th>
+                                <th class="table-success" colspan="3">Date</th>
+                                <th class="table-success" rowspan="2" style="vertical-align: middle;">Status</th>
+                                <th class="table-success" rowspan="2" style="vertical-align: middle;"></th>
+                            </tr>
+                            <tr>
+                                <th class="table-success">Dump</th>
+                                <th class="table-success">Aplikasi</th>
+                                <th class="table-success">Delta</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -147,7 +156,24 @@
                                 <td>{{ data.afdeling }}</td>
                                 <td>{{ data.block }}</td>
                                 <td>{{ data.location }}</td>
-                                <td>{{ data.dump_date|date:"j F Y"  }}</td>
+                                <td>{{ data.dump_date|date:"j F Y" }}</td>
+                                {% if data.apl_date %}
+                                    <td>{{ data.apl_date|date:"j F Y" }}</td>
+                                    <td>-</td>
+                                {% else %}
+                                    {% if data.date_diff %}
+                                        <td>-</td>
+                                        <td>{{ data.date_diff }}</td>
+                                    {% else %}
+                                        <td></td>
+                                        <td></td>
+                                    {% endif %}
+                                {% endif %}
+                                {% if data.status %}
+                                    <td>{{ data.status }}</td>
+                                {% else %}
+                                    <td> </td>
+                                {% endif %}
                                 <td><a href="{% url "DumpEdit" data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Edit</a></td>
                             </tr>
                             {% endfor %}

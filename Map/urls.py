@@ -7,7 +7,7 @@ from .views import *
 
 urlpatterns = [
     ### Map Urls
-    path('HectareStatement/', MapHectare, name='MapHectare'),
+    path('hectarestatement/', MapHectare, name='MapHectare'),
 
     ### API Urls
     ## Boundary
@@ -16,6 +16,9 @@ urlpatterns = [
     path('api/v1/block/', BlockBoundary, name='BlockBoundary'),
     # path('api/v1/jangkos/', JangkosData, name='JangkosData'),
     path('api/v1/planted/', PlantedData, name='PlantedData'),
+
+    ## Line
+    path('api/v1/road/', RoadData, name='RoadData'),
 
     ## Point
     path('api/v1/jembatan/', JembatanData, name='JembatanData'),

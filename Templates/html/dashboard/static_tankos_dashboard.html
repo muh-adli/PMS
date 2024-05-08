@@ -120,12 +120,14 @@
                 </li>
                 <li>
                     <a href="#" class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
-                        Reports
+                        Download Report
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">1</a>
-                        <a class="dropdown-item" href="#">2</a>
-                        <a class="dropdown-item" href="#">3</a>
+                        <a class="dropdown-item" href="#">Patok</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Tankos</a>
+                        <a class="dropdown-item" href="#">Aplikasi</a>
+                        <a class="dropdown-item" href="#">Dump</a>
                     </div>
                 </li>
             </ul>
@@ -144,74 +146,30 @@
         </div>
     </div>
 
+
     <!-- Content -->
     <div class="row d-flex py-2 m-0 align-items-center justify-content-center">
-        <div class="row" style="height:60vh;">
-            <div class="col-md-9">
-                <div class="card" style="height:57vh;">
-                    <h5 class="card-header">
-                        Last Update
-                    </h5>
-                    <div class="card-body align-items-center text-center" >
-                        {% if TableData %}
-                        <div class="table-responsive-sm">
-                            <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th class="table-success">Afdeling</th>
-                                        <th class="table-success">Block</th>
-                                        <th class="table-success">Dumps</th>
-                                        <th class="table-success">Aplikasi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for row in TableData %}
-                                    <tr class="text-center">
-                                        <td>{{ row.afd_name }}</td>
-                                        <td>{{ row.block_name }}</td>
-                                        <td>{{ row.dumps|date:"j F Y" }}</td>
-                                        <td>{{ row.aplikasi|date:"j F Y" }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <div>
-                                <a href="#" type="button" class="btn btn-sm btn-outline-success">
-                                    View Data
-                                </a>
-                            </div>
-                        </div>
-                        {% else %}
-                            <p>No data available</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card" style="height:57vh;">
-                    <h5 class="card-header">
-                        Map
-                    </h5>
-                    <div id="map" style="height:57vh;"></div>
-                </div>
-
+        <div class="col-12 mb-2">
+            <div class="card">
+                <h5 class="card-header">
+                    Map
+                </h5>
+                <div id="map" style="height:55vh;"></div>
             </div>
         </div>
-        <div class="row"style="height:30vh;">
-            <div class="col-12">
-                <div class="card" style="height:30vh;">
-                    <h5 class="card-header">Activity</h5>
-                    <div class="card-body align-items-center text-center">
-                        <div style="height:20vh;">
-                            <div id='plotApl' class="d-flex align-items-center justify-content-center"></div>
-                        </div>
-                        <a href="{% url "AplSummary" %}" type="button" class="btn btn-sm btn-outline-success">
-                            View Aplikasi
-                        </a>
-                        <a href="{% url "DumpTable" %}" type="button" class="btn btn-sm btn-outline-success">
-                            View Dump
-                        </a>
+        <div class="col-12">
+            <div class="card" style="height:30vh;">
+                <h5 class="card-header">Activity</h5>
+                <div class="card-body align-items-center text-center">
+                    <div style="height:20vh;">
+                        <div id='plotApl' class="d-flex align-items-center justify-content-center"></div>
                     </div>
+                    <a href="{% url "AplSummary" %}" type="button" class="btn btn-sm btn-outline-success">
+                        View Aplikasi
+                    </a>
+                    <a href="{% url "DumpTable" %}" type="button" class="btn btn-sm btn-outline-success">
+                        View Dump
+                    </a>
                 </div>
             </div>
         </div>

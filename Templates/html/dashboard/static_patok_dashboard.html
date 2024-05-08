@@ -88,12 +88,14 @@
                 </li>
                 <li>
                     <a href="#" class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
-                        Reports
+                        Download Report
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">1</a>
-                        <a class="dropdown-item" href="#">2</a>
-                        <a class="dropdown-item" href="#">3</a>
+                        <a class="dropdown-item" href="#">Patok</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Tankos</a>
+                        <a class="dropdown-item" href="#">Aplikasi</a>
+                        <a class="dropdown-item" href="#">Dump</a>
                     </div>
                 </li>
             </ul>
@@ -119,7 +121,40 @@
                 <div class="card" style="height:41vh;">
                     <h5 class="card-header">Recent Updates</h5>
                     <div class="card-body align-items-center text-center">
-                        {% render_table table %}
+                        {% if patokTable %}
+                        <div class="table-responsive-sm">
+                            <table class="table table-responsive table-hover table-striped table-responsive-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="table-success" rowspan="2" style="vertical-align: middle;">Nomor Patok</th>
+                                        <th class="table-success" colspan="2">Koordinat</th>
+                                        <th class="table-success" rowspan="2" style="vertical-align: middle;">Periode</th>
+                                        <th class="table-success" rowspan="2" style="vertical-align: middle;">Status</th>
+                                        <th class="table-success" rowspan="2" style="vertical-align: middle;">Update</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-success">Latitude</th>
+                                        <th class="table-success">Longitude</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in patokTable %}
+                                    <tr class="text-center">
+                                        <td>{{ data.no_patok }}</td>
+                                        <td>{{ data.longitude }}</td>
+                                        <td>{{ data.latitude }}</td>
+                                        <td>{{ data.periode }}</td>
+                                        <td>{{ data.status }}</td>
+                                        <td>{{ data.update_date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                            <p>No data available</p>
+                        {% endif %}
+                        {% comment %} {% render_table table %} {% endcomment %}
                         <a href="{% url 'PatokTable' %}" type="button" class="btn btn-sm btn-outline-success">
                             View Data
                         </a>

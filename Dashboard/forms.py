@@ -151,7 +151,16 @@ class EditDumpForm(forms.ModelForm):
         )
     )
     dump_date = forms.CharField(
-        label="Date",
+        label="Dump Date",
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'date'
+                }
+        )
+    )
+    apl_date = forms.CharField(
+        label="Aplikasi Date",
         widget=forms.DateInput(
             attrs={
                 'class': 'form-control',
@@ -166,6 +175,7 @@ class EditDumpForm(forms.ModelForm):
             'block',
             'location',
             'dump_date',
+            'apl_date'
         )
 
 class EditPatokForm(forms.ModelForm):

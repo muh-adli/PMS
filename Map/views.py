@@ -1,10 +1,13 @@
 ## Django core
 from django.shortcuts import render
 from django.core.serializers import serialize
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Case, When, Value, CharField
+
+from rest_framework import generics
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
 ## Models and Serializers Import
@@ -12,7 +15,7 @@ from .models import *
 
 ## Library
 from datetime import datetime
-
+import json
 ### Create your views here.
 
 @login_required()
@@ -139,19 +142,6 @@ def BlockBoundary(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Block_qs, content_type='json')
 
-# @login_required()
-# def JangkosData(request):
-#     qs = Block.objects.annotate(
-#             jangkos = Case(
-#                         When(gid__jangkos_gid__isnull=False, then=Value('Data Available')),
-#                         default=Value('No Data Available'),
-#                         output_field=CharField()
-#                         )
-#         ).order_by('jangkos')
-#     for block in qs:
-#         print(f"GID: {block.gid}, Object ID: {block.objectid}, AFD Name: {block.afd_name}, Block Name: {block.block_name}, HA: {block.ha}, Estate: {block.estate}, Jangkos Data Status: {block.jangkos}")
-#     return HttpResponse(qs, content_type='json')
-
 @login_required()
 def TankosDump(request):
     now = datetime.now()
@@ -169,3 +159,23 @@ def TankosDump(request):
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Block_qs, content_type='json')
 
+@login_required()
+def RoadData(request): # TODO: FIXING API
+    now = datetime.now()
+
+    qs = HguJalan.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+    print(qs)
+    # end1 = datetime.now()
+
+    road_qs = serialize('geojson', qs, geometry_field='geometry')
+    # end2 = datetime.now()
+
+    # Calculate execution time
+    end = datetime.now()
+    delta = end - now
+
+    # Print execution time for debugging (optional)
+    print("Road serialize: ", round(delta.total_seconds(), 3), 'S')
+    return HttpResponse(road_qs, content_type='application/json')

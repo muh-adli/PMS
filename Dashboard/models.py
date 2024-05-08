@@ -70,4 +70,18 @@ class TankosAplsummary(models.Model):
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'tankos_aplsummary'
+        
+class TankosDumpview(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    afdeling = models.CharField(max_length=5, blank=True, null=True)
+    block = models.CharField(max_length=5, blank=True, null=True)
+    location = models.CharField(max_length=10, blank=True, null=True)
+    dump_date = models.DateField(blank=True, null=True)
+    apl_date = models.DateField(blank=True, null=True)
+    date_diff = models.IntegerField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'tankos_dumpview'
 

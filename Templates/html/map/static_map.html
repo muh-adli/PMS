@@ -9,9 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% comment %} <!-- Plotly.js CDN --> {% endcomment %}
-    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
-
     {% comment %} <!-- Leaflet CDN --> {% endcomment %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -35,6 +32,9 @@
         }
         .card-header {
             background-color: rgb(209, 231, 221);
+        }
+        .leaflet {
+            height: 90vh;
         }
     </style>
 </head>
@@ -83,12 +83,14 @@
                 </li>
                 <li>
                     <a href="#" class="nav-link px-2 link-body-emphasis dropdown-toggle" data-bs-toggle="dropdown">
-                        Reports
+                        Download Report
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">1</a>
-                        <a class="dropdown-item" href="#">2</a>
-                        <a class="dropdown-item" href="#">3</a>
+                        <a class="dropdown-item" href="#">Patok</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Tankos</a>
+                        <a class="dropdown-item" href="#">Aplikasi</a>
+                        <a class="dropdown-item" href="#">Dump</a>
                     </div>
                 </li>
             </ul>
@@ -107,10 +109,12 @@
         </div>
     </div>
 
+
     <!-- Content -->
-    <div class="row d-flex py-2 m-0 bg-warning align-items-center justify-content-center">
-        Coming Soon...
+    <div class="row">
+        <div class="leaflet" id="map"></div>
     </div>
+
 </div>
 
 
@@ -120,21 +124,87 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 <script>
-    TESTER = document.getElementById('myGraph');
-	Plotly.newPlot( TESTER, [{
-	x: [1, 2, 3, 4, 5],
-	y: [1, 2, 4, 8, 16] }], {
-	margin: { t: 0 } } );
+    const HGU = "{% url "HGUBoundary" %}"
+    const Afd = "{% url "AfdelingBoundary" %}"
+    const Block = "{% url "BlockBoundary" %}"
+    const Planted = "{% url "PlantedData" %}"
+    const Road = "{% url "RoadData" %}"
+    
+    let dataBlock = [];
+    let dataHGU = [];
+    
+    async function fetchData() {
+        try {
+            // Fetch data
+            const responseHGU = await fetch(HGU);
+            var dataHGU = await responseHGU.json();
+            console.log("Data from HGU endpoint:", dataHGU);
+    
+            const responsePlanted = await fetch(Planted);
+            var dataPlanted = await responsePlanted.json();
+            console.log("Data from Planted endpoint:", dataPlanted);
+    
+            const responseAfd = await fetch(Afd);
+            var dataAfd = await responseAfd.json();
+            console.log("Data from afdeling endpoint:", dataAfd);
+    
+            const responseBlock = await fetch(Block);
+            var dataBlock = await responseBlock.json();
+            console.log("Data from Block endpoint:", dataBlock);
 
-    var map = L.map('map').setView([51.505, -0.09], 13);
+            const responseRoad = await fetch(Road);
+            var dataRoad = await responseRoad.json();
+            console.log("Data from Road endpoint:", dataRoad);
+    
+            // adding geojson Layer into leaflet
+            const hguLayer = L.geoJSON(dataHGU, {
+                style: {
+                    color: '#ff4122',
+                    fillRule: 'evenodd',
+                    bubblingMouseEvents: false,
+                    weight: 5,
+                    fillOpacity: 0
+                }
+            }).addTo(map).bringToBack();
 
+            const plantedLayer = L.geoJSON(dataPlanted);
+            const afdLayer = L.geoJSON(dataAfd);
+            const blockLayer = L.geoJSON(dataBlock);
+            const roadLayer = L.geoJSON(dataRoad);
+
+            // Add layers to the layer control
+            const overlayMaps = {
+                "Planted": plantedLayer,
+                "Afdeling": afdLayer,
+                "Block": blockLayer,
+                "Jalan": roadLayer
+            };
+
+            // Add layer control to the map
+            L.control.layers({}, overlayMaps).addTo(map);
+
+            // Add layers to the map
+            hguLayer.addTo(map).bringToBack();
+            plantedLayer.addTo(map);
+
+            // Fit map bounds after adding layers
+            map.fitBounds(hguLayer.getBounds(), { padding: [5, 5], maxZoom: 15 });
+    
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+    // Call the function to fetch data
+    fetchData(); // TODO: make function that show load screen while fetching data
+    
+    // Leaflet Map
+    var map = L.map('map').setView(
+        [1.2098191417100188, 117.90810018140084],
+        10);
+    
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://www.linkedin.com/in/muh-adli/">Contributors</a>'
     }).addTo(map);
-
-    L.marker([51.5, -0.09]).addTo(map)
-        .bindPopup('A pretty CSS popup.<br> Easily customizable.')
-        .openPopup();
 </script>
 </body>
 
