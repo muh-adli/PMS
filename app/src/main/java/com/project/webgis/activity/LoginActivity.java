@@ -87,18 +87,18 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }, error -> {
             if (error instanceof TimeoutError) {
-                Log.i("Map Fragment", "onErrorResponse: Timeout");
+                Log.i("Login Request", "onErrorResponse: Timeout");
                 Toast.makeText(this, "Time out", Toast.LENGTH_LONG).show();
             } else if (error instanceof ServerError) {
-                Log.i("Map Fragment", "onErrorResponse: Server error");
+                Log.i("Login Request", "onErrorResponse: Server error");
                 Toast.makeText(this, "Server error", Toast.LENGTH_LONG).show();
             } else if (error instanceof NetworkError) {
                 Toast.makeText(this, "Network error", Toast.LENGTH_LONG).show();
             } else if (error instanceof ParseError) {
-                Log.i("Map Fragment", "onErrorResponse: Parse error");
+                Log.i("Login Request", "onErrorResponse: Parse error");
                 Toast.makeText(this, "Parse error", Toast.LENGTH_LONG).show();
             } else {
-                Log.i("Map Fragment", "onErrorResponse: Something went wrong ");
+                Log.i("Login Request", "onErrorResponse: Something went wrong ");
                 Toast.makeText(this, "Other error", Toast.LENGTH_LONG).show();
             }
         });

@@ -16,33 +16,125 @@
             android:layout_height="wrap_content"
             android:text="@string/monitor_patok"
             android:textAlignment="center"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
-        <TextView
+        <HorizontalScrollView
+            android:id="@+id/horizontal_scroll_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Table"
-            android:textAlignment="center"
-            android:paddingVertical="200dp"
-            android:textSize="30sp"/>
+            android:layout_height="300dp"
+            android:layout_marginVertical="20dp">
+
+            <TableLayout
+                android:id="@+id/tablePatok"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:visibility="visible">
+
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="10dp"
+                    android:background="@color/dashboardInfoTextTop">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Nomor Patok"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Afdeling"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Block"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Latitude"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Longtitude"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Preiode"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Status"
+                            android:textColor="@color/textColor"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
+                </TableRow>
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:id="@+id/layoutRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                    </LinearLayout>
+                </ScrollView>
+            </TableLayout>
+        </HorizontalScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="100">
+
             <TextView
-                android:layout_weight="50"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="50"
                 android:text="Grafik harian"
-                android:textAlignment="center"/>
+                android:textAlignment="center" />
+
             <TextView
-                android:layout_weight="50"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="50"
                 android:text="Grafik pencapaian"
-                android:textAlignment="center"/>
+                android:textAlignment="center" />
         </LinearLayout>
 
     </LinearLayout>
