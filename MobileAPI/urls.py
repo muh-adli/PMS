@@ -6,8 +6,13 @@ from .views import *
 # router.register(r'rest', rmhViewSet, basename='rest')
 
 urlpatterns = [
-    ### Map Urls
+    ### Login Urls
     path('v1/account/loginRequest', ApiLoginRequest, name='ApiLoginRequest'),
+
+    ### Map Urls
     path('v1/map/block', ApiBlockBoundary, name='ApiBlockBoundary'),
+
+    ### Data Urls
+    path('v1/data/patok', ApiPatokData, name='ApiPatokData'),
 
 ]

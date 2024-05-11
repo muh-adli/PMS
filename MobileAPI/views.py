@@ -1,12 +1,16 @@
 from django.shortcuts import render
+from django.contrib import messages
 from django.core.serializers import serialize
 from django.http import HttpResponse, JsonResponse
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib.auth import authenticate
 
+import json
+
 
 ## Models and Serializers Import
 from .models import *
+from Map.models import *
 
 ## Library
 from datetime import datetime
@@ -57,3 +61,26 @@ def ApiLoginRequest(request):
                     'message' : 'Request error',
                 }
             )
+    
+def ApiPatokData(request):
+    query = request.GET.get('q')
+    if query:
+        qs = HguPatok.objects.filter(no_patok__icontains=query).order_by('no_patok')
+
+        ## Checking available data
+        if patok_qs is None:
+            messages.warning("Data isn't available")
+
+    else:
+        ## Data collecting and cleansing from database
+        qs = HguPatok.objects.all()
+        # patok_pagi = PatokTable(patok_qs)
+        # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
+
+        ## Context dictionary for passing data
+
+    print("Request patok data from apps")
+
+    patok_qs = serialize('json', qs)
+    patok_qs = json.loads(patok_qs)
+    return JsonResponse({'data': patok_qs}, safe=False)
