@@ -65,7 +65,7 @@ def ApiLoginRequest(request):
 def ApiPatokData(request):
     query = request.GET.get('q')
     if query:
-        qs = HguPatok.objects.filter(no_patok__icontains=query).order_by('no_patok')
+        patok_qs = HguPatok.objects.filter(no_patok__icontains=query).order_by('no_patok')
 
         ## Checking available data
         if patok_qs is None:
@@ -73,7 +73,7 @@ def ApiPatokData(request):
 
     else:
         ## Data collecting and cleansing from database
-        qs = HguPatok.objects.all()
+        patok_qs = HguPatok.objects.all()
         # patok_pagi = PatokTable(patok_qs)
         # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
 
@@ -81,6 +81,21 @@ def ApiPatokData(request):
 
     print("Request patok data from apps")
 
-    patok_qs = serialize('json', qs)
-    patok_qs = json.loads(patok_qs)
-    return JsonResponse({'data': patok_qs}, safe=False)
+    json = {}
+    json['status'] = "200"
+    json['error'] = False
+    json['data'] = []
+    for data in patok_qs:
+        append_data = {
+            'no_patok' : data.no_patok,
+            'afd_name' : data.afd_name,
+            'block_name' : data.block_name,
+            'longtitude' : data.longitude,
+            'latitude' : data.latitude,
+            'period' : data.periode,
+            'status' : data.status,
+            'id' : data.objectid
+        }
+        json['data'].append(append_data)
+    
+    return JsonResponse(json, safe=False)
