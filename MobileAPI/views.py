@@ -85,6 +85,16 @@ def ApiPatokData(request):
     json['status'] = "200"
     json['error'] = False
     json['data'] = []
+    ##json['chart'] = []
+
+    periode_counts = {
+            'Q1': 0,
+            'Q2': 0,
+            'Q3': 0,
+            'Q4': 0,
+            'N/A': 0
+        }
+    
     for data in patok_qs:
         append_data = {
             'no_patok' : data.no_patok,
@@ -97,5 +107,20 @@ def ApiPatokData(request):
             'id' : data.objectid
         }
         json['data'].append(append_data)
+
+        periode = data.periode # get periode value in patok for loop
+        if periode == 'Q1':
+            periode_counts['Q1'] += 1
+        elif periode == 'Q2':
+            periode_counts['Q2'] += 1
+        elif periode == 'Q3':
+            periode_counts['Q3'] += 1
+        elif periode == 'Q4':
+            periode_counts['Q4'] += 1
+        else:
+            periode_counts['N/A'] += 1
+
+
+    json['chart'] = periode_counts
     
     return JsonResponse(json, safe=False)
