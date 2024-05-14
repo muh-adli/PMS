@@ -1,5 +1,6 @@
 package com.project.webgis.activity.ui.Monitor;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,6 +26,14 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.project.webgis.API;
 import com.project.webgis.R;
 
@@ -32,9 +41,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class ChildMonitorPatok extends Fragment {
 
     LinearLayout layoutRow;
+    BarChart barChart;
     private RequestQueue mQueue;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -47,32 +59,72 @@ public class ChildMonitorPatok extends Fragment {
 
         mQueue = Volley.newRequestQueue(getContext());
         layoutRow = view.findViewById(R.id.layoutRow);
+        barChart = view.findViewById(R.id.chart);
         loadTableData();
     }
 
     void loadTableData() {
-        String url = "https://f59c-43-252-106-202.ngrok-free.app" + API.PATOK_TABLE;
+        String url = "https://6d43-114-4-213-96.ngrok-free.app" + API.PATOK_TABLE;
         Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_LONG).show();
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
+
+                        // Data for table
                         JSONArray jsonArray = response.getJSONArray("data");
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String model = jsonObject.getString("fields");
 
-                            JSONObject obj = new JSONObject(model);
-                            String no = obj.getString("no_patok");
-                            String afdeling = obj.getString("afd_name");
-                            String block = obj.getString("block_name");
-                            String latitude = obj.getString("latitude");
-                            String longitude = obj.getString("longitude");
-                            String periode = obj.getString("periode");
-                            String status = obj.getString("status");
-                            int objectid = obj.getInt("objectid");
+                            String no = jsonObject.getString("no_patok");
+                            String afdeling = jsonObject.getString("afd_name");
+                            String block = jsonObject.getString("block_name");
+                            String latitude = jsonObject.getString("latitude");
+                            String longitude = jsonObject.getString("longtitude");
+                            String periode = jsonObject.getString("period");
+                            String status = jsonObject.getString("status");
+                            int id = jsonObject.getInt("id");
 
-                            addTableRow(no, afdeling, block, latitude, longitude, periode, status, objectid);
+                            addTableRow(no, afdeling, block, latitude, longitude, periode, status, id);
                         }
+
+                        // Data for chart
+                        String chart = response.getString("chart");
+                        JSONObject object = new JSONObject(chart);
+                        int Q1 = object.getInt("Q1");
+                        int Q2 = object.getInt("Q2");
+                        int Q3 = object.getInt("Q3");
+                        int Q4 = object.getInt("Q4");
+                        int NA = object.getInt("N/A");
+
+                        final String[] quart = {"Q1", "Q2", "Q3", "Q4", "N/A"};
+                        XAxis xAxis = barChart.getXAxis();
+                        xAxis.setValueFormatter(new IndexAxisValueFormatter(quart));
+                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                        xAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+
+                        YAxis yAxis = barChart.getAxisLeft();
+                        yAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+
+                        ArrayList<BarEntry> barArrayList = new ArrayList<>();
+                        barArrayList.add(new BarEntry(0, Q1));
+                        barArrayList.add(new BarEntry(1, Q2));
+                        barArrayList.add(new BarEntry(2, Q3));
+                        barArrayList.add(new BarEntry(3, Q4));
+                        barArrayList.add(new BarEntry(4, NA));
+
+                        BarDataSet barDataSet = new BarDataSet(barArrayList, "Patok HGU");
+                        barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                        barDataSet.setValueTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+                        barDataSet.setValueTextSize(14f);
+
+                        BarData barData = new BarData(barDataSet);
+
+                        barChart.setFitBars(true);
+                        barChart.setData(barData);
+                        barChart.getDescription().setEnabled(false);
+                        barChart.getLegend().setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+                        barChart.animateXY(2000,2000);
+                        barChart.invalidate();
                     } catch (JSONException e) {
                         Log.i("Child Patok Monitor", e.getMessage());
                     }
@@ -98,9 +150,9 @@ public class ChildMonitorPatok extends Fragment {
         mQueue.add(request);
     }
 
-    void addTableRow(String no, String afdeling, String block, String latitude, String longtitude, String period, String status, int objectid) {
+    void addTableRow(String no, String afdeling, String block, String latitude, String longtitude, String period, String status, int id) {
         TableRow tableRow = new TableRow(getContext());
-        tableRow.setId(objectid);
+        tableRow.setId(id);
         tableRow.addView(addTextView(no));
         tableRow.addView(addTextView(afdeling));
         tableRow.addView(addTextView(block));
@@ -115,7 +167,7 @@ public class ChildMonitorPatok extends Fragment {
         tableRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(getContext(), String.valueOf(v.getId()), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), String.valueOf(v.getId()), Toast.LENGTH_LONG).show();
             }
         });
         layoutRow.addView(tableRow);

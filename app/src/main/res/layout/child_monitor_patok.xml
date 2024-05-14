@@ -116,26 +116,10 @@
             </TableLayout>
         </HorizontalScrollView>
 
-        <LinearLayout
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/chart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="100">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:text="Grafik harian"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="50"
-                android:text="Grafik pencapaian"
-                android:textAlignment="center" />
-        </LinearLayout>
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 

@@ -50,4 +50,5 @@ dependencies {
     implementation libs.skeletonlayout
     implementation libs.osmbonuspack
     implementation libs.volley
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }
