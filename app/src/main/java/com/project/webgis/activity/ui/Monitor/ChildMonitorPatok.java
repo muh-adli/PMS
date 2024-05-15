@@ -36,6 +36,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.project.webgis.API;
 import com.project.webgis.R;
+import com.project.webgis.adapter.DataManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +49,7 @@ public class ChildMonitorPatok extends Fragment {
     LinearLayout layoutRow;
     BarChart barChart;
     private RequestQueue mQueue;
+    private DataManager dataManager;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.child_monitor_patok, container, false);
@@ -57,15 +59,21 @@ public class ChildMonitorPatok extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        dataManager = new DataManager(getContext());
         mQueue = Volley.newRequestQueue(getContext());
         layoutRow = view.findViewById(R.id.layoutRow);
         barChart = view.findViewById(R.id.chart);
-        loadTableData();
+
+        if (dataManager.isDataAvailable("PATOK_HGU")) {
+            loadCachePatokData();
+        } else {
+            loadPatokData();
+        }
+        Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_LONG).show();
     }
 
-    void loadTableData() {
+    void loadPatokData() {
         String url = "https://6d43-114-4-213-96.ngrok-free.app" + API.PATOK_TABLE;
-        Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_LONG).show();
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
@@ -125,6 +133,8 @@ public class ChildMonitorPatok extends Fragment {
                         barChart.getLegend().setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
                         barChart.animateXY(2000,2000);
                         barChart.invalidate();
+
+                        dataManager.saveData("PATOK_HGU", response.toString());
                     } catch (JSONException e) {
                         Log.i("Child Patok Monitor", e.getMessage());
                     }
@@ -148,6 +158,73 @@ public class ChildMonitorPatok extends Fragment {
         request.setRetryPolicy(new DefaultRetryPolicy(15000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         request.setShouldCache(false);
         mQueue.add(request);
+    }
+
+    void loadCachePatokData() {
+        String data = dataManager.getData("PATOK_HGU");
+
+        try {
+            JSONObject dataObj = new JSONObject(data);
+
+            // Data for table
+            JSONArray jsonArray = dataObj.getJSONArray("data");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                String no = jsonObject.getString("no_patok");
+                String afdeling = jsonObject.getString("afd_name");
+                String block = jsonObject.getString("block_name");
+                String latitude = jsonObject.getString("latitude");
+                String longitude = jsonObject.getString("longtitude");
+                String periode = jsonObject.getString("period");
+                String status = jsonObject.getString("status");
+                int id = jsonObject.getInt("id");
+
+                addTableRow(no, afdeling, block, latitude, longitude, periode, status, id);
+            }
+
+            // Data for chart
+            String chart = dataObj.getString("chart");
+            JSONObject object = new JSONObject(chart);
+            int Q1 = object.getInt("Q1");
+            int Q2 = object.getInt("Q2");
+            int Q3 = object.getInt("Q3");
+            int Q4 = object.getInt("Q4");
+            int NA = object.getInt("N/A");
+
+            final String[] quart = {"Q1", "Q2", "Q3", "Q4", "N/A"};
+            XAxis xAxis = barChart.getXAxis();
+            xAxis.setValueFormatter(new IndexAxisValueFormatter(quart));
+            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+            xAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+
+            YAxis yAxis = barChart.getAxisLeft();
+            yAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+
+            ArrayList<BarEntry> barArrayList = new ArrayList<>();
+            barArrayList.add(new BarEntry(0, Q1));
+            barArrayList.add(new BarEntry(1, Q2));
+            barArrayList.add(new BarEntry(2, Q3));
+            barArrayList.add(new BarEntry(3, Q4));
+            barArrayList.add(new BarEntry(4, NA));
+
+            BarDataSet barDataSet = new BarDataSet(barArrayList, "Patok HGU");
+            barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+            barDataSet.setValueTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+            barDataSet.setValueTextSize(14f);
+
+            BarData barData = new BarData(barDataSet);
+
+            barChart.setFitBars(true);
+            barChart.setData(barData);
+            barChart.getDescription().setEnabled(false);
+            barChart.getLegend().setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
+            barChart.animateXY(2000,2000);
+            barChart.invalidate();
+        } catch (JSONException e) {
+            Log.i("Child Patok Monitor", e.getMessage());
+        }
+
     }
 
     void addTableRow(String no, String afdeling, String block, String latitude, String longtitude, String period, String status, int id) {
