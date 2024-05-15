@@ -1,11 +1,10 @@
 console.log("JS masok")
 
 const HGU = "/map/api/v1/hgu/"
-const Block = "/map/api/v1/block/"
-const Jangkos = "/map/api/v1/jangkos/"
+const Dump = "/map/api/v1/block/"
 
-let dataBlock = [];
-let dataHGU = [];
+let dataHgu = [];
+let dataDump = [];
 
 async function fetchData() {
     try {
@@ -14,13 +13,13 @@ async function fetchData() {
         var dataHGU = await responseHGU.json();
         console.log("Data from HGU endpoint:", dataHGU);
     
-        // Fetch data from Block endpoint
-        const responseBlock = await fetch(Block);
-        var dataBlock = await responseBlock.json();
-        console.log("Data from Block endpoint:", dataBlock);
+        // Fetch data from Dump endpoint
+        const responseDump = await fetch(Dump);
+        var dataDump = await responseDump.json();
+        console.log("Data from Dump endpoint:", dataDump);
         
         // adding geojson Layer into leaflet
-        L.geoJSON(dataBlock, {
+        L.geoJSON(dataDump, {
             style: {
                 color: '#C1F2B0', // outline color
                 weight: 1,

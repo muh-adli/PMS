@@ -26,6 +26,6 @@ urlpatterns = [
     path('api/v1/dump/', DumpData, name='DumpData'),
 
     ## Tankos
-    path('api/v1/dump/', TankosDump, name='DumpData'),
+    path('api/v1/dump/', TankosDumpStatus, name='DumpData'),
 
 ]

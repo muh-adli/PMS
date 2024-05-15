@@ -128,7 +128,7 @@
     const Afd = "{% url "AfdelingBoundary" %}"
     const Block = "{% url "BlockBoundary" %}"
     const Planted = "{% url "PlantedData" %}"
-    const Road = "{% url "RoadData" %}"
+    // const Road = "{% url "RoadData" %}"
     
     let dataBlock = [];
     let dataHGU = [];
@@ -152,9 +152,9 @@
             var dataBlock = await responseBlock.json();
             console.log("Data from Block endpoint:", dataBlock);
 
-            const responseRoad = await fetch(Road);
-            var dataRoad = await responseRoad.json();
-            console.log("Data from Road endpoint:", dataRoad);
+            // const responseRoad = await fetch(Road);
+            // var dataRoad = await responseRoad.json();
+            // console.log("Data from Road endpoint:", dataRoad);
     
             // adding geojson Layer into leaflet
             const hguLayer = L.geoJSON(dataHGU, {
@@ -170,14 +170,14 @@
             const plantedLayer = L.geoJSON(dataPlanted);
             const afdLayer = L.geoJSON(dataAfd);
             const blockLayer = L.geoJSON(dataBlock);
-            const roadLayer = L.geoJSON(dataRoad);
+            // const roadLayer = L.geoJSON(dataRoad);
 
             // Add layers to the layer control
             const overlayMaps = {
                 "Planted": plantedLayer,
                 "Afdeling": afdLayer,
                 "Block": blockLayer,
-                "Jalan": roadLayer
+            //     "Jalan": roadLayer
             };
 
             // Add layer control to the map

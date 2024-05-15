@@ -409,7 +409,9 @@ def AplTonaseEdit(request):
 def DumpTable(request):
     Title = 'Dashboard - dump'
     query = request.GET.get('q')
+    # print(query)
     if query:
+        # print("masuk query")
         dump_qs = TankosDumpview.objects.filter(
             location__icontains=query
             ).order_by(
@@ -427,18 +429,18 @@ def DumpTable(request):
                 'Title': Title,
                 'TableData' : dump_qs,
             }
+    else:
+        ## Data collecting and cleansing from database
+        dump_qs = TankosDumpview.objects.all(
+                ).order_by(
+                    'location'
+                ) #TODO: Paginate table to 15 item
 
-    ## Data collecting and cleansing from database
-    dump_qs = TankosDumpview.objects.all(
-            ).order_by(
-                'location'
-            ) #TODO: Paginate table to 15 item
-
-    ## Context dictionary for passing data
-    context = {
-        'Title': Title,
-        'TableData' : dump_qs,
-    }
+        ## Context dictionary for passing data
+        context = {
+            'Title': Title,
+            'TableData' : dump_qs,
+        }
     return render(request, "dashboard/static_tankosdump_table.html", context)
 
 @login_required(login_url="")

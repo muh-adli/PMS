@@ -150,7 +150,7 @@ class EditDumpForm(forms.ModelForm):
                 }
         )
     )
-    dump_date = forms.CharField(
+    dump_date = forms.DateField(
         label="Dump Date",
         widget=forms.DateInput(
             attrs={
@@ -159,8 +159,9 @@ class EditDumpForm(forms.ModelForm):
                 }
         )
     )
-    apl_date = forms.CharField(
+    apl_date = forms.DateField(
         label="Aplikasi Date",
+        required=False,
         widget=forms.DateInput(
             attrs={
                 'class': 'form-control',
@@ -180,7 +181,7 @@ class EditDumpForm(forms.ModelForm):
 
 class EditPatokForm(forms.ModelForm):
     periode_choices = (
-        ("", "None"),
+        (None, "None"),
         ("Q1", "Q1"),
         ("Q2", "Q2"),
         ("Q3", "Q3"),

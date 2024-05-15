@@ -143,7 +143,7 @@ def BlockBoundary(request):
     return HttpResponse(Block_qs, content_type='json')
 
 @login_required()
-def TankosDump(request):
+def TankosDumpStatus(request):
     now = datetime.now()
     # print("start: ", str(now))
 
