@@ -19,7 +19,7 @@ def ApiBlockBoundary(request):
     now = datetime.now()
     # print("start: ", str(now))
 
-    qs = Block.objects.annotate(
+    qs = HguBlock.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
@@ -85,7 +85,6 @@ def ApiPatokData(request):
     json['status'] = "200"
     json['error'] = False
     json['data'] = []
-    ##json['chart'] = []
 
     periode_counts = {
             'Q1': 0,
@@ -123,4 +122,36 @@ def ApiPatokData(request):
 
     json['chart'] = periode_counts
     
+    return JsonResponse(json, safe=False)
+
+def ApiPlantedData(request):
+    planted_qs = HguPlanted.objects.all()[:500]
+
+    print("Request planted data from apps")
+
+    json = {}
+    json['status'] = "200"
+    json['error'] = False
+    json['data'] = []
+
+    for data in planted_qs:
+        append_data = {
+            'id' : data.objectid,
+            'afd_name' : data.afd_name,
+            'block_name' : data.block_name,
+            'block_sap' : data.block_sap,
+            'ha' : data.ha,
+            'year' : data.tahun,
+            'level1' : data.level_1,
+            'level2' : data.level_2,
+            'status' : data.status,
+        }
+
+        json['data'].append(append_data)
+
+        json['luas'] = {
+            'hgu' : "1000",
+            'planted' : "1000",
+        }
+
     return JsonResponse(json, safe=False)
