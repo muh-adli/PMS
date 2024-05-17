@@ -17,7 +17,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.project.webgis.R;
-import com.project.webgis.activity.ui.Dashboard.DashboardFragment;
+import com.project.webgis.activity.ui.DashboardFragment;
 import com.project.webgis.activity.ui.MapFragment;
 import com.project.webgis.activity.ui.Monitor.MonitorFragment;
 import com.project.webgis.adapter.NetworkReceiver;

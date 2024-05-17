@@ -2,12 +2,14 @@ package com.project.webgis.activity.ui.Monitor;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +52,8 @@ public class ChildMonitorPatok extends Fragment {
     BarChart barChart;
     private RequestQueue mQueue;
     private DataManager dataManager;
+    private ProgressBar loading;
+    private String HOST;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.child_monitor_patok, container, false);
@@ -63,17 +67,23 @@ public class ChildMonitorPatok extends Fragment {
         mQueue = Volley.newRequestQueue(getContext());
         layoutRow = view.findViewById(R.id.layoutRow);
         barChart = view.findViewById(R.id.chart);
+        loading = view.findViewById(R.id.loading);
 
-        if (dataManager.isDataAvailable("PATOK_HGU")) {
-            loadCachePatokData();
-        } else {
-            loadPatokData();
-        }
+        HOST = dataManager.getData("HOST");
+
+        new Handler().postDelayed(() -> {
+            if (dataManager.isDataAvailable("PATOK_HGU")) {
+                loadCachePatokData();
+            } else {
+                loadPatokData();
+            }
+        }, 1000);
+
         Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_LONG).show();
     }
 
     void loadPatokData() {
-        String url = "https://6d43-114-4-213-96.ngrok-free.app" + API.PATOK_TABLE;
+        String url = HOST + API.PATOK_TABLE;
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
@@ -135,6 +145,8 @@ public class ChildMonitorPatok extends Fragment {
                         barChart.invalidate();
 
                         dataManager.saveData("PATOK_HGU", response.toString());
+
+                        loading.setVisibility(View.GONE);
                     } catch (JSONException e) {
                         Log.i("Child Patok Monitor", e.getMessage());
                     }
@@ -221,6 +233,8 @@ public class ChildMonitorPatok extends Fragment {
             barChart.getLegend().setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
             barChart.animateXY(2000,2000);
             barChart.invalidate();
+
+            loading.setVisibility(View.GONE);
         } catch (JSONException e) {
             Log.i("Child Patok Monitor", e.getMessage());
         }

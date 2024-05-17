@@ -6,4 +6,5 @@ public interface API {
 
     // Data Urls
     String PATOK_TABLE = "/api/v1/data/patok";
+    String PLANTED_TABLE = "/api/v1/data/planted";
 }

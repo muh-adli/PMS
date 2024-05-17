@@ -20,8 +20,10 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.project.webgis.API;
 import com.project.webgis.R;
 import com.project.webgis.Splash;
+import com.project.webgis.adapter.DataManager;
 import com.project.webgis.adapter.SessionManager;
 
 import org.json.JSONArray;
@@ -35,8 +37,9 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private ProgressBar loading;
     private SessionManager sessionManager;
-
+    private DataManager dataManager;
     private RequestQueue mQueue;
+    private String HOST;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,11 +49,14 @@ public class LoginActivity extends AppCompatActivity {
         mQueue = Volley.newRequestQueue(this);
 
         sessionManager = new SessionManager(getApplicationContext());
+        dataManager = new DataManager(getApplicationContext());
 
         usernameEdit = (EditText) findViewById(R.id.username);
         passwordEdt = (EditText) findViewById(R.id.password);
         btnLogin = (Button) findViewById(R.id.login);
         loading = (ProgressBar) findViewById(R.id.loading);
+
+        HOST = dataManager.getData("HOST");
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         username = usernameEdit.getText().toString();
         password = passwordEdt.getText().toString();
 
-        String url = "https://d64e-114-5-213-161.ngrok-free.app/api/v1/account/loginRequest?username="+ username +"&password="+ password;
+        String url = HOST + API.LOGIN_URL + "?username=" + username + "&password=" + password;
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
@@ -84,6 +90,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        Log.i("Login Request", e.getMessage());
                     }
                 }, error -> {
             if (error instanceof TimeoutError) {
