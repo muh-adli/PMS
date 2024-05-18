@@ -4,6 +4,7 @@ from django.core.serializers import serialize
 from django.http import HttpResponse, JsonResponse
 from django.contrib.gis.db.models.functions import Transform
 from django.contrib.auth import authenticate
+from django.db.models import F, Count, Sum, Q, Min, Max
 
 import json
 
@@ -11,25 +12,28 @@ import json
 ## Models and Serializers Import
 from .models import *
 from Map.models import *
+from Dashboard.models import *
 
 ## Library
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def ApiBlockBoundary(request):
+    print("Request block boundary from apps")
     now = datetime.now()
-    # print("start: ", str(now))
 
     qs = HguBlock.objects.annotate(
         geometry=Transform('geom', 4326),
     ).all()
 
     Block_qs = serialize('geojson', qs)
+    Block_qs = json.loads(Block_qs)
     end = datetime.now()
-    # print("end: ", str(end))
     delta = end - now
+
     print("ApiBlockBoundary qs: ", round(delta.total_seconds(), 3),'S')
-    # return render(request, "html/map.html", {'Building_qs':Building_qs})
-    return HttpResponse(Block_qs, content_type='json')
+    
+    ##return HttpResponse(Block_qs, content_type='json')
+    return JsonResponse(Block_qs, safe=False)
 
 def ApiLoginRequest(request):
     if request.method == "GET" and 'username' in request.GET and 'password' in request.GET:
@@ -63,23 +67,21 @@ def ApiLoginRequest(request):
             )
     
 def ApiPatokData(request):
+    print("Request patok data from apps")
     query = request.GET.get('q')
     if query:
         patok_qs = HguPatok.objects.filter(no_patok__icontains=query).order_by('no_patok')
 
-        ## Checking available data
         if patok_qs is None:
             messages.warning("Data isn't available")
 
+            json = {}
+            json['status'] = "201"
+            json['error'] = True
+
+            return JsonResponse(json, safe=False)
     else:
-        ## Data collecting and cleansing from database
         patok_qs = HguPatok.objects.all()
-        # patok_pagi = PatokTable(patok_qs)
-        # patok_pagi.paginate(page=request.GET.get("page", 1), per_page=15)
-
-        ## Context dictionary for passing data
-
-    print("Request patok data from apps")
 
     json = {}
     json['status'] = "200"
@@ -103,11 +105,11 @@ def ApiPatokData(request):
             'latitude' : data.latitude,
             'period' : data.periode,
             'status' : data.status,
-            'id' : data.objectid
+            'id' : data.gid
         }
         json['data'].append(append_data)
 
-        periode = data.periode # get periode value in patok for loop
+        periode = data.periode
         if periode == 'Q1':
             periode_counts['Q1'] += 1
         elif periode == 'Q2':
@@ -125,9 +127,8 @@ def ApiPatokData(request):
     return JsonResponse(json, safe=False)
 
 def ApiPlantedData(request):
-    planted_qs = HguPlanted.objects.all()[:500]
-
     print("Request planted data from apps")
+    planted_qs = HguPlanted.objects.all()[:500]
 
     json = {}
     json['status'] = "200"
@@ -136,7 +137,7 @@ def ApiPlantedData(request):
 
     for data in planted_qs:
         append_data = {
-            'id' : data.objectid,
+            'id' : data.gid,
             'afd_name' : data.afd_name,
             'block_name' : data.block_name,
             'block_sap' : data.block_sap,
@@ -153,5 +154,89 @@ def ApiPlantedData(request):
             'hgu' : "1000",
             'planted' : "1000",
         }
+
+    return JsonResponse(json, safe=False)
+
+def ApiDumpData(request):
+    print("Request dump data from apps")
+    query = request.GET.get('q')
+    if query:
+        dump_qs = TankosDumpdata.objects.filter(location__contains=query).order_by('dump_date')
+
+        if dump_qs is None:
+            messages.warning("Data isn't available")
+
+            json = {}
+            json['status'] = "201"
+            json['error'] = True
+
+            return JsonResponse(json, safe=False)
+    else:
+        dump_qs = TankosDumpdata.objects.all().order_by('dump_date')
+
+    json = {}
+    json['status'] = "200"
+    json['error'] = False
+    json['data'] = []
+
+    for data in dump_qs:
+        append_data = {
+            'id' : data.gid,
+            'afdeling' : data.afdeling,
+            'block' : data.block,
+            'location' : data.location,
+            'dump_date' : data.dump_date,
+        }
+
+        json['data'].append(append_data)
+
+    pokok_count_by_date = TankosAplpokok.objects.values('date').annotate(count=Count('date'))
+    tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
+
+    pokok_data = TankosAplpokok.objects.all()
+    tonase_data = TankosApltonase.objects.all()
+    dump_data = TankosDumpdata.objects.all()
+
+    # Get minimum and maximum dates
+    pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
+    pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
+
+    tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
+    tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
+    
+    dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
+    dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
+
+    min_date = min(pokok_min_date, tonase_min_date, dump_min_date)
+    max_date = max(pokok_max_date, tonase_max_date, dump_max_date)
+
+    # Generate all dates between min and max date
+    all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
+    # print(all_dates)
+    all_date = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
+    # print(all_date)
+
+    # Aggregate data by date
+    pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
+    tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
+    dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
+
+    # Initialize dictionaries to hold counts for each date
+    pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
+    tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
+    dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
+
+
+    # Fill in counts for all dates, including missing ones
+    pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
+    tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
+    dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
+
+    json['chart'] = {
+        'date' : all_date,
+        'pokok' : pokok_counts,
+        'tonase' : tonase_counts,
+        'dump' : dump_counts,
+    }
 
     return JsonResponse(json, safe=False)

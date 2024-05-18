@@ -15,5 +15,6 @@ urlpatterns = [
     ### Data Urls
     path('v1/data/patok', ApiPatokData, name='ApiPatokData'),
     path('v1/data/planted', ApiPlantedData, name='ApiPlantedData'),
+    path('v1/data/dump', ApiDumpData, name='ApiDumpData'),
 
 ]
