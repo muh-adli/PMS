@@ -128,7 +128,7 @@ def ApiPatokData(request):
 
 def ApiPlantedData(request):
     print("Request planted data from apps")
-    planted_qs = HguPlanted.objects.all()[:500]
+    planted_qs = HguPlanted.objects.all()
 
     json = {}
     json['status'] = "200"
