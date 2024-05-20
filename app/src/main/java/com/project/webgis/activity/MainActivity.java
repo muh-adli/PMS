@@ -20,6 +20,7 @@ import com.project.webgis.R;
 import com.project.webgis.activity.ui.DashboardFragment;
 import com.project.webgis.activity.ui.MapFragment;
 import com.project.webgis.activity.ui.Monitor.MonitorFragment;
+import com.project.webgis.activity.ui.OtherFragment;
 import com.project.webgis.adapter.NetworkReceiver;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     final Fragment fragmentDashboard = new DashboardFragment();
     final Fragment fragmentMap = new MapFragment();
     final Fragment fragmentMonitor = new MonitorFragment();
-    final Fragment fragmentOther = new DashboardFragment();
+    final Fragment fragmentOther = new OtherFragment();
     private Fragment active = fragmentDashboard;
     private boolean firstDashboard = true;
     private boolean firstMap = true;
@@ -106,13 +107,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(new NetworkReceiver());
     }
 
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        unregisterReceiver(new NetworkReceiver());
     }
 
     @Override

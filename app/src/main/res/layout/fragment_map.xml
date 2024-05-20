@@ -8,7 +8,8 @@
     tools:context=".activity.ui.MapFragment"
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
-    android:paddingTop="10dp">
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
     <FrameLayout
         android:id="@+id/top_nav"
@@ -34,4 +35,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/top_nav"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/layerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="10dp"
+        android:contentDescription="Layers"
+        app:srcCompat="@drawable/baseline_layers_24"/>
 </RelativeLayout>

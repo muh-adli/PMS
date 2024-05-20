@@ -3,7 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#d2d2d2</color>
-    <color name="accent">#0075F3</color>
+    <color name="accent">#8cc741</color>
+    <color name="transparent">#00FFFFFF</color>
 
     <color name="textColor">#000000</color>
 

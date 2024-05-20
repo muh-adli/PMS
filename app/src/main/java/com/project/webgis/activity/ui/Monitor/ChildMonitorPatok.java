@@ -78,14 +78,14 @@ public class ChildMonitorPatok extends Fragment {
                 loadPatokData();
             }
         }, 1000);
-
-        Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_LONG).show();
     }
 
     void loadPatokData() {
+        Log.i("Child Patok Monitor", "Downloading patok data");
         String url = HOST + API.PATOK_TABLE;
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
+                    Log.i("Child Patok Monitor", "Patok data downloaded");
                     try {
 
                         // Data for table
@@ -158,6 +158,7 @@ public class ChildMonitorPatok extends Fragment {
                 Log.i("Child Patok Monitor", "onErrorResponse: Server error");
                 Toast.makeText(getContext(), "Server error", Toast.LENGTH_LONG).show();
             } else if (error instanceof NetworkError) {
+                Log.i("Child Patok Monitor", "onErrorResponse: Network error");
                 Toast.makeText(getContext(), "Network error", Toast.LENGTH_LONG).show();
             } else if (error instanceof ParseError) {
                 Log.i("Child Patok Monitor", "onErrorResponse: Parse error");
@@ -258,7 +259,7 @@ public class ChildMonitorPatok extends Fragment {
         tableRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), String.valueOf(v.getId()), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(), String.valueOf(v.getId()), Toast.LENGTH_LONG).show();
             }
         });
         layoutRow.addView(tableRow);

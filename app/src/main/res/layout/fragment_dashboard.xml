@@ -14,8 +14,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginBottom="20dp">
+        android:orientation="vertical">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -103,7 +102,9 @@
             android:id="@+id/horizontal_scroll_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginVertical="20dp">
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="55dp"
+            android:scrollbarThumbHorizontal="@color/accent">
 
             <TableLayout
                 android:id="@+id/tableDashboard"
@@ -193,7 +194,8 @@
 
                 <ScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:scrollbarThumbVertical="@color/accent">
 
                     <LinearLayout
                         android:id="@+id/layoutRow"
@@ -206,9 +208,18 @@
         </HorizontalScrollView>
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/loading"
-        android:layout_width="50dp"
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_centerInParent="true"/>
+        android:padding="2dp"
+        android:layout_alignParentBottom="true"
+        android:scrollbarThumbHorizontal="@color/accent">
+
+        <LinearLayout
+            android:id="@+id/btnLay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="2dp" />
+    </HorizontalScrollView>
 </RelativeLayout>

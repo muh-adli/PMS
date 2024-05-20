@@ -18,7 +18,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.project.webgis.activity.LoginActivity;
+import com.project.webgis.activity.MainActivity;
 import com.project.webgis.activity.MainActivity;
 import com.project.webgis.adapter.DataManager;
 import com.project.webgis.adapter.NetworkReceiver;
@@ -78,7 +78,6 @@ public class Splash extends AppCompatActivity {
 
                 startActivity(new Intent(Splash.this, MainActivity.class));
                 finish();
-
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
