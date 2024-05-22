@@ -155,8 +155,14 @@
                                 <td>{{ data.block_name }}</td>
                                 <td>{{ data.longitude }}</td>
                                 <td>{{ data.latitude }}</td>
-                                <td>{{ data.periode }}</td>
-                                <td>{{ data.status }}</td>
+                                {% if data.periode %}
+                                    <td>{{ data.periode }}</td>
+                                    <td>{{ data.status }}</td>
+                                {% else %}
+                                    <td>None</td>
+                                    <td>None</td>
+                                {% endif %}
+
                                 <td><a href="{% url 'PatokEdit' data.gid %}" class="btn btn-sm btn-outline-success" role="button" aria-pressed="true">Edit</a></td>
                             </tr>
                             {% endfor %}

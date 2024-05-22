@@ -623,18 +623,43 @@ def PatokEdit(request, gid):
     patok_obj = get_object_or_404(HguPatok, gid=gid)
 
     if request.method == 'POST':
-        form = EditPatokForm(request.POST, instance=patok_obj)
-        if form.is_valid():
-            patok_obj = form.save(commit=False)
-            patok_obj.status = 'Bagus'
-            patok_obj.save()
+        # Create a mutable copy of the POST data
+        post_data = request.POST.copy()
+        
+        # Retrieve the periode value from the POST data
+        periode = post_data.get('periode', '')
 
+        # Set periode to None if it is an empty string
+        if periode == '':
+            print('masuk if')
+            post_data['periode'] = ''
+            patok_obj.periode = ''
+            post_data['status'] = ''
+            patok_obj.status = ''
+            post_data['update_date'] = ''
+            patok_obj.update_date = ''
+        else:
+            post_data['periode'] = periode
+            patok_obj.periode = periode
+            post_data['status'] = 'Baik'
+            patok_obj.status = 'Baik'
+            post_data['update_date'] = datetime.now()
+            patok_obj.update_date = datetime.now()
+        print(post_data)
+        for k in post_data:
+            print(k)
+
+        # Create the form with the modified data
+        form = EditPatokForm(post_data, instance=patok_obj)
+
+        
+        if form.is_valid():
+            form.save()
             messages.success(request, 'Blok updated successfully.')
             return redirect('PatokTable')
         else:
-            # Form is not valid, display form errors
-            error_message = "Error updating blok. Please check your input."
-            print("Error updating blok:", form.errors)
+            error_message = "Error updating patok data. Please check your input."
+            print("Error on:", form.errors)
             messages.error(request, error_message)
     else:
         form = EditPatokForm(instance=patok_obj)

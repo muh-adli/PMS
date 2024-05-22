@@ -242,13 +242,15 @@ class EditPatokForm(forms.ModelForm):
                 }
         ),
         choices=periode_choices,
+        required=False  # Make the status field optional
     )
     status = forms.CharField(
         label="Status",
         widget=forms.TextInput(
             attrs={
                 'class': 'form-control',
-                'readonly': 'readonly'}
+                'readonly': 'readonly'
+                }
         ),
         required=False  # Make the status field optional
     )
@@ -263,4 +265,5 @@ class EditPatokForm(forms.ModelForm):
             'latitude',
             'periode',
             'status',
+            'update_date'
         )
