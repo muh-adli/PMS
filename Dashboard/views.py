@@ -99,9 +99,9 @@ def Tankos(request):
     pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
     tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
     dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
-    # print(pokok_counts)
-    # print(tonase_counts)
-    # print(dump_counts)
+    print('Pokok: ', pokok_counts)
+    print('Tonase: ', tonase_counts)
+    print('Dump: ', dump_counts)
 
     ## Context
     context = {
@@ -243,11 +243,11 @@ def AplPokokEdit(request):
         date = request.POST.get('date')
         pokok = request.POST.get('pokok')
         
-        print(afdeling)
-        print(block)
-        print(geomid)
-        print(date)
-        print(pokok)
+        # print(afdeling)
+        # print(block)
+        # print(geomid)
+        # print(date)
+        # print(pokok)
 
         # Check if any object in the queryset matches the POST parameters
         exists = False
@@ -409,9 +409,9 @@ def AplTonaseEdit(request):
 def DumpTable(request):
     Title = 'Dashboard - dump'
     query = request.GET.get('q')
-    # print(query)
+    print(query)
     if query:
-        # print("masuk query")
+        print("masuk query")
         dump_qs = TankosDumpview.objects.filter(
             location__icontains=query
             ).order_by(
@@ -506,7 +506,7 @@ def Patok(request):
             periode_counts['Q4'] += 1
         else:
             periode_counts['N/A'] += 1
-    # print(periode_counts)
+    print('Total periode: ', periode_counts)
 
     for key, value in periode_counts.items():
         list_key.append(key)
