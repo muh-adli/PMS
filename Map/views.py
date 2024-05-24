@@ -209,3 +209,48 @@ def AplDataV2(request):
     print("Apldata qs: ", round(delta.total_seconds(), 3),'S')
     # return render(request, "html/map.html", {'Building_qs':Building_qs})
     return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
+def PlantedDataV2(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = TankosAplApi.objects.all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Apldata qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
+def PlantedDataV2(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = HguplantedView.objects.all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Planted qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
+def BlockDataV2(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = HgublockView.objects.all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Block qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')

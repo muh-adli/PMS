@@ -227,3 +227,26 @@ class TankosAplApi(models.Model):
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'tankos_apl_api'
+        
+class HgublockView(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    afd_name = models.CharField(max_length=50, blank=True, null=True)
+    block_name = models.CharField(max_length=15, blank=True, null=True)
+    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    st_transform = models.GeometryField(srid=32650, blank=True, null=True)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'hgublock_view'
+
+
+class HguplantedView(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    afd_name = models.CharField(max_length=50, blank=True, null=True)
+    block_name = models.CharField(max_length=15, blank=True, null=True)
+    ha = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    st_transform = models.GeometryField(srid=32650, blank=True, null=True)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'hguplanted_view'

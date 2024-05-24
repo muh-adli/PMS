@@ -126,12 +126,17 @@
 <script>
     const HGU = "{% url "HGUBoundary" %}"
     const Afd = "{% url "AfdelingBoundary" %}"
-    const Block = "{% url "BlockBoundary" %}"
-    const Planted = "{% url "PlantedData" %}"
-    // const Road = "{% url "RoadData" %}"
+    {% comment %} const Block = "{% url "BlockData" %}"
+    const Planted = "{% url "PlantedData" %}" {% endcomment %}
+    const Block = "{% url "BlockDataV2" %}"
+    const Planted = "{% url "PlantedDataV2" %}"
+    // const Apl = "{% url "PlantedData" %}"
+    // const Dump = "{% url "PlantedData" %}"
     
-    let dataBlock = [];
     let dataHGU = [];
+    let dataAfd = [];
+    let dataBlock = [];
+    let dataPlanted = [];
     
     async function fetchData() {
         try {
@@ -139,18 +144,18 @@
             const responseHGU = await fetch(HGU);
             var dataHGU = await responseHGU.json();
             console.log("Data from HGU endpoint:", dataHGU);
-    
-            const responsePlanted = await fetch(Planted);
-            var dataPlanted = await responsePlanted.json();
-            console.log("Data from Planted endpoint:", dataPlanted);
-    
+            
             const responseAfd = await fetch(Afd);
             var dataAfd = await responseAfd.json();
             console.log("Data from afdeling endpoint:", dataAfd);
-    
+            
             const responseBlock = await fetch(Block);
             var dataBlock = await responseBlock.json();
             console.log("Data from Block endpoint:", dataBlock);
+            
+            const responsePlanted = await fetch(Planted);
+            var dataPlanted = await responsePlanted.json();
+            console.log("Data from Planted endpoint:", dataPlanted);
 
             // const responseRoad = await fetch(Road);
             // var dataRoad = await responseRoad.json();
@@ -167,9 +172,9 @@
                 }
             }).addTo(map).bringToBack();
 
-            const plantedLayer = L.geoJSON(dataPlanted);
             const afdLayer = L.geoJSON(dataAfd);
             const blockLayer = L.geoJSON(dataBlock);
+            const plantedLayer = L.geoJSON(dataPlanted);
             // const roadLayer = L.geoJSON(dataRoad);
 
             // Add layers to the layer control
