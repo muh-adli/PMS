@@ -1,17 +1,23 @@
 package com.project.webgis.activity.ui;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
@@ -28,17 +34,14 @@ import com.project.webgis.adapter.DataManager;
 
 import org.json.JSONException;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-public class DumpEdit extends AppCompatActivity {
+public class PatokEdit extends AppCompatActivity {
     private RequestQueue mQueue;
     private DataManager dataManager;
     private String HOST;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dump_edit);
+        setContentView(R.layout.activity_patok_edit);
 
         mQueue = Volley.newRequestQueue(this);
         dataManager = new DataManager(this);
@@ -48,13 +51,19 @@ public class DumpEdit extends AppCompatActivity {
         int id = getIntent().getIntExtra("id", 0);
         String afdeling = getIntent().getStringExtra("afdeling");
         String block = getIntent().getStringExtra("block");
-        String location = getIntent().getStringExtra("location");
-        String dump_date = getIntent().getStringExtra("dump_date");
+        String nomor = getIntent().getStringExtra("nomor");
+        String latitude = getIntent().getStringExtra("latitude");
+        String longtitude = getIntent().getStringExtra("longtitude");
+        String period = getIntent().getStringExtra("period");
+        String status = getIntent().getStringExtra("status");
 
         EditText editAfdeling = findViewById(R.id.afdeling);
         EditText editBlock = findViewById(R.id.block);
-        EditText editLocation = findViewById(R.id.location);
-        DatePicker editDate = findViewById(R.id.date);
+        EditText editNomor = findViewById(R.id.noPatok);
+        EditText editLatitude = findViewById(R.id.latitude);
+        EditText editLongtitude = findViewById(R.id.longtitude);
+        EditText editStatus = findViewById(R.id.status);
+        Spinner periodSpinner = findViewById(R.id.period);
         Button updateButton = findViewById(R.id.updateButton);
 
         if (!isOnline()) {
@@ -63,35 +72,26 @@ public class DumpEdit extends AppCompatActivity {
 
         editAfdeling.setText(afdeling);
         editBlock.setText(block);
-        editLocation.setText(location);
+        editNomor.setText(nomor);
+        editLatitude.setText(latitude);
+        editLongtitude.setText(longtitude);
+        editStatus.setText(status);
 
-        if (!dump_date.equals("null")) {
-            String mYear = dump_date.split("-")[0];
-            String mMonth = dump_date.split("-")[1];
-            String mDate = dump_date.split("-")[2];
-            editDate.init(Integer.parseInt(mYear), Integer.parseInt(mMonth)-1, Integer.parseInt(mDate), null);
-        }
+        String[] items = new String[] {"-", "Q1", "Q2", "Q3", "Q4"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        periodSpinner.setAdapter(adapter);
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int year = editDate.getYear();
-                int month = editDate.getMonth();
-                int day = editDate.getDayOfMonth();
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(year, month, day);
-
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                String strDate = format.format(calendar.getTime());
-
-                updateTankos(id, strDate);
+                String selectedPeriod = periodSpinner.getSelectedItem().toString();
+                updatePatok(id, selectedPeriod);
             }
         });
     }
 
-    private void updateTankos(int id, String date) {
-        String url = HOST + API.DUMP_SAVE + id + "?date=" + date;
+    private void updatePatok(int id, String period) {
+        String url = HOST + API.PATOK_SAVE + id + "?period=" + period;
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
@@ -99,10 +99,10 @@ public class DumpEdit extends AppCompatActivity {
                         String status = response.getString("status");
                         String message = response.getString("message");
                         if (status.equals("200")) {
-                            Toast.makeText(this, "Dump updated", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Patok updated", Toast.LENGTH_LONG).show();
                             finish();
                         } else {
-                            Toast.makeText(this, "Update dump failed: "+message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Update patok failed: "+message, Toast.LENGTH_LONG).show();
                             finish();
                         }
 

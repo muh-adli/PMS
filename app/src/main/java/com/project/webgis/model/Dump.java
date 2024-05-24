@@ -1,17 +1,17 @@
 package com.project.webgis.model;
 
-public class Tankos {
+public class Dump {
     int id;
     String afdeling;
     String block;
     String location;
     String dump_date;
 
-    public Tankos() {
+    public Dump() {
 
     }
 
-    public Tankos(int id, String afdeling, String block, String location, String dump_date) {
+    public Dump(int id, String afdeling, String block, String location, String dump_date) {
         this.id = id;
         this.afdeling = afdeling;
         this.block = block;

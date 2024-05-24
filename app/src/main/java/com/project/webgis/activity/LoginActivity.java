@@ -1,5 +1,6 @@
 package com.project.webgis.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputEditText;
 import com.project.webgis.API;
 import com.project.webgis.R;
 import com.project.webgis.Splash;
@@ -32,10 +34,10 @@ import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText usernameEdit, passwordEdt;
+    private TextInputEditText usernameEdit, passwordEdt;
     private String username, password;
     private Button btnLogin;
-    private ProgressBar loading;
+    private ProgressDialog mProgress;
     private SessionManager sessionManager;
     private DataManager dataManager;
     private RequestQueue mQueue;
@@ -51,10 +53,10 @@ public class LoginActivity extends AppCompatActivity {
         sessionManager = new SessionManager(getApplicationContext());
         dataManager = new DataManager(getApplicationContext());
 
-        usernameEdit = (EditText) findViewById(R.id.username);
-        passwordEdt = (EditText) findViewById(R.id.password);
-        btnLogin = (Button) findViewById(R.id.login);
-        loading = (ProgressBar) findViewById(R.id.loading);
+        usernameEdit = findViewById(R.id.username);
+        passwordEdt = findViewById(R.id.password);
+        btnLogin = findViewById(R.id.login);
+        mProgress = new ProgressDialog(this);
 
         HOST = dataManager.getData("HOST");
 
@@ -67,7 +69,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        loading.setVisibility(View.VISIBLE);
+        mProgress.setCancelable(false);
+        mProgress.setMessage("Signing in...");
+        mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgress.show();
+
         username = usernameEdit.getText().toString();
         password = passwordEdt.getText().toString();
 
@@ -86,11 +92,12 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(this, "Login failed: "+message, Toast.LENGTH_LONG).show();
                         }
 
-                        loading.setVisibility(View.INVISIBLE);
+                        mProgress.hide();
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Log.i("Login Request", e.getMessage());
+                        mProgress.hide();
                     }
                 }, error -> {
             if (error instanceof TimeoutError) {

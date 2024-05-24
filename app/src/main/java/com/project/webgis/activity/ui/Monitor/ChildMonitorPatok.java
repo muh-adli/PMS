@@ -1,6 +1,11 @@
 package com.project.webgis.activity.ui.Monitor;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -8,14 +13,18 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -38,13 +47,18 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.project.webgis.API;
 import com.project.webgis.R;
+import com.project.webgis.activity.ui.DumpEdit;
+import com.project.webgis.activity.ui.PatokEdit;
 import com.project.webgis.adapter.DataManager;
+import com.project.webgis.model.Patok;
+import com.project.webgis.model.Planted;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChildMonitorPatok extends Fragment {
 
@@ -52,8 +66,14 @@ public class ChildMonitorPatok extends Fragment {
     BarChart barChart;
     private RequestQueue mQueue;
     private DataManager dataManager;
-    private ProgressBar loading;
     private String HOST;
+    private ProgressDialog mProgressBar;
+    private List<Patok> patok = new ArrayList<>();
+    private final int PAGE_SIZE = 50;
+    private int no_of_pages;
+    private Button[] buttons;
+    private LinearLayout buttonLayout;
+    private HorizontalScrollView scrollView;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.child_monitor_patok, container, false);
@@ -67,15 +87,30 @@ public class ChildMonitorPatok extends Fragment {
         mQueue = Volley.newRequestQueue(getContext());
         layoutRow = view.findViewById(R.id.layoutRow);
         barChart = view.findViewById(R.id.chart);
-        loading = view.findViewById(R.id.loading);
+        buttonLayout = view.findViewById(R.id.btnLay);
+        scrollView = view.findViewById(R.id.horizontal_scroll_view);
+        mProgressBar = new ProgressDialog(getContext());
 
         HOST = dataManager.getData("HOST");
 
+        mProgressBar.setCancelable(false);
+        mProgressBar.setMessage("Fetching Data...");
+        mProgressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressBar.show();
+
         new Handler().postDelayed(() -> {
             if (dataManager.isDataAvailable("PATOK_HGU")) {
-                loadCachePatokData();
+                if (isOnline()) {
+                    loadPatokData();
+                } else {
+                    loadCachePatokData();
+                }
             } else {
-                loadPatokData();
+                if (isOnline()) {
+                    loadPatokData();
+                } else {
+                    networkUnavailable();
+                }
             }
         }, 1000);
     }
@@ -102,8 +137,11 @@ public class ChildMonitorPatok extends Fragment {
                             String status = jsonObject.getString("status");
                             int id = jsonObject.getInt("id");
 
-                            addTableRow(no, afdeling, block, latitude, longitude, periode, status, id);
+                            patok.add(new Patok(id, no, afdeling, block, latitude, longitude, periode, status));
                         }
+
+                        createTable(patok, 0);
+                        paginate(buttonLayout, jsonArray.length(), PAGE_SIZE, patok);
 
                         // Data for chart
                         String chart = response.getString("chart");
@@ -118,6 +156,8 @@ public class ChildMonitorPatok extends Fragment {
                         XAxis xAxis = barChart.getXAxis();
                         xAxis.setValueFormatter(new IndexAxisValueFormatter(quart));
                         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                        xAxis.setDrawGridLines(false);
+                        xAxis.setDrawAxisLine(false);
                         xAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.textColor));
 
                         YAxis yAxis = barChart.getAxisLeft();
@@ -146,9 +186,10 @@ public class ChildMonitorPatok extends Fragment {
 
                         dataManager.saveData("PATOK_HGU", response.toString());
 
-                        loading.setVisibility(View.GONE);
+                        mProgressBar.hide();
                     } catch (JSONException e) {
                         Log.i("Child Patok Monitor", e.getMessage());
+                        mProgressBar.hide();
                     }
                 }, error -> {
             if (error instanceof TimeoutError) {
@@ -173,6 +214,67 @@ public class ChildMonitorPatok extends Fragment {
         mQueue.add(request);
     }
 
+    private void paginate(final LinearLayout buttonLayout, final int data_size, final int page_size, final List<Patok> planted) {
+        no_of_pages = (data_size + page_size - 1) / page_size;
+        buttons = new Button[no_of_pages];
+        showPageNo(0, no_of_pages);
+
+        for (int i = 0; i < no_of_pages; i++) {
+            buttons[i] = new Button(getContext());
+            buttons[i].setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            buttons[i].setText(String.valueOf(i + 1));
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            buttonLayout.addView(buttons[i], lp);
+
+            final int j = i;
+            buttons[j].setOnClickListener(new View.OnClickListener() {
+
+                public void onClick(View v) {
+                    scrollView.fullScroll(ScrollView.FOCUS_UP);
+                    createTable(planted, j);
+                    checkBtnBackGroud(j);
+                    showPageNo(j, no_of_pages);
+                }
+            });
+        }
+        checkBtnBackGroud(0);
+    }
+
+    private void showPageNo(int j, int no_of_pages) {
+        Toast.makeText(getContext(), "Page " + (j + 1) + " of " + no_of_pages, Toast.LENGTH_LONG).show();
+    }
+
+    private void checkBtnBackGroud(int index) {
+        for (int i = 0; i < no_of_pages; i++) {
+            if (i == index) {
+                buttons[index].setBackgroundResource(R.drawable.cell_shape_square_green);
+            } else {
+                buttons[i].setBackground(null);
+            }
+        }
+    }
+
+    private void createTable(List<Patok> planted, int page) {
+        layoutRow.removeAllViews();
+        // data rows
+        for (int i = 0, j = page * PAGE_SIZE; j < planted.size() && i < PAGE_SIZE; i++, j++) {
+            addTableRow(
+                    planted.get(j).getId(),
+                    planted.get(j).getNo(),
+                    planted.get(j).getAfdeling(),
+                    planted.get(j).getBlock(),
+                    planted.get(j).getLatitude(),
+                    planted.get(j).getLongtitude(),
+                    planted.get(j).getPeriod(),
+                    planted.get(j).getStatus(),
+                    i,
+                    j
+            );
+        }
+
+    }
+
     void loadCachePatokData() {
         String data = dataManager.getData("PATOK_HGU");
 
@@ -193,8 +295,11 @@ public class ChildMonitorPatok extends Fragment {
                 String status = jsonObject.getString("status");
                 int id = jsonObject.getInt("id");
 
-                addTableRow(no, afdeling, block, latitude, longitude, periode, status, id);
+                patok.add(new Patok(id, no, afdeling, block, latitude, longitude, periode, status));
             }
+
+            createTable(patok, 0);
+            paginate(buttonLayout, jsonArray.length(), PAGE_SIZE, patok);
 
             // Data for chart
             String chart = dataObj.getString("chart");
@@ -235,14 +340,15 @@ public class ChildMonitorPatok extends Fragment {
             barChart.animateXY(2000,2000);
             barChart.invalidate();
 
-            loading.setVisibility(View.GONE);
+            mProgressBar.hide();
         } catch (JSONException e) {
             Log.i("Child Patok Monitor", e.getMessage());
+            mProgressBar.hide();
         }
 
     }
 
-    void addTableRow(String no, String afdeling, String block, String latitude, String longtitude, String period, String status, int id) {
+    void addTableRow(int id, String no, String afdeling, String block, String latitude, String longtitude, String period, String status, int index, int index2) {
         TableRow tableRow = new TableRow(getContext());
         tableRow.setId(id);
         tableRow.addView(addTextView(no));
@@ -259,7 +365,16 @@ public class ChildMonitorPatok extends Fragment {
         tableRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(getContext(), String.valueOf(v.getId()), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getContext(), PatokEdit.class);
+                intent.putExtra("id", patok.get(index2).getId());
+                intent.putExtra("afdeling", patok.get(index2).getAfdeling());
+                intent.putExtra("block", patok.get(index2).getBlock());
+                intent.putExtra("nomor", patok.get(index2).getNo());
+                intent.putExtra("latitude", patok.get(index2).getLatitude());
+                intent.putExtra("longtitude", patok.get(index2).getLongtitude());
+                intent.putExtra("period", patok.get(index2).getPeriod());
+                intent.putExtra("status", patok.get(index2).getStatus());
+                startActivity(intent);
             }
         });
         layoutRow.addView(tableRow);
@@ -277,6 +392,19 @@ public class ChildMonitorPatok extends Fragment {
         textView.setLayoutParams(params);
 
         return textView;
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private void networkUnavailable() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Network unavailable");
+        builder.setMessage("Please connect to internet to loading data");
+        builder.show();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.project.webgis.activity.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TableRow;
@@ -30,6 +32,7 @@ import com.android.volley.toolbox.Volley;
 import com.project.webgis.API;
 import com.project.webgis.R;
 import com.project.webgis.adapter.DataManager;
+import com.project.webgis.adapter.SessionManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,9 +44,28 @@ public class OtherFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_other, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        TextView welcome = view.findViewById(R.id.welcome);
+        Button exitButton = view.findViewById(R.id.exit);
+        SessionManager sessionManager = new SessionManager(getContext());
+
+        if (sessionManager.isLoggedIn()) {
+            welcome.setText("Halo, " + sessionManager.getUserDetails().get("username") + "!");
+        } else {
+            welcome.setText("Halo, guest!");
+        }
+
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+                System.exit(0);
+            }
+        });
     }
 
     @Override

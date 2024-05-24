@@ -1,6 +1,9 @@
 package com.project.webgis.activity.ui;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -74,21 +78,29 @@ public class DashboardFragment extends Fragment {
         scrollView = view.findViewById(R.id.horizontal_scroll_view);
         layoutRow = view.findViewById(R.id.layoutRow);
 
-        new Handler().postDelayed(() -> {
-            if (dataManager.isDataAvailable("PLANTED_HGU")) {
-                loadCachePlantedData();
-            } else {
-                loadPlantedData();
-            }
-        }, 1000);
-    }
-
-    void loadPlantedData() {
         mProgressBar.setCancelable(false);
         mProgressBar.setMessage("Fetching Data...");
         mProgressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressBar.show();
 
+        new Handler().postDelayed(() -> {
+            if (dataManager.isDataAvailable("PLANTED_HGU")) {
+                if (isOnline()) {
+                    loadPlantedData();
+                } else {
+                    loadCachePlantedData();
+                }
+            } else {
+                if (isOnline()) {
+                    loadPlantedData();
+                } else {
+                    networkUnavailable();
+                }
+            }
+        }, 1000);
+    }
+
+    void loadPlantedData() {
         Log.i("Dashboard", "Downloading planted data");
         String url = HOST + API.PLANTED_TABLE;
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -180,7 +192,7 @@ public class DashboardFragment extends Fragment {
     private void checkBtnBackGroud(int index) {
         for (int i = 0; i < no_of_pages; i++) {
             if (i == index) {
-                buttons[index].setBackgroundResource(R.drawable.cell_shape_square_blue);
+                buttons[index].setBackgroundResource(R.drawable.cell_shape_square_green);
             } else {
                 buttons[i].setBackground(null);
             }
@@ -208,11 +220,6 @@ public class DashboardFragment extends Fragment {
     }
 
     void loadCachePlantedData() {
-        mProgressBar.setCancelable(false);
-        mProgressBar.setMessage("Fetching Data...");
-        mProgressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressBar.show();
-
         String data = dataManager.getData("PLANTED_HGU");
         try {
             JSONObject dataObj = new JSONObject(data);
@@ -279,6 +286,19 @@ public class DashboardFragment extends Fragment {
         textView.setLayoutParams(params);
 
         return textView;
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private void networkUnavailable() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Network unavailable");
+        builder.setMessage("Please connect to internet to loading data");
+        builder.show();
     }
 
     @Override

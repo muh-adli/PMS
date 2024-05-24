@@ -11,32 +11,45 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <FrameLayout
-        android:id="@+id/top_nav"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/top_nav_background"
-        android:layout_marginBottom="10dp">
-        <TextView
-            android:id="@+id/text_dashboard"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/top_nav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="@string/menu_other"
-            />
-    </FrameLayout>
+            android:background="@drawable/top_nav_background"
+            android:layout_marginBottom="10dp">
+            <TextView
+                android:id="@+id/text_dashboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:text="@string/menu_other"
+                />
+        </FrameLayout>
 
-    <TextView
+        <TextView
+            android:id="@+id/welcome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/textColor"/>
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/exit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="Coming soon"
-        android:textSize="20sp"
+        android:background="@drawable/button_background_red"
         android:textColor="@color/textColor"
-        android:textAlignment="center"/>
+        android:layout_alignParentBottom="true"
+        android:text="Exit"/>
 </RelativeLayout>

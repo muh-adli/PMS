@@ -1,14 +1,16 @@
 package com.project.webgis;
 
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,7 +20,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.project.webgis.activity.MainActivity;
+import com.project.webgis.activity.LoginActivity;
 import com.project.webgis.activity.MainActivity;
 import com.project.webgis.adapter.DataManager;
 import com.project.webgis.adapter.NetworkReceiver;
@@ -26,6 +28,7 @@ import com.project.webgis.adapter.SessionManager;
 
 public class Splash extends AppCompatActivity {
     DataManager dataManager;
+    private boolean isConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +52,32 @@ public class Splash extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    startActivity(new Intent(Splash.this, MainActivity.class));
-                    finish();
+                    if (isOnline()) {
+                        startActivity(new Intent(Splash.this, LoginActivity.class));
+                        finish();
+                    } else {
+                        offlineMode();
+                    }
+
                 }
             }, 3000);
         } else {
-            popupSaveHost();
+            if (isOnline()) {
+                popupSaveHost();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Network error");
+                builder.setMessage("Please connect to internet for first open");
+                builder.setCancelable(false);
+                builder.setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                        System.exit(0);
+                    }
+                });
+                builder.show();
+            }
         }
     }
 
@@ -68,6 +91,7 @@ public class Splash extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
         builder.setView(input);
+        builder.setCancelable(false);
 
         // Set up the buttons
         builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -76,7 +100,7 @@ public class Splash extends AppCompatActivity {
                 dataManager.saveData("HOST", input.getText().toString());
                 Toast.makeText(getApplicationContext(), "Host server berhasil disimpan!", Toast.LENGTH_LONG).show();
 
-                startActivity(new Intent(Splash.this, MainActivity.class));
+                startActivity(new Intent(Splash.this, LoginActivity.class));
                 finish();
             }
         });
@@ -90,6 +114,34 @@ public class Splash extends AppCompatActivity {
         });
         builder.show();
 
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private void offlineMode() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Network unavailable");
+        builder.setMessage("Go to offline mode?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(new Intent(Splash.this, MainActivity.class));
+                finish();
+            }
+        });
+        builder.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+                System.exit(0);
+            }
+        });
+        builder.show();
     }
 
     @Override
