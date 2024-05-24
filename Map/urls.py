@@ -10,22 +10,23 @@ urlpatterns = [
     path('hectarestatement/', MapHectare, name='MapHectare'),
 
     ### API Urls
-    ## Boundary
+    ## Polygon
     path('api/v1/hgu/', HGUBoundary, name='HGUBoundary'),
     path('api/v1/afdeling/', AfdelingBoundary, name='AfdelingBoundary'),
     path('api/v1/block/', BlockBoundary, name='BlockBoundary'),
     # path('api/v1/jangkos/', JangkosData, name='JangkosData'),
     path('api/v1/planted/', PlantedData, name='PlantedData'),
+    
+    path('api/v2/apl/', AplDataV2, name='Apl_v2'),
 
     ## Line
-    path('api/v1/road/', RoadData, name='RoadData'),
+    path('api/v1/road/', RoadData, name='RoadData'), ## TODO: serialize multiline data
 
     ## Point
     path('api/v1/jembatan/', JembatanData, name='JembatanData'),
     path('api/v1/patok/', PatokData, name='PatokData'),
     path('api/v1/dump/', DumpData, name='DumpData'),
-
-    ## Tankos
-    path('api/v1/dump/', TankosDumpStatus, name='DumpData'),
+    path('api/v2/dump/', DumpDataV2, name='Dump_v2'),
+    
 
 ]

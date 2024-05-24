@@ -1,7 +1,7 @@
-console.log("JS masok")
+console.log("JS masok");
 
 const HGU = "/map/api/v1/hgu/"
-const Dump = "/map/api/v1/block/"
+const Dump = "/map/api/v2/dump/"
 
 let dataHgu = [];
 let dataDump = [];

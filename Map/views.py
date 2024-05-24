@@ -179,3 +179,33 @@ def RoadData(request): # TODO: FIXING API
     # Print execution time for debugging (optional)
     print("Road serialize: ", round(delta.total_seconds(), 3), 'S')
     return HttpResponse(road_qs, content_type='application/json')
+
+@login_required()
+def DumpDataV2(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = TankosDumpApi.objects.all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Dumpdata qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')
+
+@login_required()
+def AplDataV2(request):
+    now = datetime.now()
+    # print("start: ", str(now))
+
+    qs = TankosAplApi.objects.all()
+
+    Patok_qs = serialize('geojson', qs)
+    end = datetime.now()
+    # print("end: ", str(end))
+    delta = end - now
+    print("Apldata qs: ", round(delta.total_seconds(), 3),'S')
+    # return render(request, "html/map.html", {'Building_qs':Building_qs})
+    return HttpResponse(Patok_qs, content_type='json')

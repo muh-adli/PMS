@@ -186,7 +186,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 
 {% comment %} Leaflet Map {% endcomment %}
-<script src="{% static "js/tankos_map.js" %}"></script>
+{% comment %} <script src="{% static "js/tankos_map.js" %}"></script> {% endcomment %}
 
 <script>
     var layout = {
@@ -263,6 +263,117 @@
             document.body.removeChild(loader);
         });
     });
+
+const HGU = "/map/api/v1/hgu/"
+const Dump = "/map/api/v2/dump/"
+const Apl = "/map/api/v2/apl/"
+
+let dataHgu = [];
+let dataDump = [];
+let dataApl = [];
+
+function getColor(status) {
+    switch (status) {
+        case 'waspada': return "#ff0000";
+        case 'aman': return "#ff8000";
+        case 'selesai': return "#0000ff";
+        default: return "#00ff00"; // Default color
+    }
+}
+
+// Function to create popups with feature properties
+function popupDump(feature, layer) {
+    if (feature.properties) {
+        let popupContent = `
+            <b>Afdeling:</b> ${feature.properties.afdeling}<br>
+            <b>Block:</b> ${feature.properties.block}<br>
+            <b>Location:</b> ${feature.properties.location}<br>
+            <b>Dump Date:</b> ${feature.properties.dump_date}<br>
+            <b>APL Date:</b> ${feature.properties.apl_date}<br>
+            <b>Date Difference:</b> ${feature.properties.date_diff}<br>
+            <b>Status:</b> ${feature.properties.status}<br>
+        `;
+        layer.bindPopup(popupContent);
+    }
+}
+
+function label(feature, layer) {
+    if (feature.properties && feature.properties.block) {
+        layer.bindTooltip(feature.properties.block, { permanent: true, direction: 'top' });
+    }
+}
+
+async function fetchData() {
+    try {
+        // Fetch data from HGU endpoint
+        const responseHGU = await fetch(HGU);
+        var dataHGU = await responseHGU.json();
+        console.log("Data from HGU endpoint:", dataHGU);
+    
+        // Fetch data from Dump endpoint
+        const responseDump = await fetch(Dump);
+        var dataDump = await responseDump.json();
+        console.log("Data from Dump endpoint:", dataDump);
+
+        // Fetch data from Dump endpoint
+        const responseApl = await fetch(Apl);
+        var dataApl = await responseApl.json();
+        console.log("Data from Apl endpoint:", dataApl);
+        
+        // adding geojson Layer into leaflet
+        L.geoJSON(dataDump, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 10, // Radius of the circle
+                    fillColor: getColor(feature.properties.status), // Fill color
+                    color: getColor(feature.properties.status), // Outline color
+                    weight: 1, // Outline weight
+                    opacity: 1, // Outline opacity
+                    fillOpacity: 1 // Fill opacity
+                });
+            },
+            onEachFeature: popupDump // Attach popups to each feature
+        }).addTo(map);
+
+        L.geoJSON(dataApl, {
+            style: {
+                color: '#00f0e5',
+                bubblingMouseEvents: false,
+                weight: 3,
+                fillOpacity: 0.4
+            },
+            onEachFeature: label
+        }).addTo(map);
+
+        const hguLayer = L.geoJSON(dataHGU, {
+            style: {
+                color: '#ff4122',
+                fillRule: 'evenodd',
+                bubblingMouseEvents: false,
+                weight: 3,
+                fillOpacity: 0
+            }
+        }).addTo(map);
+        // Fit map bounds after adding layers
+        hguLayer.bringToBack();
+        map.fitBounds(dataHGU.getBounds(), { padding: [5, 5], maxZoom: 21 });
+
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+// Call the function to fetch data
+fetchData(); // TODO: make function that show load screen while fetching data
+
+// Leaflet Map
+var map = L.map('map').setView(
+    [1.2098191417100188, 117.90810018140084],
+    10);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://www.linkedin.com/in/muh-adli/">Contributors</a>'
+}).addTo(map);
 </script>
 </body>
 

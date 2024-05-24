@@ -195,3 +195,35 @@ class TankosDumpdata(models.Model):
     class Meta:
         managed = False
         db_table = 'tankos_dumpdata'
+        
+class TankosDumpApi(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    afdeling = models.CharField(max_length=5, blank=True, null=True)
+    block = models.CharField(max_length=5, blank=True, null=True)
+    location = models.CharField(max_length=10, blank=True, null=True)
+    dump_date = models.DateField(blank=True, null=True)
+    apl_date = models.DateField(blank=True, null=True)
+    date_diff = models.IntegerField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)
+    geometry = models.GeometryField(srid=4326, blank=True, null=True)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'tankos_dump_api'
+        
+class TankosAplApi(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    block = models.CharField(max_length=5, blank=True, null=True)
+    afdeling = models.CharField(max_length=5, blank=True, null=True)
+    tot_pokok = models.IntegerField(blank=True, null=True)
+    tot_tonase = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    sph = models.FloatField(blank=True, null=True)
+    prog_tonase = models.FloatField(blank=True, null=True)
+    prog_pokok = models.BigIntegerField(blank=True, null=True)
+    prog_ha = models.FloatField(blank=True, null=True)
+    last_date = models.DateField(blank=True, null=True)
+    geometry = models.GeometryField(srid=4326, blank=True, null=True)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'tankos_apl_api'

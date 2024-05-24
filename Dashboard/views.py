@@ -99,9 +99,9 @@ def Tankos(request):
     pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
     tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
     dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
-    print(pokok_counts)
-    print(tonase_counts)
-    print(dump_counts)
+    # print(pokok_counts)
+    # print(tonase_counts)
+    # print(dump_counts)
 
     ## Context
     context = {
