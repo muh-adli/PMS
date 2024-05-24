@@ -19,7 +19,6 @@ from datetime import datetime, timedelta
 
 def ApiBlockBoundary(request):
     print("Request block boundary from apps")
-    now = datetime.now()
 
     qs = HguBlock.objects.annotate(
         geometry=Transform('geom', 4326),
@@ -27,17 +26,11 @@ def ApiBlockBoundary(request):
 
     Block_qs = serialize('geojson', qs)
     Block_qs = json.loads(Block_qs)
-    end = datetime.now()
-    delta = end - now
 
-    print("ApiBlockBoundary qs: ", round(delta.total_seconds(), 3),'S')
-    
-    ##return HttpResponse(Block_qs, content_type='json')
     return JsonResponse(Block_qs, safe=False)
 
 def ApiDumpBoundary(request):
-    now = datetime.now()
-    # print("start: ", str(now))
+    print("Request dump boundary from apps")
 
     qs = TankosDumpdata.objects.annotate(
         geometry=Transform('geom', 4326),
@@ -45,10 +38,79 @@ def ApiDumpBoundary(request):
 
     Patok_qs = serialize('geojson', qs)
     Patok_qs = json.loads(Patok_qs)
-    end = datetime.now()
-    # print("end: ", str(end))
-    delta = end - now
-    print("ApiDumpBoundary qs: ", round(delta.total_seconds(), 3),'S')
+
+    return JsonResponse(Patok_qs, safe=False)
+
+def ApiHguBoundary(request):
+    print("Request hgu boundary from apps")
+
+    qs = Hgu.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    HGU_qs = serialize('geojson', qs)
+    HGU_qs = json.loads(HGU_qs)
+
+    return JsonResponse(HGU_qs, safe=False)
+
+def ApiAfdelingBoundary(request):
+    print("Request afdeling boundary form apps")
+
+    qs = HguAfdeling.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Afdeling_qs = serialize('geojson', qs)
+    Afdeling_qs = json.loads(Afdeling_qs)
+
+    return JsonResponse(Afdeling_qs, safe=False)
+
+def ApiPlantedBoundary(request):
+    print("Request planted boundary form apps")
+    
+    qs = HguPlanted.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Planted_qs = serialize('geojson', qs)
+    Planted_qs = json.loads(Planted_qs)
+
+    return JsonResponse(Planted_qs, safe=False)
+
+def ApiRoadBoundary(request):
+    print("Request road boundary form apps")
+    
+    qs = HguJalan.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    road_qs = serialize('geojson', qs)
+    road_qs = json.loads(road_qs)
+
+    return JsonResponse(road_qs, safe=False)
+
+def ApiBridgeBoundary(request):
+    print("Request road boundary form apps")
+    
+    qs = HguJembatan.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Jembatan_qs = serialize('geojson', qs)
+    Jembatan_qs = json.loads(Jembatan_qs)
+
+    return JsonResponse(Jembatan_qs, safe=False)
+
+def ApiPatokBoundary(request):
+    print("Request road boundary form apps")
+    
+    qs = HguPatok.objects.annotate(
+        geometry=Transform('geom', 4326),
+    ).all()
+
+    Patok_qs = serialize('geojson', qs)
+    Patok_qs = json.loads(Patok_qs)
+
     return JsonResponse(Patok_qs, safe=False)
 
 def ApiLoginRequest(request):
@@ -202,6 +264,11 @@ def ApiDumpData(request):
 
         json['data'].append(append_data)
 
+    return JsonResponse(json, safe=False)
+
+def ApiTankosChart(request):
+    print("Request tankos chart data from apps")
+
     pokok_count_by_date = TankosAplpokok.objects.values('date').annotate(count=Count('date'))
     tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
 
@@ -244,6 +311,9 @@ def ApiDumpData(request):
     tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
     dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
 
+    json = {}
+    json['status'] = "200"
+    json['error'] = False
     json['chart'] = {
         'date' : all_date,
         'pokok' : pokok_counts,
@@ -265,28 +335,9 @@ def ApiAplData(request):
     else:
         sum_qs = TankosAplsummary.objects.all()
 
-    json = {}
-    json['status'] = "200"
-    json['error'] = False
-    json['data'] = []
-
     for data in sum_qs:
-        append_data = {
-            'id' : data.gid,
-            'afdeling' : data.afdeling,
-            'block' : data.block,
-            'tot_tonase' : data.tot_tonase,
-            'tot_pokok' : data.tot_pokok,
-            'prog_tonase' : data.prog_tonase,
-            'prog_pokok' : data.prog_pokok,
-            'sph' : data.sph,
-            'prog_ha' : data.prog_ha,
-            'last_date' : data.last_date,
-        }
-
-        json['data'].append(append_data)
-
-    return JsonResponse(json, safe=False)
+        print(data.block)
+    ##return JsonResponse(sum_qs, safe=False)
 
 def ApiSaveDump(request, gid):
     if request.method == "GET" and 'date' in request.GET:
@@ -310,6 +361,35 @@ def ApiSaveDump(request, gid):
             )
     else:
         print("Update tankos from apps error")
+        return JsonResponse(
+                {
+                    'status' : '201',
+                    'message' : 'Request error',
+                }
+            )
+    
+def ApiSavePatok(request, gid):
+    if request.method == "GET" and 'period' in request.GET:
+        qs = HguPatok.objects.filter(pk=gid).update(periode=request.GET['period'])
+
+        if qs:
+            print("Update patok from apps success")
+            return JsonResponse(
+                {
+                    'status' : '200',
+                    'message' : 'Update Success',
+                }
+            )
+        else:
+            print("Update patok from apps failed")
+            return JsonResponse(
+                {
+                    'status' : '201',
+                    'message' : 'Update Failed',
+                }
+            )
+    else:
+        print("Update patok from apps error")
         return JsonResponse(
                 {
                     'status' : '201',
