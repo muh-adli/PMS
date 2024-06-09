@@ -56,7 +56,7 @@ class TankosSummary(models.Model):
         db_table = 'tankos_summary'
 
 class TankosAplsummary(models.Model):
-    gid = models.IntegerField(blank=True, null=True)
+    gid = models.IntegerField(primary_key=True)
     block = models.CharField(max_length=5, blank=True, null=True)
     afdeling = models.CharField(max_length=5, blank=True, null=True)
     tot_pokok = models.IntegerField(blank=True, null=True)
