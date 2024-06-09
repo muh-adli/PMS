@@ -72,7 +72,17 @@
                 transform: rotate(1turn);
             }
         }
-
+        .transparent-icon {
+            background-color: transparent;
+        }
+        .polygon-tooltip {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #333;
+            padding: 5px;
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+            text-align: center; /* Center align text */
+        }
     </style>
 </head>
 
@@ -314,12 +324,20 @@ function label(feature, layer) {
             });
 
             var latlng = [centroid.geometry.coordinates[1], centroid.geometry.coordinates[0]];
+
+            // Format block to two decimal places
+            var doubleDigit_Prog = parseFloat(feature.properties.prog_ha).toFixed(2);
+
+            var tooltipContent = `
+            <b>Progress:</b> ${doubleDigit_Prog} ha <br>
+            <b>Block:</b> ${feature.properties.block}<br>
+            `;
             var tooltip = L.tooltip({
                 permanent: true,
                 direction: 'center',
                 className: 'polygon-tooltip'
             })
-            .setContent(feature.properties.block)
+            .setContent(tooltipContent)
             .setLatLng(latlng);
 
             L.marker(latlng, { icon: L.divIcon({ className: 'transparent-icon' }) })
