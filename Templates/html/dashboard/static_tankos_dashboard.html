@@ -184,6 +184,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 
+{% comment %} Turf {% endcomment %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+
+
 {% comment %} Leaflet Map {% endcomment %}
 {% comment %} <script src="{% static "js/tankos_map.js" %}"></script> {% endcomment %}
 
@@ -298,7 +302,30 @@ function popupDump(feature, layer) {
 
 function label(feature, layer) {
     if (feature.properties && feature.properties.block) {
-        layer.bindTooltip(feature.properties.block, { permanent: true, direction: 'top' });
+        var multipolygon = feature.geometry.coordinates;
+
+        multipolygon.forEach(function(polygon, index) {
+            var centroid = turf.centroid({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": polygon
+                }
+            });
+
+            var latlng = [centroid.geometry.coordinates[1], centroid.geometry.coordinates[0]];
+            var tooltip = L.tooltip({
+                permanent: true,
+                direction: 'center',
+                className: 'polygon-tooltip'
+            })
+            .setContent(feature.properties.block)
+            .setLatLng(latlng);
+
+            L.marker(latlng, { icon: L.divIcon({ className: 'transparent-icon' }) })
+             .bindTooltip(tooltip)
+             .addTo(map);
+        });
     }
 }
 
@@ -323,10 +350,10 @@ async function fetchData() {
         L.geoJSON(dataDump, {
             pointToLayer: function(feature, latlng) {
                 return L.circleMarker(latlng, {
-                    radius: 10, // Radius of the circle
+                    radius: 4, // Radius of the circle
                     fillColor: getColor(feature.properties.status), // Fill color
                     color: getColor(feature.properties.status), // Outline color
-                    weight: 1, // Outline weight
+                    weight: 2, // Outline weight
                     opacity: 1, // Outline opacity
                     fillOpacity: 1 // Fill opacity
                 });
@@ -334,17 +361,17 @@ async function fetchData() {
             onEachFeature: popupDump // Attach popups to each feature
         }).addTo(map);
 
-        L.geoJSON(dataApl, {
+        var aplLayer = L.geoJSON(dataApl, {
             style: {
                 color: '#00f0e5',
                 bubblingMouseEvents: false,
-                weight: 3,
-                fillOpacity: 0.4
+                weight: 0,
+                fillOpacity: 0.6
             },
             onEachFeature: label
         }).addTo(map);
 
-        const hguLayer = L.geoJSON(dataHGU, {
+        var hguLayer = L.geoJSON(dataHGU, {
             style: {
                 color: '#ff4122',
                 fillRule: 'evenodd',
@@ -355,7 +382,7 @@ async function fetchData() {
         }).addTo(map);
         // Fit map bounds after adding layers
         hguLayer.bringToBack();
-        map.fitBounds(dataHGU.getBounds(), { padding: [5, 5], maxZoom: 21 });
+        map.fitBounds(aplLayer.getBounds(), { padding: [5, 5], maxZoom: 21 });
 
 
     } catch (error) {
