@@ -213,6 +213,56 @@ def AplSummary(request):
         }
     return render(request, "dashboard/static_tankosapl_table.html", context)
 
+def AplSumExtract(request):
+    date = str(datetime.now().strftime('%d-%m-%Y'))
+    print(date)
+    ## Data collecting and cleansing from database
+    dump_qs = TankosAplsummary.objects.values(
+        'afdeling',
+        'block',
+        'tot_pokok',
+        'tot_tonase',
+        'sph',
+        'prog_tonase',
+        'prog_pokok',
+        'prog_ha',
+        'last_date',
+    ).order_by('block')
+    data = pd.DataFrame(dump_qs)
+    data = data.rename(columns={
+        'afdeling' : 'Afdeling',
+        'block' : 'Block',
+        'tot_pokok' : 'Total Pokok',
+        'tot_tonase' : 'Total Tonase',
+        'sph' : 'SPH',
+        'prog_tonase' : 'Progress Tonase',
+        'prog_pokok' : 'Progress Pokok',
+        'prog_ha' : 'Progress Ha',
+        'last_date' : 'Last Update',
+    })
+    data = data.reindex(columns=[
+        'Afdeling',
+        'Block',
+        'Total Pokok',
+        'Total Tonase',
+        'SPH',
+        'Progress Tonase',
+        'Progress Pokok',
+        'Progress Ha',
+        'Last Update'
+    ])
+    # Create BytesIO buffer to write the Excel file
+    output = io.BytesIO()
+    data.to_excel(output, index=False)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={date}_Apl.xlsx'
+    return response
+
 def AplPokokTable(request, geomid):
     Title = 'Dashboard - pokok'
     query = request.GET.get('q')
@@ -518,7 +568,50 @@ def DumpEdit(request, gid):
     }
     return render(request, "dashboard/static_tankosdump_table_edit.html", context)
 
+def DumpExtract(request):
+    date = str(datetime.now().strftime('%d-%m-%Y'))
+    print(date)
+    ## Data collecting and cleansing from database
+    dump_qs = TankosDumpview.objects.values(
+        'afdeling',
+        'block',
+        'location',
+        'dump_date',
+        'apl_date',
+        'date_diff',
+        'status',
+    ).order_by('location')
+    data = pd.DataFrame(dump_qs)
+    data = data.rename(columns={
+        'afdeling' : 'Afdeling',
+        'block' : 'Block',
+        'location' : 'Location',
+        'dump_date' : 'Dumping',
+        'apl_date' : 'Aplikasi',
+        'date_diff' : 'Date Delta',
+        'status' : 'Status',
 
+    })
+    data = data.reindex(columns=[
+        'Afdeling',
+        'Block',
+        'Location',
+        'Dumping',
+        'Aplikasi',
+        'Date Delta',
+        'Status',
+    ])
+    # Create BytesIO buffer to write the Excel file
+    output = io.BytesIO()
+    data.to_excel(output, index=False)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={date}_Dump.xlsx'
+    return response
 
 @login_required(login_url="")
 def Patok(request):

@@ -17,9 +17,11 @@ urlpatterns = [
     ## Dump
     path('dump/table/', DumpTable, name='DumpTable'),
     path('dump/table/<int:gid>/', DumpEdit, name='DumpEdit'),
+    path('dump/table/download/', DumpExtract, name='DumpExtract'),
 
     ## Aplikasi
     path('apl/summary/table/', AplSummary, name='AplSummary'),
+    path('apl/summary/download/', AplSumExtract, name='AplSumExtract'),
 
     path('apl/pokok/table/<int:geomid>/', AplPokokTable, name='AplPokokTable'),
     path('apl/pokok/table/edit/', AplPokokEdit, name='AplPokokEdit'),
