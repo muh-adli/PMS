@@ -204,6 +204,45 @@ def ApiPatokData(request):
     
     return JsonResponse(json, safe=False)
 
+def APITankosDump(request):
+    print("Request patok data from apps")
+
+    dump_qs = TankosDumpApi.objects.all()
+
+    data = serialize('geojson', dump_qs)
+    data = json.loads(data)
+
+    return JsonResponse(data, safe=False)
+
+    # if dump_qs is None:
+    #     messages.warning("Data isn't available")
+    #     json = {}
+    #     json['status'] = "201"
+    #     json['error'] = True
+
+    #     return JsonResponse(json, safe=False)
+    # else:
+    #     json = {}
+    #     json['status'] = "200"
+    #     json['error'] = False
+    #     json['data'] = []
+
+    #     for data in dump_qs:
+    #         append_data = {
+    #             'afdeling' : data.afdeling,
+    #             'block' : data.block,
+    #             'location' : data.location,
+    #             'dump_date' : data.dump_date,
+    #             'apl_date' : data.apl_date,
+    #             'date_diff' : data.date_diff,
+    #             'status' : data.status,
+    #             'id' : data.gid,
+    #             'geometry' : data.geometry
+    #         }
+    #         json['data'].append(append_data)
+        
+    #     return JsonResponse(json, safe=False)
+
 def ApiPlantedData(request):
     print("Request planted data from apps")
     planted_qs = HguPlanted.objects.all()

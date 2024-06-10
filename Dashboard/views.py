@@ -62,57 +62,101 @@ def Tankos(request):
     tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
 
     pokok_data = TankosAplpokok.objects.all()
+    print(pokok_data)
+    print(len(pokok_data))
     tonase_data = TankosApltonase.objects.all()
     dump_data = TankosDumpdata.objects.all()
 
-    # Get minimum and maximum dates
-    pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
-    pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
 
-    tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
-    tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
-    
-    dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
-    dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
+    if len(pokok_data) == 0 and len(tonase_data) == 0 and len(dump_data) == 0 :
+        print('masuk if')
+        pokok_counts = []
+        tonase_counts = []
+        dump_counts = []
 
-    min_date = min(pokok_min_date, tonase_min_date, dump_min_date)
-    max_date = max(pokok_max_date, tonase_max_date, dump_max_date)
+        ## Context
+        context = {
+            'Title':Title,
+        }
 
-    # Generate all dates between min and max date
-    all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
-    # print(all_dates)
-    all_date = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
-    # print(all_date)
+    else:
+        print('masuk else')
+        # Aggregate min and max dates for each dataset
+        pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
+        pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
 
-    # Aggregate data by date
-    pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
-    tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
-    dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
+        tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
+        tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
 
-    # Initialize dictionaries to hold counts for each date
-    pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
-    tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
-    dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
+        dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
+        dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
+
+        # Initialize min_date and max_date to None
+        min_date = None
+        max_date = None
+
+        # Collect all available min and max dates in a list
+        all_min_dates = [pokok_min_date, tonase_min_date, dump_min_date]
+        all_max_dates = [pokok_max_date, tonase_max_date, dump_max_date]
+
+        # Filter out None values
+        valid_min_dates = [date for date in all_min_dates if date is not None]
+        valid_max_dates = [date for date in all_max_dates if date is not None]
+
+        # Compute min_date and max_date if there are any valid dates
+        if valid_min_dates:
+            min_date = min(valid_min_dates)
+        if valid_max_dates:
+            max_date = max(valid_max_dates)
+
+        # Generate all dates between min and max date if both dates are valid
+        all_dates = []
+        all_date_str = []
+        if min_date and max_date:
+            all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
+            all_date_str = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
+
+        # Aggregate data by date
+        pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
+        tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
+        dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
+
+        # Initialize dictionaries to hold counts for each date
+        pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
+        tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
+        dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
 
 
-    # Fill in counts for all dates, including missing ones
-    pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
-    tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
-    dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
-    print('Pokok: ', pokok_counts)
-    print('Tonase: ', tonase_counts)
-    print('Dump: ', dump_counts)
+        # Fill in counts for all dates, including missing ones
+        pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
+        tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
+        dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
+        ## Context
+        context = {
+            'Title':Title,
+            'all_dates': all_date_str,
+            'pokok_counts':pokok_counts,
+            'tonase_counts':tonase_counts,
+            'dump_counts':dump_counts,
+            'min_date': min_date,
+            'max_date': max_date,
+        }
+    # print('Pokok: ', pokok_counts)
+    # print('Tonase: ', tonase_counts)
+    # print('Dump: ', dump_counts)
 
-    ## Context
-    context = {
-        'Title':Title,
-        'all_dates': all_date,
-        'pokok_counts':pokok_counts,
-        'tonase_counts':tonase_counts,
-        'dump_counts':dump_counts,
-        'min_date': min_date,
-        'max_date': max_date,
-    }
+
+
+    # ## Context
+    # context = {
+    #     'Title':Title,
+    #     'all_dates': all_date,
+    #     'pokok_counts':pokok_counts,
+    #     'tonase_counts':tonase_counts,
+    #     'dump_counts':dump_counts,
+    #     'min_date': min_date,
+    #     'max_date': max_date,
+    # }
     return render(request, "dashboard/static_tankos_dashboard.html", context)
 
 
