@@ -41,8 +41,8 @@
 
 <div class="container-fluid min-vh-100">
 
-    <!-- Header -->
-    <div class="row header p-2 border-bottom">
+     <!-- Header -->
+     <div class="row header p-2 border-bottom">
 
         <!-- Header bar -->
         <div class="d-flex flex-wrap align-content-center justify-content-center justify-content-lg-start">
@@ -85,10 +85,9 @@
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url "PatokExtract" %}">Patok</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Tankos</a>
-                        <a class="dropdown-item" href="#">Aplikasi</a>
-                        <a class="dropdown-item" href="#">Dump</a>
+                    <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url "AplSumExtract" %}">Aplikasi</a>
+                        <a class="dropdown-item" href="{% url "DumpExtract" %}">Dump</a>
                     </div>
                 </li>
             </ul>

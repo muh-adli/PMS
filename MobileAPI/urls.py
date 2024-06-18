@@ -27,4 +27,7 @@ urlpatterns = [
     path('v1/save/dump/<int:gid>', ApiSaveDump, name='ApiSaveDump'),
     path('v1/data/apl', ApiAplData, name='ApiAplData'),
     path('v1/tankos/chart', ApiTankosChart, name='ApiTankosChart'),
+
+    
+    path('v2/tankos/dump', APITankosDump, name='APITankosDump'),
 ]

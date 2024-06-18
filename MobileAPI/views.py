@@ -204,6 +204,16 @@ def ApiPatokData(request):
     
     return JsonResponse(json, safe=False)
 
+def APITankosDump(request):
+    print("Request patok data from apps")
+
+    dump_qs = TankosDumpApi.objects.all()
+
+    data = serialize('geojson', dump_qs)
+    data = json.loads(data)
+
+    return JsonResponse(data, safe=False)
+
 def ApiPlantedData(request):
     print("Request planted data from apps")
     planted_qs = HguPlanted.objects.all()
@@ -239,14 +249,14 @@ def ApiDumpData(request):
     print("Request dump data from apps")
     query = request.GET.get('q')
     if query:
-        dump_qs = TankosDumpdata.objects.filter(location__contains=query).order_by('dump_date')
+        dump_qs = TankosDumpApi.objects.filter(location__contains=query).order_by('dump_date')
 
         if dump_qs is None:
             messages.warning("Data isn't available")
 
             return JsonResponse(json, safe=False)
     else:
-        dump_qs = TankosDumpdata.objects.all().order_by('dump_date')
+        dump_qs = TankosDumpApi.objects.all().order_by('dump_date')
 
     json = {}
     json['status'] = "200"
@@ -260,6 +270,9 @@ def ApiDumpData(request):
             'block' : data.block,
             'location' : data.location,
             'dump_date' : data.dump_date,
+            'apl_date' : data.apl_date,
+            'date_diff' : data.date_diff,
+            'status' : data.status
         }
 
         json['data'].append(append_data)
@@ -335,13 +348,35 @@ def ApiAplData(request):
     else:
         sum_qs = TankosAplsummary.objects.all()
 
+    json = {}
+    json['status'] = "200"
+    json['error'] = False
+    json['data'] = []
+
     for data in sum_qs:
-        print(data.block)
-    ##return JsonResponse(sum_qs, safe=False)
+        append_data = {
+            'id' : data.gid,
+            'afdeling' : data.afdeling,
+            'block' : data.block,
+            'target_ton' : data.tot_tonase,
+            'target_pokok' : data.tot_pokok,
+            'prog_ton' : data.prog_tonase,
+            'prog_pokok' : data.prog_pokok,
+            'sph' : data.sph,
+            'progress' : data.prog_ha,
+            'last' : data.last_date,
+        }
+
+        json['data'].append(append_data)
+
+    return JsonResponse(json, safe=False)
 
 def ApiSaveDump(request, gid):
-    if request.method == "GET" and 'date' in request.GET:
-        qs = TankosDumpdata.objects.filter(pk=gid).update(dump_date=request.GET['date'])
+    if request.method == "GET" and 'dumpDate' in request.GET and 'aplDate' in request.GET:
+        if 'aplupdate' in request.GET:
+            qs = TankosDumpApi.objects.filter(pk=gid).update(dump_date=request.GET['dumpDate'],apl_date=request.GET['aplDate'])
+        else:
+            qs = TankosDumpApi.objects.filter(pk=gid).update(dump_date=request.GET['dumpDate'])
 
         if qs:
             print("Update tankos from apps success")

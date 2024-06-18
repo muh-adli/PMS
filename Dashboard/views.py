@@ -62,57 +62,101 @@ def Tankos(request):
     tonase_count_by_date = TankosApltonase.objects.values('date').annotate(count=Count('date'))
 
     pokok_data = TankosAplpokok.objects.all()
+    print(pokok_data)
+    print(len(pokok_data))
     tonase_data = TankosApltonase.objects.all()
     dump_data = TankosDumpdata.objects.all()
 
-    # Get minimum and maximum dates
-    pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
-    pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
 
-    tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
-    tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
-    
-    dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
-    dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
+    if len(pokok_data) == 0 and len(tonase_data) == 0 and len(dump_data) == 0 :
+        print('masuk if')
+        pokok_counts = []
+        tonase_counts = []
+        dump_counts = []
 
-    min_date = min(pokok_min_date, tonase_min_date, dump_min_date)
-    max_date = max(pokok_max_date, tonase_max_date, dump_max_date)
+        ## Context
+        context = {
+            'Title':Title,
+        }
 
-    # Generate all dates between min and max date
-    all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
-    # print(all_dates)
-    all_date = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
-    # print(all_date)
+    else:
+        print('masuk else')
+        # Aggregate min and max dates for each dataset
+        pokok_min_date = pokok_data.aggregate(min_date=Min('date'))['min_date']
+        pokok_max_date = pokok_data.aggregate(max_date=Max('date'))['max_date']
 
-    # Aggregate data by date
-    pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
-    tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
-    dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
+        tonase_min_date = tonase_data.aggregate(min_date=Min('date'))['min_date']
+        tonase_max_date = tonase_data.aggregate(max_date=Max('date'))['max_date']
 
-    # Initialize dictionaries to hold counts for each date
-    pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
-    tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
-    dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
+        dump_min_date = dump_data.aggregate(min_date=Min('dump_date'))['min_date']
+        dump_max_date = dump_data.aggregate(max_date=Max('dump_date'))['max_date']
+
+        # Initialize min_date and max_date to None
+        min_date = None
+        max_date = None
+
+        # Collect all available min and max dates in a list
+        all_min_dates = [pokok_min_date, tonase_min_date, dump_min_date]
+        all_max_dates = [pokok_max_date, tonase_max_date, dump_max_date]
+
+        # Filter out None values
+        valid_min_dates = [date for date in all_min_dates if date is not None]
+        valid_max_dates = [date for date in all_max_dates if date is not None]
+
+        # Compute min_date and max_date if there are any valid dates
+        if valid_min_dates:
+            min_date = min(valid_min_dates)
+        if valid_max_dates:
+            max_date = max(valid_max_dates)
+
+        # Generate all dates between min and max date if both dates are valid
+        all_dates = []
+        all_date_str = []
+        if min_date and max_date:
+            all_dates = [min_date + timedelta(days=x) for x in range((max_date - min_date).days + 1)]
+            all_date_str = [(min_date + timedelta(days=x)).strftime("%Y-%m-%d") for x in range((max_date - min_date).days + 1)]
+
+        # Aggregate data by date
+        pokok_count_by_date = pokok_data.values('date').annotate(count=Count('date'))
+        tonase_count_by_date = tonase_data.values('date').annotate(count=Count('date'))
+        dump_count_by_date = dump_data.values('dump_date').annotate(count=Count('dump_date'))
+
+        # Initialize dictionaries to hold counts for each date
+        pokok_counts_dict = {entry['date']: entry['count'] for entry in pokok_count_by_date}
+        tonase_counts_dict = {entry['date']: entry['count'] for entry in tonase_count_by_date}
+        dump_counts_dict = {entry['dump_date']: entry['count'] for entry in dump_count_by_date}
 
 
-    # Fill in counts for all dates, including missing ones
-    pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
-    tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
-    dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
-    print('Pokok: ', pokok_counts)
-    print('Tonase: ', tonase_counts)
-    print('Dump: ', dump_counts)
+        # Fill in counts for all dates, including missing ones
+        pokok_counts = [pokok_counts_dict.get(date, 0) for date in all_dates]
+        tonase_counts = [tonase_counts_dict.get(date, 0) for date in all_dates]
+        dump_counts = [dump_counts_dict.get(date, 0) for date in all_dates]
+        ## Context
+        context = {
+            'Title':Title,
+            'all_dates': all_date_str,
+            'pokok_counts':pokok_counts,
+            'tonase_counts':tonase_counts,
+            'dump_counts':dump_counts,
+            'min_date': min_date,
+            'max_date': max_date,
+        }
+    # print('Pokok: ', pokok_counts)
+    # print('Tonase: ', tonase_counts)
+    # print('Dump: ', dump_counts)
 
-    ## Context
-    context = {
-        'Title':Title,
-        'all_dates': all_date,
-        'pokok_counts':pokok_counts,
-        'tonase_counts':tonase_counts,
-        'dump_counts':dump_counts,
-        'min_date': min_date,
-        'max_date': max_date,
-    }
+
+
+    # ## Context
+    # context = {
+    #     'Title':Title,
+    #     'all_dates': all_date,
+    #     'pokok_counts':pokok_counts,
+    #     'tonase_counts':tonase_counts,
+    #     'dump_counts':dump_counts,
+    #     'min_date': min_date,
+    #     'max_date': max_date,
+    # }
     return render(request, "dashboard/static_tankos_dashboard.html", context)
 
 
@@ -168,6 +212,56 @@ def AplSummary(request):
             'TableData' : sum_qs,
         }
     return render(request, "dashboard/static_tankosapl_table.html", context)
+
+def AplSumExtract(request):
+    date = str(datetime.now().strftime('%d-%m-%Y'))
+    print(date)
+    ## Data collecting and cleansing from database
+    dump_qs = TankosAplsummary.objects.values(
+        'afdeling',
+        'block',
+        'tot_pokok',
+        'tot_tonase',
+        'sph',
+        'prog_tonase',
+        'prog_pokok',
+        'prog_ha',
+        'last_date',
+    ).order_by('block')
+    data = pd.DataFrame(dump_qs)
+    data = data.rename(columns={
+        'afdeling' : 'Afdeling',
+        'block' : 'Block',
+        'tot_pokok' : 'Total Pokok',
+        'tot_tonase' : 'Total Tonase',
+        'sph' : 'SPH',
+        'prog_tonase' : 'Progress Tonase',
+        'prog_pokok' : 'Progress Pokok',
+        'prog_ha' : 'Progress Ha',
+        'last_date' : 'Last Update',
+    })
+    data = data.reindex(columns=[
+        'Afdeling',
+        'Block',
+        'Total Pokok',
+        'Total Tonase',
+        'SPH',
+        'Progress Tonase',
+        'Progress Pokok',
+        'Progress Ha',
+        'Last Update'
+    ])
+    # Create BytesIO buffer to write the Excel file
+    output = io.BytesIO()
+    data.to_excel(output, index=False)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={date}_Apl.xlsx'
+    return response
 
 def AplPokokTable(request, geomid):
     Title = 'Dashboard - pokok'
@@ -474,7 +568,50 @@ def DumpEdit(request, gid):
     }
     return render(request, "dashboard/static_tankosdump_table_edit.html", context)
 
+def DumpExtract(request):
+    date = str(datetime.now().strftime('%d-%m-%Y'))
+    print(date)
+    ## Data collecting and cleansing from database
+    dump_qs = TankosDumpview.objects.values(
+        'afdeling',
+        'block',
+        'location',
+        'dump_date',
+        'apl_date',
+        'date_diff',
+        'status',
+    ).order_by('location')
+    data = pd.DataFrame(dump_qs)
+    data = data.rename(columns={
+        'afdeling' : 'Afdeling',
+        'block' : 'Block',
+        'location' : 'Location',
+        'dump_date' : 'Dumping',
+        'apl_date' : 'Aplikasi',
+        'date_diff' : 'Date Delta',
+        'status' : 'Status',
 
+    })
+    data = data.reindex(columns=[
+        'Afdeling',
+        'Block',
+        'Location',
+        'Dumping',
+        'Aplikasi',
+        'Date Delta',
+        'Status',
+    ])
+    # Create BytesIO buffer to write the Excel file
+    output = io.BytesIO()
+    data.to_excel(output, index=False)
+
+    # Create an HTTP response with the Excel file
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={date}_Dump.xlsx'
+    return response
 
 @login_required(login_url="")
 def Patok(request):
