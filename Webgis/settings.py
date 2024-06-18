@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     '*',
     '192.168.100.11', # Your IP Address
     'localhost', # localhost
-    '127.0.0.1' # Default django IP
+    '127.0.0.1' # Default django IP,
+    '4c6f-2404-8000-1004-9e9f-4863-ef05-f535-233d.ngrok-free.app'
     ]
 
 CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']

@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate, login, logout
 
 from .forms import *
 
+from datetime import datetime
+
 # Create your views here.
 def LandingPage(request):
 
@@ -12,14 +14,15 @@ def LandingPage(request):
     html = "accounts/LandingPage.html"
     formlogin = LoginForm()
     formregis = RegisterForm()
+    date = datetime.now()
 
     if request.method == 'POST':
         # print("masuk post")
         if 'login' in request.POST:
-            print("MASOK LOGIN")
+            # print(f"MASOK LOGIN")
             form = LoginForm(request.POST)
             if form.is_valid():
-                print("FORM VALID")
+                # print("FORM VALID")
                 username = form.cleaned_data['username']
                 password = form.cleaned_data['password']
                 # print(password, username)
@@ -28,33 +31,41 @@ def LandingPage(request):
                 if user is not None:
                     login(request, user)
                     messages.success(request, "Credentials Valid")
-                    print("BERHASIL LOGIN")
+
+                    print(f" {user} Login at {date}") # TODO: Logging
                     return redirect('HomePage')
                 else:
                     print("USER GA NEMU")
+                    print(f" {user} Invalid Login at {date}") # TODO: Logging
                     messages.error(request, "Invalid Credentials")
             else:
                 print("ERROR LOGIN")
+                if user :
+                    print(f" {user} error login at {date}") # TODO: Logging
+                else:
+                    print(f" Someone error login at {date}") # TODO: Logging
                 messages.error(request, "Error Login")
         if 'register' in request.POST:
             print("MASOK REGISTER")
             form = RegisterForm(request.POST)
             if form.is_valid():
-                print("FORM REGIS VALID")
+                # print("FORM REGIS VALID")
                 password1 = form.cleaned_data['password1']
                 password2 = form.cleaned_data['password2']
                 if password1 == password2:
-                    print("PASS SAMA")
+                    # print("PASS SAMA")
                     username = form.cleaned_data['username']
                     password = form.cleaned_data['password1']
                     email = form.cleaned_data['email']
                     user = User.objects.create_user(username=username, email=email, password=password)
                     messages.success(request, "User Created")
+                    print(f"{user} registered at {date}") # TODO: Logging
                     return redirect('LandingPage')
                 else:
-                    messages.error(request, "Password didn't same")
+                    print(f"{user} trying to register at {date}")
+                    messages.error(request, "Password didn't same") # TODO: Logging
             else:
-                print("FORM REGIS ERROR")
+                print(f"Someone error to register at {date}") # TODO: Logging
                 messages.error(request, "Error Register")
     context = {
         'Title':Title,
@@ -64,6 +75,9 @@ def LandingPage(request):
     return render(request, html, context)
 
 def LogoutUser(request):
+    user = request.user
+    date = datetime.now() 
+    print(f"{user} logout at {date}") # TODO: Logging
     logout(request)
     messages.warning(request, "Logout")
     return redirect('LandingPage')

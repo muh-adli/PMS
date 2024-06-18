@@ -157,7 +157,8 @@ class EditDumpForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'date'
                 }
-        )
+        ),
+        required=False  # Make the status field optional
     )
     apl_date = forms.DateField(
         label="Aplikasi Date",
